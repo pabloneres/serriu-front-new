@@ -1,22 +1,22 @@
 import api from '../../../services/api'
 
 export const LOGIN_URL = "/sessions";
-export const REGISTER_URL = "/users";
+export const REGISTER_URL = "/register";
 export const REQUEST_PASSWORD_URL = "/password/forgot";
 export const RESET_PASSWORD_URL = "/password/reset";
 
-export const ME_URL = "/profile";
+export const ME_URL = "/user";
 
 let token = undefined
 
 export async function login(email, password) {
   const _req = await api.post(LOGIN_URL, { email, password });
-  token =  await _req.data.token
+  token =  await _req.data.token.token
   return _req
 }
 
 export function register(name, email, password) {
-  return api.post(REGISTER_URL, { name, email, password });
+  return api.post(REGISTER_URL, { username: name, email, password });
 }
 
 export function requestPassword(email) {

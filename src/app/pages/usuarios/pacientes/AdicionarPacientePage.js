@@ -14,12 +14,13 @@ import { store } from '~/app/controllers/pacienteController'
 const initialValues = {
   name: '',
   cpf: '',
-  nascimento: '',
+  rg: '',
+  nasc: '',
   email: '',
-  genero: '',
-  celular: '',
-  estado_civil: '',
-  escolaridade: ''
+  gender: 'masculino',
+  cel: '',
+  status: 'solteiro',
+  schooling: 'analfabeto'
 }
 
 export function AdicionarPacientePage(props) {
@@ -41,23 +42,23 @@ export function AdicionarPacientePage(props) {
     rg: Yup.string()
       .min(3, "Minimum 3 symbols")
       .max(50, "Maximum 50 symbols"),
-    nascimento: Yup.string()
+    nasc: Yup.string()
       .min(3, "Minimum 3 symbols")
       .max(50, "Maximum 50 symbols"),
     email: Yup.string()
       .email("Wrong email format")
       .min(3, "Minimum 3 symbols")
       .max(50, "Maximum 50 symbols"),
-    genero: Yup.string()
+    gender: Yup.string()
       .min(3, "Minimum 3 symbols")
       .max(50, "Maximum 50 symbols"),
-    celular: Yup.string()
+    cel: Yup.string()
       .min(3, "Minimum 3 symbols")
       .max(50, "Maximum 50 symbols"),
-    estado_civil: Yup.string()
+    status: Yup.string()
       .min(3, "Minimum 3 symbols")
       .max(50, "Maximum 50 symbols"),
-    escolaridade: Yup.string()
+    schooling: Yup.string()
       .min(3, "Minimum 3 symbols")
       .max(50, "Maximum 50 symbols"),
   });
@@ -67,7 +68,7 @@ export function AdicionarPacientePage(props) {
     validationSchema: pacienteSchema,
     onSubmit: (values, { setStatus, setSubmitting }) => {
       console.log(values)
-      store(authToken, {name: values.name, email: values.email, password: values.password})
+      store(authToken, values)
         .then(() => history.push("/paciente"))
         .catch((err)=> {
           return 
@@ -124,7 +125,7 @@ export function AdicionarPacientePage(props) {
             </Form.Group>
 
             <Form.Group as={Col} controlId="formGridPassword">
-              <Form.Label>RG *</Form.Label>
+              <Form.Label>RG</Form.Label>
               <Form.Control
                 type="text"
                 placeholder="Digite seu RG"
@@ -142,22 +143,22 @@ export function AdicionarPacientePage(props) {
           <Form.Row>
 
           <Form.Group as={Col} controlId="formGridPassword">
-              <Form.Label>Data de Nascimento *</Form.Label>
+              <Form.Label>Data de Nascimento</Form.Label>
               <Form.Control
                 type="date"
-                name="nascimento"
-                {...formik.getFieldProps("nascimento")}
+                name="nasc"
+                {...formik.getFieldProps("nasc")}
               />
-              {formik.touched.nascimento && formik.errors.nascimento ? (
+              {formik.touched.nasc && formik.errors.nasc ? (
                 <div className="fv-plugins-message-container">
-                  <div className="fv-help-block">{formik.errors.nascimento}</div>
+                  <div className="fv-help-block">{formik.errors.nasc}</div>
                 </div>
               ) : null}
             </Form.Group>
 
             <Col xs={6}>
             <Form.Group controlId="formGridAddress1">
-              <Form.Label>Email *</Form.Label>
+              <Form.Label>Email</Form.Label>
               <Form.Control
                 placeholder="Digite seu email"
                 name="email"
@@ -172,18 +173,18 @@ export function AdicionarPacientePage(props) {
             </Col>
 
             <Form.Group as={Col} controlId="formGridAddress1">
-              <Form.Label>Genêro *</Form.Label>
+              <Form.Label>Genêro</Form.Label>
               <Form.Control
-                as="select" defaultValue="Masculino"
-                name="genero"
-                {...formik.getFieldProps("genero")}
+                as="select"
+                name="gender"
+                {...formik.getFieldProps("gender")}
               >
                 <option value="masculino">Masculino</option>
                 <option value="feminino">Feminino</option>
               </Form.Control>
-              {formik.touched.genero && formik.errors.genero ? (
+              {formik.touched.gender && formik.errors.gender ? (
                 <div className="fv-plugins-message-container">
-                  <div className="fv-help-block">{formik.errors.genero}</div>
+                  <div className="fv-help-block">{formik.errors.gender}</div>
                 </div>
               ) : null}
             </Form.Group>
@@ -193,45 +194,45 @@ export function AdicionarPacientePage(props) {
           <Form.Row>
 
           <Form.Group as={Col} controlId="formGridAddress1">
-              <Form.Label>Celular *</Form.Label>
+              <Form.Label>Celular</Form.Label>
               <Form.Control
                 placeholder="Digite seu celular"
-                name="celular"
-                {...formik.getFieldProps("celular")}
+                name="cel"
+                {...formik.getFieldProps("cel")}
               />
-              {formik.touched.celular && formik.errors.celular ? (
+              {formik.touched.cel && formik.errors.cel ? (
                 <div className="fv-plugins-message-container">
-                  <div className="fv-help-block">{formik.errors.celular}</div>
+                  <div className="fv-help-block">{formik.errors.cel}</div>
                 </div>
               ) : null}
             </Form.Group>
 
             <Form.Group as={Col} controlId="formGridAddress1">
-              <Form.Label>Estado Civil *</Form.Label>
+              <Form.Label>Estado Civil</Form.Label>
               <Form.Control
-              as="select" defaultValue="solteiro"
-                name="email"
-                {...formik.getFieldProps("estado_civil")}
+              as="select"
+                name="status"
+                {...formik.getFieldProps("status")}
               >
                 <option value="solteiro">Solteiro(a)</option>
-                <option value="solteiro">Casado(a)</option>
+                <option value="casado">Casado(a)</option>
               </Form.Control>
-              {formik.touched.estado_civil && formik.errors.estado_civil ? (
+              {formik.touched.status && formik.errors.status ? (
                 <div className="fv-plugins-message-container">
-                  <div className="fv-help-block">{formik.errors.estado_civil}</div>
+                  <div className="fv-help-block">{formik.errors.status}</div>
                 </div>
               ) : null}
             </Form.Group>
 
 
             <Form.Group as={Col} controlId="formGridAddress1">
-              <Form.Label>Escolaridade *</Form.Label>
+              <Form.Label>Escolaridade</Form.Label>
               <Form.Control
-              as="select" defaultValue="solteiro"
-                name="escolaridade"
-                {...formik.getFieldProps("escolaridade")}
+              as="select"
+                name="schooling"
+                {...formik.getFieldProps("schooling")}
               >
-                <option value="casado">Analfabeto</option>
+                <option value="analfabeto">Analfabeto</option>
                 <option value="funtamental_incompleto">Fundamental - Incompleto</option>
                 <option value="funtamental_completo">Fundamental - Completo</option>
                 <option value="ensino_medio_incompleto">Ensino Médio - Incompleto</option>
@@ -246,7 +247,7 @@ export function AdicionarPacientePage(props) {
                 <option value="doutorado_completo">Doutorado - Completo</option>
 
               </Form.Control>
-              {formik.touched.escolaridade && formik.errors.escolaridade ? (
+              {formik.touched.schooling && formik.errors.schooling ? (
                 <div className="fv-plugins-message-container">
                   <div className="fv-help-block">{formik.errors.escolaridade}</div>
                 </div>

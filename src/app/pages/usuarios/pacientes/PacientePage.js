@@ -77,9 +77,10 @@ export function PacientePage() {
           <thead>
             <tr>
               <th>Nome</th>
+              <th>CPF</th>
               <th>E-mail</th>
-              <th>CPF/CNPJ</th>
-              <th>Tempo consulta</th>
+              <th>Celular</th>
+              <th>Sexo</th>
               <th style={{"width": 80}}>Ações</th>
             </tr>
           </thead>
@@ -87,9 +88,10 @@ export function PacientePage() {
           {clinics.map( clinic => (
             <tr key={clinic.id} >
               <td>{clinic.name}</td>
+              <td>{clinic.cpf}</td>
               <td>{clinic.email}</td>
-              <td>{'CNPJ'}</td>
-              <td>{'TEMPO DE CONSULTA'}</td>
+              <td>{clinic.cel}</td>
+              <td>{clinic.gender}</td>
               <td><Link to={''} />
               <span className="svg-icon menu-icon">
                 <Link to="/clinicas/editar">
