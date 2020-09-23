@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const baseUrl = axios.create({
-  baseURL: 'http://54.94.48.232:3333'
+  baseURL: 'https://serriu-back.herokuapp.com'
 })
 
 export default baseUrl
