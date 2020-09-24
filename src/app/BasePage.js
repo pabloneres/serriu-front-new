@@ -48,7 +48,7 @@ export default function BasePage() {
         }
         <ContentRoute path="/dashboard" component={DashboardPage} />
         <ContentRoute exact path="/clinicas" component={ClinicasPage} />
-        <ContentRoute exact path="/clinicas/adicionar" component={AdicionarClinicaPage} />
+        <ContentRoute exact path="/clinicas/:id" component={AdicionarClinicaPage} />
         <ContentRoute exact path="/clinicas/editar" component={EditarClinicaPage} />
 
 

@@ -18,8 +18,8 @@ import { login } from "../_redux/authCrud";
 */
 
 const initialValues = {
-  email: "pabloneres@hotmail.com",
-  password: "pablo1234",
+  email: "",
+  password: "",
 };
 
 function Login(props) {
@@ -114,8 +114,10 @@ function Login(props) {
         ) : (
           <div className="mb-10 alert alert-custom alert-light-info alert-dismissible">
             <div className="alert-text ">
-              Use account <strong>admin@demo.com</strong> and password{" "}
-              <strong>demo</strong> to continue.
+              <p>Use a conta  <strong>master@hotmail.com</strong> para acesso no admin</p>
+              <p>Use a conta  <strong>matriz@hotmail.com</strong> para acesso na matriz</p>
+              <p>Use a conta  <strong>clinica@hotmail.com</strong> para acesso na filial</p>
+              <p>Todas as contas usam a mesma senha <strong>master123</strong></p>
             </div>
           </div>
         )}

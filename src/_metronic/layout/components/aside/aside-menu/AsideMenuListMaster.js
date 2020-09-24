@@ -5,7 +5,7 @@ import { NavLink } from "react-router-dom";
 import SVG from "react-inlinesvg";
 import { toAbsoluteUrl, checkIsActive } from "../../../../_helpers";
 
-export function AsideMenuList({ layoutProps }) {
+export function AsideMenuListMaster({ layoutProps }) {
   const location = useLocation();
   const getMenuItemActive = (url, hasSubmenu = false) => {
     return checkIsActive(location, url)
@@ -37,7 +37,7 @@ export function AsideMenuList({ layoutProps }) {
             <span className="svg-icon menu-icon">
               <SVG src={toAbsoluteUrl("/media/svg/icons/Home/Building.svg")} />
             </span>
-            <span className="menu-text">Clinícas</span>
+            <span className="menu-text">Clinícas Matriz</span>
           </NavLink>
         </li>
       </ul>

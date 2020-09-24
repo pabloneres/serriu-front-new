@@ -1,9 +1,14 @@
 import React, {useMemo} from "react";
-import {AsideMenuList} from "./AsideMenuList";
-import {AsideMenuListFilial} from "./AsineMenuListFilial";
 import {useHtmlClassService} from "../../../_core/MetronicLayout";
+import { useSelector } from "react-redux";
+
+import {AsideMenuListMaster} from "./AsideMenuListMaster";
+import {AsideMenuListMatriz} from "./AsideMenuListMatriz";
+import {AsideMenuListFilial} from "./AsineMenuListFilial";
 
 export function AsideMenu({disableScroll}) {
+  const {user} = useSelector((state) => state.auth);
+  console.log(user[0].access_level)
   const uiService = useHtmlClassService();
   const layoutProps = useMemo(() => {
     return {
@@ -14,6 +19,20 @@ export function AsideMenu({disableScroll}) {
     };
   }, [uiService]);
 
+  function ReturnAside(props) {
+    if (user[0].access_level === 1) {
+      return <AsideMenuListMaster layoutProps={props} />
+    }
+
+    if (user[0].access_level === 2) {
+      return <AsideMenuListMatriz layoutProps={props} />
+    }
+
+    if (user[0].access_level === 3) {
+      return <AsideMenuListFilial layoutProps={props} />
+    }
+  }
+
   return (
     <>
       {/* begin::Menu Container */}
@@ -23,7 +42,7 @@ export function AsideMenu({disableScroll}) {
         className={`aside-menu my-4 ${layoutProps.asideClassesFromConfig}`}
         {...layoutProps.asideMenuAttr}
       >
-        <AsideMenuListFilial layoutProps={layoutProps} />
+        <ReturnAside layoutProps={layoutProps} />
       </div>
       {/* end::Menu Container */}
     </>
