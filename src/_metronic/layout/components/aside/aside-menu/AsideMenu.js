@@ -8,7 +8,6 @@ import {AsideMenuListFilial} from "./AsineMenuListFilial";
 
 export function AsideMenu({disableScroll}) {
   const {user} = useSelector((state) => state.auth);
-  console.log(user[0].access_level)
   const uiService = useHtmlClassService();
   const layoutProps = useMemo(() => {
     return {

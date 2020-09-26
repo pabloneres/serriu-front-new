@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardHeader, CardBody } from "~/_metronic/_partials/controls";
 import { connect } from "react-redux";
 import { Link } from 'react-router-dom'
@@ -8,16 +8,19 @@ import { useHistory, useRouteMatch } from "react-router-dom";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useSelector } from "react-redux";
-import { mask, unMask } from 'remask'
+import axios from 'axios'
 
-import { register } from '~/app/controllers/clinicaController'
+import { store } from '~/app/controllers/clinicaController'
 
 const initialValues = {
   name: '',
   name_fantasy: '',
   tel: '',
   address:'',
-  register: ''
+  uf: '',
+  register: '',
+  email: '',
+  password: ''
 }
 
 export function AdicionarClinicaPage(props) {
@@ -25,7 +28,8 @@ export function AdicionarClinicaPage(props) {
   const { intl } = props;
   const {user: {authToken}} = useSelector((state) => state.auth);
   const history = useHistory();
-  const [maskCpf, setMaskCpf] = useState()
+
+  const [ufs, setUfs] = useState([])
 
   const ClinicSchema = Yup.object().shape({
     name: Yup.string()
@@ -37,15 +41,26 @@ export function AdicionarClinicaPage(props) {
       .max(50, "Maximum 50 symbols")
       .required('Campo obrigatorio!'),
     tel: Yup.string()
-      .min(3, "Minimum 3 symbols")
+      .min(9, "Número de telefone inváldo")
       .max(50, "Maximum 50 symbols")
       .required('Campo obrigatorio!'),
     address: Yup.string()
-      .min(3, "Minimum 3 symbols")
+      .min(4, "Endereço invalido")
       .max(50, "Maximum 50 symbols")
       .required('Campo obrigatorio!'),
+    uf: Yup.string()
+      .min(2, "Selecione um estado")
+      .max(2, "Maximum 2 symbols")
+      .required('Campo obrigatorio!'),
     register: Yup.string()
-      .min(3, "Minimum 3 symbols")
+      .min(10, "CPF/CNPJ Inválidos")
+      .max(50, "Maximum 50 symbols")
+      .required('Campo obrigatorio!'),
+    email: Yup.string()
+      .email('Email inválido')
+      .required('Campo obrigatorio!'),
+    password: Yup.string()
+      .min(8, "Senha fraca")
       .max(50, "Maximum 50 symbols")
       .required('Campo obrigatorio!')
   });
@@ -54,7 +69,7 @@ export function AdicionarClinicaPage(props) {
     initialValues,
     validationSchema: ClinicSchema,
     onSubmit: (values, { setStatus, setSubmitting }) => {
-      register(authToken, {...values, user_id: params.id})
+      store(authToken, values)
         .then(() => history.push("/clinicas"))
         .catch((err)=> {
           return 
@@ -63,6 +78,14 @@ export function AdicionarClinicaPage(props) {
         })
     },
   });
+
+  useEffect(()=> {
+    axios.get('https://servicodados.ibge.gov.br/api/v1/localidades/estados').then(({data})=>{
+      setUfs(data)
+    }).catch(()=>{
+      return
+    })
+  },[])
 
   return (
     <Card>
@@ -100,7 +123,7 @@ export function AdicionarClinicaPage(props) {
                 name="name_fantasy"
                 {...formik.getFieldProps("name_fantasy")}
               />
-              {formik.touched.name && formik.errors.name_fantasy ? (
+              {formik.touched.name_fantasy && formik.errors.name_fantasy ? (
               <div className="fv-plugins-message-container">
                 <div className="fv-help-block">{formik.errors.name_fantasy}</div>
               </div>
@@ -108,19 +131,38 @@ export function AdicionarClinicaPage(props) {
             </Form.Group>
           </Form.Row>
 
-          <Form.Group controlId="formGridAddress2">
+          <Form.Row >
+
+          <Form.Group  as={Col} controlId="formGridAddress2">
             <Form.Label>Telefone *</Form.Label>
             <Form.Control
              placeholder="Digite o telefone da clínica"
              name="tel"
-              {...formik.getFieldProps("tel")}
+             {...formik.getFieldProps("tel")}
              />
-              {formik.touched.name && formik.errors.tel ? (
-              <div className="fv-plugins-message-container">
+              {formik.touched.tel && formik.errors.tel ? (
+                <div className="fv-plugins-message-container">
                 <div className="fv-help-block">{formik.errors.tel}</div>
               </div>
               ) : null}
           </Form.Group>
+
+          <Form.Group as={Col}>
+              <Form.Label>CPF/CPNJ  *</Form.Label>
+              <Form.Control
+              placeholder="Digite o CPF ou register"
+              type="text"
+              name="register"
+              {...formik.getFieldProps("register")}
+              />
+              {formik.touched.register && formik.errors.register ? (
+              <div className="fv-plugins-message-container">
+                <div className="fv-help-block">{formik.errors.register}</div>
+              </div>
+              ) : null}
+            </Form.Group>
+          
+          </Form.Row>
 
           <Form.Row>
             <Form.Group as={Col} controlId="formGridCity">
@@ -130,32 +172,74 @@ export function AdicionarClinicaPage(props) {
                  name="address"
                  {...formik.getFieldProps("address")}
               />
-              {formik.touched.name && formik.errors.address ? (
+              {formik.touched.address && formik.errors.address ? (
               <div className="fv-plugins-message-container">
                 <div className="fv-help-block">{formik.errors.address}</div>
               </div>
               ) : null}
             </Form.Group>
-            <Form.Group>
-              <Form.Label>CPF/CPNJ  *</Form.Label>
+
+            <Form.Group controlId="formGridAddress1">
+              <Form.Label>UF *</Form.Label>
               <Form.Control
-              placeholder="Digite o CPF ou register"
-              type="text"
-              name="register"
-              {...formik.getFieldProps("register")}
-              />
-              {formik.touched.name && formik.errors.register ? (
-              <div className="fv-plugins-message-container">
-                <div className="fv-help-block">{formik.errors.register}</div>
-              </div>
+                as="select"
+                name="uf"
+                {...formik.getFieldProps("uf")}
+              >
+                <option value="" ></option>
+                {
+                  ufs.map((uf) => {
+                  return (
+                  <option value={uf.sigla} >{uf.sigla}</option>
+                  )
+                  })
+                }
+              </Form.Control>
+              {formik.touched.uf && formik.errors.uf ? (
+                <div className="fv-plugins-message-container">
+                  <div className="fv-help-block">{formik.errors.uf}</div>
+                </div>
               ) : null}
             </Form.Group>
           </Form.Row>
 
           <div className="separator separator-solid mt-4 mb-4"></div>
+          <h4 className="mb-4">Dados do usúario</h4>
+
+          <Form.Row>
+            <Form.Group as={Col} controlId="formGridEmail">
+              <Form.Label>Email *</Form.Label>
+              <Form.Control
+                placeholder="Digite um email"
+                type="email"
+                name="email"
+                {...formik.getFieldProps("email")}
+              />
+              {formik.touched.email && formik.errors.email ? (
+                <div className="fv-plugins-message-container">
+                  <div className="fv-help-block">{formik.errors.email}</div>
+                </div>
+              ) : null}
+            </Form.Group>
+
+            <Form.Group as={Col} controlId="formGridPassword">
+              <Form.Label>Senha *</Form.Label>
+              <Form.Control
+                type="password"
+                placeholder="Digite uma senha"
+                name="password"
+                {...formik.getFieldProps("password")}
+              />
+              {formik.touched.password && formik.errors.password ? (
+                <div className="fv-plugins-message-container">
+                  <div className="fv-help-block">{formik.errors.password}</div>
+                </div>
+              ) : null}
+            </Form.Group>
+          </Form.Row>
 
           <div className="text-right">
-            <Link to="/dashboard">
+            <Link to="/clinicas">
               <Button className="mr-2" variant="danger">
                 Cancelar
               </Button>

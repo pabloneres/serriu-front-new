@@ -2,12 +2,12 @@ import React, { Suspense, lazy } from "react";
 import { Redirect, Switch, Route } from "react-router-dom";
 import { LayoutSplashScreen, ContentRoute } from "../_metronic/layout";
 
+import { MyPage } from "~/app/pages/MyPage";
+import { DashboardPage } from "~/app/pages/DashboardPage";
 
 import { ClinicasPage } from "~/app/pages/clinicas/ClinicaPage";
 import { AdicionarClinicaPage } from "~/app/pages/clinicas/AdicionarClinicaPage";
 import { EditarClinicaPage } from "~/app/pages/clinicas/EditarClinicaPage";
-import { MyPage } from "~/app/pages/MyPage";
-import { DashboardPage } from "~/app/pages/DashboardPage";
 
 import { AgendaPage } from "~/app/pages/agenda/AgendaPage";
 import { FinanceiroPage } from "~/app/pages/financeiro/FinanceiroPage";
@@ -16,6 +16,7 @@ import { ConfiguracoesPage } from "~/app/pages/configuracoes/ConfiguracoesPage";
 
 import { DentistaPage } from '~/app/pages/usuarios/dentistas/DentistaPage'
 import { AdicionarDentistaPage } from '~/app/pages/usuarios/dentistas/AdicionarDentistaPage'
+import { EditarDentistaPage } from '~/app/pages/usuarios/dentistas/EditarDentistaPage'
 
 import { PacientePage } from '~/app/pages/usuarios/pacientes/PacientePage'
 import { AdicionarPacientePage } from '~/app/pages/usuarios/pacientes/AdicionarPacientePage'
@@ -49,7 +50,7 @@ export default function BasePage() {
         <ContentRoute path="/dashboard" component={DashboardPage} />
         <ContentRoute exact path="/clinicas" component={ClinicasPage} />
         <ContentRoute exact path="/clinicas/:id" component={AdicionarClinicaPage} />
-        <ContentRoute exact path="/clinicas/editar" component={EditarClinicaPage} />
+        <ContentRoute exact path="/clinicas/editar/:id" component={EditarClinicaPage} />
 
 
         {/* Rotas de clinicas */}
@@ -62,6 +63,7 @@ export default function BasePage() {
         {/* SUBMENU Rotas de Usuarios */}
         <ContentRoute exact path="/dentista" component={DentistaPage} />
         <ContentRoute exact path="/dentista/adicionar" component={AdicionarDentistaPage} />
+        <ContentRoute exact path="/dentista/editar/:id" component={EditarDentistaPage} />
       
       
         <ContentRoute exact path="/paciente" component={PacientePage} />

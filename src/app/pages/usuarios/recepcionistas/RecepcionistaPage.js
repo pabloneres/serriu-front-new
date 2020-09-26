@@ -4,8 +4,11 @@ import { useHistory, Redirect } from "react-router-dom";
 import { useSelector } from "react-redux";
 import SVG from 'react-inlinesvg'
 import { Link } from 'react-router-dom'
-import { index, destroy } from '~/app/controllers/pacienteController'
 import { toAbsoluteUrl, checkIsActive } from "~/_metronic/_helpers";
+import { Modal, Button, Form, Col, InputGroup } from 'react-bootstrap'
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import { store, index, destroy } from '~/app/controllers/dentistaController'
 
 import {
   Card,
@@ -13,51 +16,60 @@ import {
   CardHeaderToolbar,
   CardBody,
 } from "~/_metronic/_partials/controls";
+import { id } from "date-fns/locale";
 
 export function RecepcionistaPage() {
   const {user: {authToken}} = useSelector((state) => state.auth);
-  const [ clinics, setClinics ] = useState([])
+  const [ users, setUsers ] = useState([])
   const [ logout, setLogout ] = useState(false)
+  const [ redirect, setRedirect ] = useState(false)
+  const [show, setShow] = useState(false);
+  const [id, setId] = useState();
+  const [deleted, setDeleted] = useState(false);
   const history = useHistory();
+
 
   useEffect(() => {
       index(authToken)
       .then( ({data}) => {
-        setClinics(data)
+        setUsers(data)
       }).catch((err)=>{
         if (err.response.status === 401) {
           setLogout(true)
         }
       })
-  }, [])
-
-  if (logout) {
-    return <Redirect to="/logout" />
-  }
-
+  }, [show, deleted])
+  
   function handleDelete(id) {
     destroy(authToken, id).then(()=>{
        index(authToken)
-      .then( ({data}) => {
-        setClinics(data)
-      }).catch((err)=>{
+       .then( () => setDeleted(!deleted))
+       .catch((err)=>{
         if (err.response.status === 401) {
           setLogout(true)
         }
       })
     })
   }
+  
+  if (logout) {
+    return <Redirect to="/logout" />
+  }
+ 
+  if (redirect) {
+    return <Redirect to={`/dentista/editar/${id}`} />
+  }
 
   return (
     <Card>
-      <CardHeader title="Recepcionista">
+      <CardHeader title="Dentistas">
         <CardHeaderToolbar>
           <button
             type="button"
             className="btn btn-primary"
-            onClick={() => history.push("/recepcionista/adicionar")}
+            onClick={() => history.push('/dentista/adicionar')}
           >
-            Adicionar recepcionista
+            Adicionar dentista
           </button>
         </CardHeaderToolbar>
       </CardHeader>
@@ -66,26 +78,28 @@ export function RecepcionistaPage() {
           <thead>
             <tr>
               <th>Nome</th>
-              <th>E-mail</th>
-              <th>CPF/CNPJ</th>
-              <th>Tempo consulta</th>
+              <th>Email</th>
+              <th>CPF</th>
+              <th>Nascimento</th>
+              <th>Telefone</th>
+              <th>Genêro</th>
               <th style={{"width": 80}}>Ações</th>
             </tr>
           </thead>
           <tbody>
-          {clinics.map( clinic => (
-            <tr key={clinic.id} >
-              <td>{clinic.name}</td>
-              <td>{clinic.email}</td>
-              <td>{'CNPJ'}</td>
-              <td>{'TEMPO DE CONSULTA'}</td>
+          {users.map( user => (
+            <tr key={user.id} >
+              <td>{user.recepcionist[0].name}</td>
+              <td>{user.email}</td>
+              <td>{user.recepcionist[0].cpf}</td>
+              <td>{user.recepcionist[0].nasc}</td>
+              <td>{user.recepcionist[0].tel}</td>
+              <td>{user.recepcionist[0].gender}</td>
               <td><Link to={''} />
-              <span className="svg-icon menu-icon">
-                <Link to="/clinicas/editar">
-                  <SVG style={{"fill": "#3699FF", "color": "#3699FF"}} src={toAbsoluteUrl("/media/svg/icons/Design/create.svg")} />
-                </Link>
+              <span onClick={() => history.push(`/dentista/editar/${user.recepcionist[0].id}`) } className="svg-icon menu-icon">
+                <SVG style={{"fill": "#3699FF", "color": "#3699FF", "cursor": "pointer"}} src={toAbsoluteUrl("/media/svg/icons/Design/create.svg")} />
               </span>
-              <span onClick={() => handleDelete(clinic.id) }  style={{"cursor": "pointer"}} className="svg-icon menu-icon">
+              <span onClick={() => handleDelete(user.id) }  style={{"cursor": "pointer"}} className="svg-icon menu-icon">
                 <SVG style={{"fill": "#3699FF", "color": "#3699FF", "marginLeft": 8}} src={toAbsoluteUrl("/media/svg/icons/Design/delete.svg")} />
               </span>
               </td>

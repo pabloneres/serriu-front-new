@@ -1,80 +1,67 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardHeader, CardBody } from "~/_metronic/_partials/controls";
 import { connect } from "react-redux";
-import { Form, Col, Button } from "react-bootstrap";
 import { Link } from 'react-router-dom'
+import { Form, Col, Button } from "react-bootstrap";
 import { FormattedMessage, injectIntl } from "react-intl";
-import { useHistory } from "react-router-dom";
+import { useHistory, useRouteMatch } from "react-router-dom";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useSelector } from "react-redux";
-import { mask, unMask } from 'remask'
+import axios from 'axios'
 
-import { store } from '~/app/controllers/clinicaController'
+import { show, update } from '~/app/controllers/clinicaController'
 
-const initialValues = {
-  name: '',
-  company: '',
-  email:'',
-  tel: '',
-  address:'',
-  cnpj: '',
-  user: '',
-  password: '',
-  password_confirmation: ''
-}
 
 export function EditarClinicaPage(props) {
+  const { params, url } = useRouteMatch()
   const { intl } = props;
   const {user: {authToken}} = useSelector((state) => state.auth);
   const history = useHistory();
-  const [maskCpf, setMaskCpf] = useState()
+  const [clinic, setClinic] = useState({})
+  const [user, setUser] = useState({})
+
+  const [ufs, setUfs] = useState([])
 
   const ClinicSchema = Yup.object().shape({
     name: Yup.string()
       .min(3, "Minimum 3 symbols")
       .max(50, "Maximum 50 symbols")
       .required('Campo obrigatorio!'),
-    company: Yup.string()
-      .min(3, "Minimum 3 symbols")
-      .max(50, "Maximum 50 symbols")
-      .required('Campo obrigatorio!'),
-    email: Yup.string()
-      .email("Wrong email format")
+    name_fantasy: Yup.string()
       .min(3, "Minimum 3 symbols")
       .max(50, "Maximum 50 symbols")
       .required('Campo obrigatorio!'),
     tel: Yup.string()
-      .min(3, "Minimum 3 symbols")
+      .min(9, "Número de telefone inváldo")
       .max(50, "Maximum 50 symbols")
       .required('Campo obrigatorio!'),
     address: Yup.string()
-      .min(3, "Minimum 3 symbols")
+      .min(4, "Endereço invalido")
       .max(50, "Maximum 50 symbols")
       .required('Campo obrigatorio!'),
-    cnpj: Yup.string()
-      .min(3, "Minimum 3 symbols")
+    uf: Yup.string()
+      .min(2, "Selecione um estado")
+      .max(2, "Maximum 2 symbols")
+      .required('Campo obrigatorio!'),
+    register: Yup.string()
+      .min(10, "CPF/CNPJ Inválidos")
       .max(50, "Maximum 50 symbols")
       .required('Campo obrigatorio!'),
-    user: Yup.string()
-      .min(3, "Minimum 3 symbols")
-      .max(50, "Maximum 50 symbols")
+    email: Yup.string()
+      .email('Email inválido')
       .required('Campo obrigatorio!'),
     password: Yup.string()
-      .min(3, "Minimum 3 symbols")
+      .min(8, "Senha fraca")
       .max(50, "Maximum 50 symbols")
-      .required('Campo obrigatorio!'),
-    password_confirmation: Yup.string()
-      .min(3, "Minimum 3 symbols")
-      .max(50, "Maximum 50 symbols")
-      .required('Campo obrigatorio!'),
   });
 
   const formik = useFormik({
-    initialValues,
+    initialValues: {...clinic, email: user.email},
+    enableReinitialize: true,
     validationSchema: ClinicSchema,
     onSubmit: (values, { setStatus, setSubmitting }) => {
-      store(authToken, {name: values.name, email: values.email, password: values.password})
+      update(authToken, params.id, values)
         .then(() => history.push("/clinicas"))
         .catch((err)=> {
           return 
@@ -83,6 +70,23 @@ export function EditarClinicaPage(props) {
         })
     },
   });
+
+  useEffect(()=> {
+    axios.get('https://servicodados.ibge.gov.br/api/v1/localidades/estados').then(({data})=>{
+      setUfs(data)
+    }).catch(()=>{
+      return
+    })
+  },[])
+
+  useEffect(() => {
+    show(authToken, params.id)
+      .then(({data}) => {
+        setClinic(data[0])
+        setUser(data[0].user)
+      })
+      .catch((err)=> history.push('/clinicas'))
+  }, [])
 
   return (
     <Card>
@@ -117,44 +121,49 @@ export function EditarClinicaPage(props) {
               <Form.Control
                 type="text"
                 placeholder="Digite a Razão social da sua empresa"
-                name="company"
-                {...formik.getFieldProps("company")}
+                name="name_fantasy"
+                {...formik.getFieldProps("name_fantasy")}
               />
-              {formik.touched.name && formik.errors.company ? (
+              {formik.touched.name_fantasy && formik.errors.name_fantasy ? (
               <div className="fv-plugins-message-container">
-                <div className="fv-help-block">{formik.errors.company}</div>
+                <div className="fv-help-block">{formik.errors.name_fantasy}</div>
               </div>
               ) : null}
             </Form.Group>
           </Form.Row>
 
-          <Form.Group controlId="formGridAddress1">
-            <Form.Label>Email *</Form.Label>
-            <Form.Control 
-              placeholder="Digite seu email"
-              name="email"
-              {...formik.getFieldProps("email")}
-              />
-              {formik.touched.name && formik.errors.email ? (
-              <div className="fv-plugins-message-container">
-                <div className="fv-help-block">{formik.errors.email}</div>
-              </div>
-              ) : null}
-          </Form.Group>
+          <Form.Row >
 
-          <Form.Group controlId="formGridAddress2">
+          <Form.Group  as={Col} controlId="formGridAddress2">
             <Form.Label>Telefone *</Form.Label>
             <Form.Control
              placeholder="Digite o telefone da clínica"
              name="tel"
-              {...formik.getFieldProps("tel")}
+             {...formik.getFieldProps("tel")}
              />
-              {formik.touched.name && formik.errors.tel ? (
-              <div className="fv-plugins-message-container">
+              {formik.touched.tel && formik.errors.tel ? (
+                <div className="fv-plugins-message-container">
                 <div className="fv-help-block">{formik.errors.tel}</div>
               </div>
               ) : null}
           </Form.Group>
+
+          <Form.Group as={Col}>
+              <Form.Label>CPF/CPNJ  *</Form.Label>
+              <Form.Control
+              placeholder="Digite o CPF ou register"
+              type="text"
+              name="register"
+              {...formik.getFieldProps("register")}
+              />
+              {formik.touched.register && formik.errors.register ? (
+              <div className="fv-plugins-message-container">
+                <div className="fv-help-block">{formik.errors.register}</div>
+              </div>
+              ) : null}
+            </Form.Group>
+          
+          </Form.Row>
 
           <Form.Row>
             <Form.Group as={Col} controlId="formGridCity">
@@ -164,84 +173,78 @@ export function EditarClinicaPage(props) {
                  name="address"
                  {...formik.getFieldProps("address")}
               />
-              {formik.touched.name && formik.errors.address ? (
+              {formik.touched.address && formik.errors.address ? (
               <div className="fv-plugins-message-container">
                 <div className="fv-help-block">{formik.errors.address}</div>
               </div>
               ) : null}
             </Form.Group>
-            <Form.Group>
-              <Form.Label>CPF/CPNJ  *</Form.Label>
+
+            <Form.Group controlId="formGridAddress1">
+              <Form.Label>UF *</Form.Label>
               <Form.Control
-              placeholder="Digite o CPF ou CNPJ"
-              type="text"
-              name="cnpj"
-              {...formik.getFieldProps("cnpj")}
-              />
-              {formik.touched.name && formik.errors.cnpj ? (
-              <div className="fv-plugins-message-container">
-                <div className="fv-help-block">{formik.errors.cnpj}</div>
-              </div>
+                as="select"
+                name="uf"
+                {...formik.getFieldProps("uf")}
+              >
+                <option value="" ></option>
+                {
+                  ufs.map((uf) => {
+                  return (
+                  <option value={uf.sigla} >{uf.sigla}</option>
+                  )
+                  })
+                }
+              </Form.Control>
+              {formik.touched.uf && formik.errors.uf ? (
+                <div className="fv-plugins-message-container">
+                  <div className="fv-help-block">{formik.errors.uf}</div>
+                </div>
               ) : null}
             </Form.Group>
           </Form.Row>
 
           <div className="separator separator-solid mt-4 mb-4"></div>
-          <h4 className="mb-4">Login</h4>
+          <h4 className="mb-4">Dados do usúario</h4>
 
           <Form.Row>
             <Form.Group as={Col} controlId="formGridEmail">
-              <Form.Label>Usuário *</Form.Label>
+              <Form.Label>Email *</Form.Label>
               <Form.Control
-                placeholder="Digite um nome de usuário"
-                type="text"
-                name="user"
-                {...formik.getFieldProps("user")}
+                placeholder="Digite um email"
+                type="email"
+                name="email"
+                {...formik.getFieldProps("email")}
               />
-              {formik.touched.name && formik.errors.user ? (
-              <div className="fv-plugins-message-container">
-                <div className="fv-help-block">{formik.errors.user}</div>
-              </div>
+              {formik.touched.email && formik.errors.email ? (
+                <div className="fv-plugins-message-container">
+                  <div className="fv-help-block">{formik.errors.email}</div>
+                </div>
               ) : null}
             </Form.Group>
 
             <Form.Group as={Col} controlId="formGridPassword">
               <Form.Label>Senha *</Form.Label>
-              <Form.Control 
-                type="password" 
+              <Form.Control
+                type="password"
                 placeholder="Digite uma senha"
                 name="password"
                 {...formik.getFieldProps("password")}
-                />
-              {formik.touched.name && formik.errors.password ? (
-              <div className="fv-plugins-message-container">
-                <div className="fv-help-block">{formik.errors.password}</div>
-              </div>
-              ) : null}
-            </Form.Group>
-
-            <Form.Group as={Col} controlId="formGridPassword">
-              <Form.Label>Repita a senha *</Form.Label>
-              <Form.Control 
-                type="password"
-                placeholder="Repita a senha"
-                name="password_confirmation"
-                {...formik.getFieldProps("password_confirmation")}
-                />
-              {formik.touched.name && formik.errors.password ? (
-              <div className="fv-plugins-message-container">
-                <div className="fv-help-block">{formik.errors.password}</div>
-              </div>
+              />
+              {formik.touched.password && formik.errors.password ? (
+                <div className="fv-plugins-message-container">
+                  <div className="fv-help-block">{formik.errors.password}</div>
+                </div>
               ) : null}
             </Form.Group>
           </Form.Row>
 
           <div className="text-right">
-              <Link to="/dashboard">
-                <Button className="mr-2" variant="danger">
-                  Cancelar
-                </Button>
-              </Link>
+            <Link to="/clinicas">
+              <Button className="mr-2" variant="danger">
+                Cancelar
+              </Button>
+            </Link>
             <Button variant="primary" type="submit">
               Salvar
             </Button>

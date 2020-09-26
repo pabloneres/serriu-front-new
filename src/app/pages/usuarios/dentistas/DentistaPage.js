@@ -4,8 +4,11 @@ import { useHistory, Redirect } from "react-router-dom";
 import { useSelector } from "react-redux";
 import SVG from 'react-inlinesvg'
 import { Link } from 'react-router-dom'
-import { index, destroy } from '~/app/controllers/dentistaController'
 import { toAbsoluteUrl, checkIsActive } from "~/_metronic/_helpers";
+import { Modal, Button, Form, Col, InputGroup } from 'react-bootstrap'
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import { store, index, destroy } from '~/app/controllers/dentistaController'
 
 import {
   Card,
@@ -13,39 +16,48 @@ import {
   CardHeaderToolbar,
   CardBody,
 } from "~/_metronic/_partials/controls";
+import { id } from "date-fns/locale";
 
 export function DentistaPage() {
   const {user: {authToken}} = useSelector((state) => state.auth);
-  const [ clinics, setClinics ] = useState([])
+  const [ users, setUsers ] = useState([])
   const [ logout, setLogout ] = useState(false)
+  const [ redirect, setRedirect ] = useState(false)
+  const [show, setShow] = useState(false);
+  const [id, setId] = useState();
+  const [deleted, setDeleted] = useState(false);
   const history = useHistory();
+
 
   useEffect(() => {
       index(authToken)
       .then( ({data}) => {
-        setClinics(data)
+        setUsers(data)
       }).catch((err)=>{
         if (err.response.status === 401) {
           setLogout(true)
         }
       })
-  }, [])
-
-  if (logout) {
-    return <Redirect to="/logout" />
-  }
-
+  }, [show, deleted])
+  
   function handleDelete(id) {
     destroy(authToken, id).then(()=>{
        index(authToken)
-      .then( ({data}) => {
-        setClinics(data)
-      }).catch((err)=>{
+       .then( () => setDeleted(!deleted))
+       .catch((err)=>{
         if (err.response.status === 401) {
           setLogout(true)
         }
       })
     })
+  }
+  
+  if (logout) {
+    return <Redirect to="/logout" />
+  }
+ 
+  if (redirect) {
+    return <Redirect to={`/dentista/editar/${id}`} />
   }
 
   return (
@@ -55,7 +67,7 @@ export function DentistaPage() {
           <button
             type="button"
             className="btn btn-primary"
-            onClick={() => history.push("/dentista/adicionar")}
+            onClick={() => history.push('/dentista/adicionar')}
           >
             Adicionar dentista
           </button>
@@ -66,26 +78,28 @@ export function DentistaPage() {
           <thead>
             <tr>
               <th>Nome</th>
-              <th>E-mail</th>
-              <th>CPF/CNPJ</th>
-              <th>Tempo consulta</th>
+              <th>CPF</th>
+              <th>CRO UF</th>
+              <th>N° CRO</th>
+              <th>Tel</th>
+              <th>Cor</th>
               <th style={{"width": 80}}>Ações</th>
             </tr>
           </thead>
           <tbody>
-          {clinics.map( clinic => (
-            <tr key={clinic.id} >
-              <td>{clinic.name}</td>
-              <td>{clinic.email}</td>
-              <td>{'CNPJ'}</td>
-              <td>{'TEMPO DE CONSULTA'}</td>
+          {users.map( user => (
+            <tr key={user.id} >
+              <td>{user.dentists[0].name}</td>
+              <td>{user.dentists[0].cpf}</td>
+              <td>{user.dentists[0].cro}</td>
+              <td>{user.dentists[0].cro_number}</td>
+              <td>{user.dentists[0].tel}</td>
+              <td><div style={{"padding": 8, "background": user.dentists[0].color_schedule }} ></div></td>
               <td><Link to={''} />
-              <span className="svg-icon menu-icon">
-                <Link to="/clinicas/editar">
-                  <SVG style={{"fill": "#3699FF", "color": "#3699FF"}} src={toAbsoluteUrl("/media/svg/icons/Design/create.svg")} />
-                </Link>
+              <span onClick={() => history.push(`/dentista/editar/${user.dentists[0].id}`) } className="svg-icon menu-icon">
+                <SVG style={{"fill": "#3699FF", "color": "#3699FF", "cursor": "pointer"}} src={toAbsoluteUrl("/media/svg/icons/Design/create.svg")} />
               </span>
-              <span onClick={() => handleDelete(clinic.id) }  style={{"cursor": "pointer"}} className="svg-icon menu-icon">
+              <span onClick={() => handleDelete(user.id) }  style={{"cursor": "pointer"}} className="svg-icon menu-icon">
                 <SVG style={{"fill": "#3699FF", "color": "#3699FF", "marginLeft": 8}} src={toAbsoluteUrl("/media/svg/icons/Design/delete.svg")} />
               </span>
               </td>

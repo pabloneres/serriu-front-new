@@ -1,18 +1,18 @@
 import api from '../services/api'
 
 // DEFINIR AS ROTAS DAS CLINICAS
-const INDEX_CLINICS_URL = "/providers";
+const INDEX_CLINICS_URL = "/users";
 
-const SHOW_CLINIC_URL = "/";
+const SHOW_CLINIC_URL = "/dentist";
 
-const STORE_CLINIC_URL = "/users";
+const STORE_CLINIC_URL = "/register/dentist";
 
-const UPDATE_CLINIC_URL = "/";
+const UPDATE_CLINIC_URL = "/dentist";
 
-const DESTROY_CLINIC_URL = "/providers";
+const DESTROY_CLINIC_URL = "/user";
 
 export function index(authToken) {
-  return api.get(INDEX_CLINICS_URL, {
+  return api.get(`${INDEX_CLINICS_URL}/dentists`, {
     headers: {
       Authorization: 'Bearer ' + authToken
     }
@@ -35,8 +35,8 @@ export function store(authToken, data) {
   });
 }
 
-export function update(authToken, data) {
-  return api.put(UPDATE_CLINIC_URL, data, {
+export function update(authToken, id, data) {
+  return api.put(`${UPDATE_CLINIC_URL}/${id}`, data, {
     headers: {
       Authorization: 'Bearer ' + authToken
     }

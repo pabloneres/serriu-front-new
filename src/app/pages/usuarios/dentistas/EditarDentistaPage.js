@@ -4,33 +4,22 @@ import { connect } from "react-redux";
 import { Link } from 'react-router-dom'
 import { Form, Col, Button } from "react-bootstrap";
 import { FormattedMessage, injectIntl } from "react-intl";
-import { useHistory } from "react-router-dom";
+import { useHistory, useRouteMatch } from "react-router-dom";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useSelector } from "react-redux";
 import axios from 'axios'
-import { store } from '~/app/controllers/dentistaController'
+import { update, show } from '~/app/controllers/dentistaController'
 
 
-const initialValues = {
-  name: '',
-  cpf: '',
-  gender: '',
-  nasc: '',
-  tel: '',
-  status: '',
-  cro: '',
-  cro_number: '',
-  schedule: '',
-  color_schedule: '',
-  email: '',
-  password: ''
-}
-
-export function AdicionarDentistaPage(props) {
+export function EditarDentistaPage(props) {
+  const { params, url } = useRouteMatch()
   const { intl } = props;
   const { user: { authToken } } = useSelector((state) => state.auth);
   const history = useHistory();
+
+  const [dentist, setDentist] = useState({})
+  const [user, setUser] = useState({})
   const [ufs, setUfs] = useState([])
 
 
@@ -82,14 +71,14 @@ export function AdicionarDentistaPage(props) {
     password: Yup.string()
       .min(3, "Minimum 3 symbols")
       .max(50, "Maximum 50 symbols")
-      .required('Campo obrigatorio!')
   });
 
   const formik = useFormik({
-    initialValues,
+    initialValues: {...dentist, email: user.email},
+    enableReinitialize: true,
     validationSchema: DentistaSchema,
     onSubmit: (values, { setStatus, setSubmitting }) => {
-      store(authToken, values)
+      update(authToken, params.id, values)
         .then(() => history.push("/dentista"))
         .catch((err)=> {
           return 
@@ -106,6 +95,15 @@ export function AdicionarDentistaPage(props) {
       return
     })
   },[])
+
+  useEffect(() => {
+    show(authToken, params.id)
+      .then(({data}) => {
+        setDentist(data[0])
+        setUser(data[0].user)
+      })
+      .catch((err)=> history.push('/dentista'))
+  }, [])
 
   return (
     <Card>

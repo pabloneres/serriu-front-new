@@ -70,8 +70,6 @@ export function* saga() {
     const {config: {headers : { Authorization }}, data: user} = yield getUserByToken();
     
     const userData = {...user, authToken: Authorization.split(' ')[1]}
-
-    console.log(userData)
   
     yield put(actions.fulfillUser(userData));
   });
