@@ -31,8 +31,9 @@ export function DentistaPage() {
 
   useEffect(() => {
       index(authToken)
-      .then( ({data}) => {
+      .then( ({data} ) => {
         setUsers(data)
+        console.log(data)
       }).catch((err)=>{
         if (err.response.status === 401) {
           setLogout(true)
@@ -77,29 +78,31 @@ export function DentistaPage() {
         <Table striped bordered hover>
           <thead>
             <tr>
+              <th>Id</th>
               <th>Nome</th>
               <th>CPF</th>
               <th>CRO UF</th>
               <th>N° CRO</th>
-              <th>Tel</th>
+              <th>Tel</th> 
               <th>Cor</th>
               <th style={{"width": 80}}>Ações</th>
             </tr>
           </thead>
           <tbody>
-          {users.map( user => (
-            <tr key={user.id} >
-              <td>{user.dentists[0].name}</td>
-              <td>{user.dentists[0].cpf}</td>
-              <td>{user.dentists[0].cro}</td>
-              <td>{user.dentists[0].cro_number}</td>
-              <td>{user.dentists[0].tel}</td>
-              <td><div style={{"padding": 8, "background": user.dentists[0].color_schedule }} ></div></td>
+          {users.map( dentist => (
+            <tr key={dentist.id} >
+              <td>{dentist.id}</td>
+              <td>{dentist.name}</td>
+              <td>{dentist.cpf}</td>
+              <td>{dentist.cro}</td>
+              <td>{dentist.cro_number}</td>
+              <td>{dentist.tel}</td>
+              <td><div style={{"padding": 8, "background": dentist.color_schedule }} ></div></td>
               <td><Link to={''} />
-              <span onClick={() => history.push(`/dentista/editar/${user.dentists[0].id}`) } className="svg-icon menu-icon">
+              <span onClick={() => history.push(`/dentista/editar/${dentist.id}`) } className="svg-icon menu-icon">
                 <SVG style={{"fill": "#3699FF", "color": "#3699FF", "cursor": "pointer"}} src={toAbsoluteUrl("/media/svg/icons/Design/create.svg")} />
               </span>
-              <span onClick={() => handleDelete(user.id) }  style={{"cursor": "pointer"}} className="svg-icon menu-icon">
+              <span onClick={() => handleDelete(dentist.id) }  style={{"cursor": "pointer"}} className="svg-icon menu-icon">
                 <SVG style={{"fill": "#3699FF", "color": "#3699FF", "marginLeft": 8}} src={toAbsoluteUrl("/media/svg/icons/Design/delete.svg")} />
               </span>
               </td>

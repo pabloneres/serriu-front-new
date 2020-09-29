@@ -8,7 +8,7 @@ import { toAbsoluteUrl, checkIsActive } from "~/_metronic/_helpers";
 import { Modal, Button, Form, Col, InputGroup } from 'react-bootstrap'
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { store, index, destroy } from '~/app/controllers/dentistaController'
+import { store, index, destroy } from '~/app/controllers/recepcionistController'
 
 import {
   Card,
@@ -33,6 +33,7 @@ export function RecepcionistaPage() {
       index(authToken)
       .then( ({data}) => {
         setUsers(data)
+        console.log(data)
       }).catch((err)=>{
         if (err.response.status === 401) {
           setLogout(true)
@@ -57,7 +58,7 @@ export function RecepcionistaPage() {
   }
  
   if (redirect) {
-    return <Redirect to={`/dentista/editar/${id}`} />
+    return <Redirect to={`/recepcionista/editar/${id}`} />
   }
 
   return (
@@ -67,7 +68,7 @@ export function RecepcionistaPage() {
           <button
             type="button"
             className="btn btn-primary"
-            onClick={() => history.push('/dentista/adicionar')}
+            onClick={() => history.push('/recepcionista/adicionar')}
           >
             Adicionar dentista
           </button>
@@ -87,19 +88,19 @@ export function RecepcionistaPage() {
             </tr>
           </thead>
           <tbody>
-          {users.map( user => (
-            <tr key={user.id} >
-              <td>{user.recepcionist[0].name}</td>
-              <td>{user.email}</td>
-              <td>{user.recepcionist[0].cpf}</td>
-              <td>{user.recepcionist[0].nasc}</td>
-              <td>{user.recepcionist[0].tel}</td>
-              <td>{user.recepcionist[0].gender}</td>
+          {users.map( recepcionist => (
+            <tr key={recepcionist.id} >
+              <td>{recepcionist.name}</td>
+              <td>{recepcionist.email}</td>
+              <td>{recepcionist.cpf}</td>
+              <td>{recepcionist.nasc}</td>
+              <td>{recepcionist.tel}</td>
+              <td>{recepcionist.gender}</td>
               <td><Link to={''} />
-              <span onClick={() => history.push(`/dentista/editar/${user.recepcionist[0].id}`) } className="svg-icon menu-icon">
+              <span onClick={() => history.push(`/recepcionista/editar/${recepcionist.id}`) } className="svg-icon menu-icon">
                 <SVG style={{"fill": "#3699FF", "color": "#3699FF", "cursor": "pointer"}} src={toAbsoluteUrl("/media/svg/icons/Design/create.svg")} />
               </span>
-              <span onClick={() => handleDelete(user.id) }  style={{"cursor": "pointer"}} className="svg-icon menu-icon">
+              <span onClick={() => handleDelete(recepcionist.id) }  style={{"cursor": "pointer"}} className="svg-icon menu-icon">
                 <SVG style={{"fill": "#3699FF", "color": "#3699FF", "marginLeft": 8}} src={toAbsoluteUrl("/media/svg/icons/Design/delete.svg")} />
               </span>
               </td>

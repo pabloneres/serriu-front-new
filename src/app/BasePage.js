@@ -20,9 +20,11 @@ import { EditarDentistaPage } from '~/app/pages/usuarios/dentistas/EditarDentist
 
 import { PacientePage } from '~/app/pages/usuarios/pacientes/PacientePage'
 import { AdicionarPacientePage } from '~/app/pages/usuarios/pacientes/AdicionarPacientePage'
+import { EditarPacientePage } from '~/app/pages/usuarios/pacientes/EditarPacientePage'
 
 import { RecepcionistaPage } from '~/app/pages/usuarios/recepcionistas/RecepcionistaPage'
 import { AdicionarRecepcionistaPage } from '~/app/pages/usuarios/recepcionistas/AdicionarRecepcionistaPage'
+import { EditarRecepcionistaPage } from '~/app/pages/usuarios/recepcionistas/EditarRecepcionistaPage'
 
 import { TabelaPreco } from '~/app/pages/configuracoes/tabelaPreco/TabelaPreco'
 import { TabelaProcedimento } from '~/app/pages/configuracoes/tabelaProcedimento/TabelaProcedimento'
@@ -68,9 +70,11 @@ export default function BasePage() {
       
         <ContentRoute exact path="/paciente" component={PacientePage} />
         <ContentRoute exact path="/paciente/adicionar" component={AdicionarPacientePage} />
+        <ContentRoute exact path="/paciente/editar/:id" component={EditarPacientePage} />
         
         <ContentRoute exact path="/recepcionista" component={RecepcionistaPage} />
         <ContentRoute exact path="/recepcionista/adicionar" component={AdicionarRecepcionistaPage} />
+        <ContentRoute exact path="/recepcionista/editar/:id" component={EditarRecepcionistaPage} />
         
         
         <ContentRoute exact path="/tabela-precos" component={TabelaPreco} />

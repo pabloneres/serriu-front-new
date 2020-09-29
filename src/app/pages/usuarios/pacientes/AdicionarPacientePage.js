@@ -17,18 +17,16 @@ const initialValues = {
   rg: '',
   nasc: '',
   email: '',
-  gender: 'masculino',
-  cel: '',
-  status: 'solteiro',
-  schooling: 'analfabeto'
+  gender: '',
+  tel: '',
+  status: '',
+  schooling: ''
 }
 
 export function AdicionarPacientePage(props) {
   const { intl } = props;
   const { user: { authToken } } = useSelector((state) => state.auth);
   const history = useHistory();
-  const [ufs, setUfs] = useState([])
-
 
   const pacienteSchema = Yup.object().shape({
     name: Yup.string()
@@ -52,7 +50,7 @@ export function AdicionarPacientePage(props) {
     gender: Yup.string()
       .min(3, "Minimum 3 symbols")
       .max(50, "Maximum 50 symbols"),
-    cel: Yup.string()
+    tel: Yup.string()
       .min(3, "Minimum 3 symbols")
       .max(50, "Maximum 50 symbols"),
     status: Yup.string()
@@ -67,7 +65,6 @@ export function AdicionarPacientePage(props) {
     initialValues,
     validationSchema: pacienteSchema,
     onSubmit: (values, { setStatus, setSubmitting }) => {
-      console.log(values)
       store(authToken, values)
         .then(() => history.push("/paciente"))
         .catch((err)=> {
@@ -179,6 +176,7 @@ export function AdicionarPacientePage(props) {
                 name="gender"
                 {...formik.getFieldProps("gender")}
               >
+                <option value=""></option>
                 <option value="masculino">Masculino</option>
                 <option value="feminino">Feminino</option>
               </Form.Control>
@@ -197,12 +195,12 @@ export function AdicionarPacientePage(props) {
               <Form.Label>Celular</Form.Label>
               <Form.Control
                 placeholder="Digite seu celular"
-                name="cel"
-                {...formik.getFieldProps("cel")}
+                name="tel"
+                {...formik.getFieldProps("tel")}
               />
-              {formik.touched.cel && formik.errors.cel ? (
+              {formik.touched.tel && formik.errors.tel ? (
                 <div className="fv-plugins-message-container">
-                  <div className="fv-help-block">{formik.errors.cel}</div>
+                  <div className="fv-help-block">{formik.errors.tel}</div>
                 </div>
               ) : null}
             </Form.Group>
@@ -214,6 +212,7 @@ export function AdicionarPacientePage(props) {
                 name="status"
                 {...formik.getFieldProps("status")}
               >
+                <option value=""></option>
                 <option value="solteiro">Solteiro(a)</option>
                 <option value="casado">Casado(a)</option>
               </Form.Control>
@@ -232,6 +231,7 @@ export function AdicionarPacientePage(props) {
                 name="schooling"
                 {...formik.getFieldProps("schooling")}
               >
+                <option value=""></option>
                 <option value="analfabeto">Analfabeto</option>
                 <option value="funtamental_incompleto">Fundamental - Incompleto</option>
                 <option value="funtamental_completo">Fundamental - Completo</option>

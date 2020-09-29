@@ -17,14 +17,14 @@ import {
 
 export function PacientePage() {
   const {user: {authToken}} = useSelector((state) => state.auth);
-  const [ clinics, setClinics ] = useState([])
+  const [ patients, setPatients ] = useState([])
   const [ logout, setLogout ] = useState(false)
   const history = useHistory();
 
   useEffect(() => {
       index(authToken)
       .then( ({data}) => {
-        setClinics(data)
+        setPatients(data)
       }).catch((err)=>{
         if (err.response.status === 401) {
           setLogout(true)
@@ -40,7 +40,7 @@ export function PacientePage() {
     destroy(authToken, id).then(()=>{
        index(authToken)
       .then( ({data}) => {
-        setClinics(data)
+        setPatients(data)
       }).catch((err)=>{
         if (err.response.status === 401) {
           setLogout(true)
@@ -85,20 +85,18 @@ export function PacientePage() {
             </tr>
           </thead>
           <tbody>
-          {clinics.map( clinic => (
-            <tr key={clinic.id} >
-              <td>{clinic.name}</td>
-              <td>{clinic.cpf}</td>
-              <td>{clinic.email}</td>
-              <td>{clinic.cel}</td>
-              <td>{clinic.gender}</td>
+          {patients.map( patient => (
+            <tr key={patient.id} >
+              <td>{patient.name}</td>
+              <td>{patient.cpf}</td>
+              <td>{patient.email}</td>
+              <td>{patient.tel}</td>
+              <td>{patient.gender}</td>
               <td><Link to={''} />
-              <span className="svg-icon menu-icon">
-                <Link to="/clinicas/editar">
+              <span onClick={() => history.push(`/paciente/editar/${patient.id}`) } className="svg-icon menu-icon">
                   <SVG style={{"fill": "#3699FF", "color": "#3699FF"}} src={toAbsoluteUrl("/media/svg/icons/Design/create.svg")} />
-                </Link>
               </span>
-              <span onClick={() => handleDelete(clinic.id) }  style={{"cursor": "pointer"}} className="svg-icon menu-icon">
+              <span onClick={() => handleDelete(patient.id) }  style={{"cursor": "pointer"}} className="svg-icon menu-icon">
                 <SVG style={{"fill": "#3699FF", "color": "#3699FF", "marginLeft": 8}} src={toAbsoluteUrl("/media/svg/icons/Design/delete.svg")} />
               </span>
               </td>

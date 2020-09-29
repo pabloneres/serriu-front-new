@@ -4,32 +4,22 @@ import { connect } from "react-redux";
 import { Link } from 'react-router-dom'
 import { Form, Col, Button } from "react-bootstrap";
 import { FormattedMessage, injectIntl } from "react-intl";
-import { useHistory } from "react-router-dom";
+import { useHistory, useRouteMatch } from "react-router-dom";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useSelector } from "react-redux";
-import { store } from '~/app/controllers/recepcionistController'
+import { update, show } from '~/app/controllers/recepcionistController'
 
 
-const initialValues = {
-  name: '',
-  cpf: '',
-  rg: '',
-  nasc: '',
-  gender: '',
-  tel: '',
-  status: '',
-  schooling: '',
-  email: '',
-  password: ''
-}
 
-export function AdicionarRecepcionistaPage(props) {
+export function EditarRecepcionistaPage(props) {
+const { params, url } = useRouteMatch()
   const { intl } = props;
   const { user: { authToken } } = useSelector((state) => state.auth);
   const history = useHistory();
-  const [ufs, setUfs] = useState([])
 
+  const [recepcionist, setRecepcionist] = useState({})
+  const [user, setUser] = useState({})
 
   const recepcionistaSchema = Yup.object().shape({
     name: Yup.string()
@@ -68,11 +58,11 @@ export function AdicionarRecepcionistaPage(props) {
   });
 
   const formik = useFormik({
-    initialValues,
+    initialValues: {...recepcionist, email: user.email},
+    enableReinitialize: true,
     validationSchema: recepcionistaSchema,
     onSubmit: (values, { setStatus, setSubmitting }) => {
-      console.log(values)
-      store(authToken, values)
+      update(authToken, params.id, values)
         .then(() => history.push("/recepcionista"))
         .catch((err)=> {
           return 
@@ -81,6 +71,16 @@ export function AdicionarRecepcionistaPage(props) {
         })
     },
   });
+
+  useEffect(() => {
+    show(authToken, params.id)
+      .then(({data}) => {
+        setRecepcionist(data[0])
+        setUser(data[0].user)
+      })
+      .catch((err)=> history.push('/recepcionista'))
+  }, [])
+
 
   return (
     <Card>

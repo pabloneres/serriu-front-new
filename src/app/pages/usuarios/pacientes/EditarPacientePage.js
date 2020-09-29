@@ -4,34 +4,23 @@ import { connect } from "react-redux";
 import { Link } from 'react-router-dom'
 import { Form, Col, Button } from "react-bootstrap";
 import { FormattedMessage, injectIntl } from "react-intl";
-import { useHistory } from "react-router-dom";
+import { useHistory, useRouteMatch } from "react-router-dom";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useSelector } from "react-redux";
-import { store } from '~/app/controllers/recepcionistController'
+import { update, show } from '~/app/controllers/pacienteController'
 
-
-const initialValues = {
-  name: '',
-  cpf: '',
-  rg: '',
-  nasc: '',
-  gender: '',
-  tel: '',
-  status: '',
-  schooling: '',
-  email: '',
-  password: ''
-}
-
-export function AdicionarRecepcionistaPage(props) {
+export function EditarPacientePage(props) {
+  const { params, url } = useRouteMatch()
   const { intl } = props;
   const { user: { authToken } } = useSelector((state) => state.auth);
   const history = useHistory();
+
+  const [patient, setPatient] = useState({})
+  const [user, setUser] = useState({})
   const [ufs, setUfs] = useState([])
 
-
-  const recepcionistaSchema = Yup.object().shape({
+  const pacienteSchema = Yup.object().shape({
     name: Yup.string()
       .min(3, "Minimum 3 symbols")
       .max(50, "Maximum 50 symbols")
@@ -46,6 +35,10 @@ export function AdicionarRecepcionistaPage(props) {
     nasc: Yup.string()
       .min(3, "Minimum 3 symbols")
       .max(50, "Maximum 50 symbols"),
+    email: Yup.string()
+      .email("Wrong email format")
+      .min(3, "Minimum 3 symbols")
+      .max(50, "Maximum 50 symbols"),
     gender: Yup.string()
       .min(3, "Minimum 3 symbols")
       .max(50, "Maximum 50 symbols"),
@@ -55,25 +48,18 @@ export function AdicionarRecepcionistaPage(props) {
     status: Yup.string()
       .min(3, "Minimum 3 symbols")
       .max(50, "Maximum 50 symbols"),
-    shooling: Yup.string()
+    schooling: Yup.string()
       .min(3, "Minimum 3 symbols")
-      .max(50, "Maximum 50 symbols"),
-    email: Yup.string()
-      .email("Wrong email format")
-      .min(5, "Minimum 3 symbols")
-      .max(50, "Maximum 50 symbols"),
-    password: Yup.string()
-      .min(8, "Minimum 8 symbols")
       .max(50, "Maximum 50 symbols"),
   });
 
   const formik = useFormik({
-    initialValues,
-    validationSchema: recepcionistaSchema,
+    initialValues: patient,
+    enableReinitialize: true,
+    validationSchema: pacienteSchema,
     onSubmit: (values, { setStatus, setSubmitting }) => {
-      console.log(values)
-      store(authToken, values)
-        .then(() => history.push("/recepcionista"))
+      update(authToken, params.id, values)
+        .then(() => history.push("/paciente"))
         .catch((err)=> {
           return 
           // retirar a linha debaixo e retornar o erro
@@ -82,9 +68,17 @@ export function AdicionarRecepcionistaPage(props) {
     },
   });
 
+  useEffect(() => {
+    show(authToken, params.id)
+      .then(({data}) => {
+        setPatient(data[0])
+      })
+      .catch((err)=> history.push('/pacientes'))
+  }, [])
+
   return (
     <Card>
-      <CardHeader title="Adicionar nova recepcionista"></CardHeader>
+      <CardHeader title="Adicionar novo paciente"></CardHeader>
       <CardBody>
         <Form
           onSubmit={formik.handleSubmit}
@@ -129,7 +123,7 @@ export function AdicionarRecepcionistaPage(props) {
             </Form.Group>
 
             <Form.Group as={Col} controlId="formGridPassword">
-              <Form.Label>RG *</Form.Label>
+              <Form.Label>RG</Form.Label>
               <Form.Control
                 type="text"
                 placeholder="Digite seu RG"
@@ -147,7 +141,7 @@ export function AdicionarRecepcionistaPage(props) {
           <Form.Row>
 
           <Form.Group as={Col} controlId="formGridPassword">
-              <Form.Label>Data de Nascimento *</Form.Label>
+              <Form.Label>Data de Nascimento</Form.Label>
               <Form.Control
                 type="date"
                 name="nasc"
@@ -160,8 +154,24 @@ export function AdicionarRecepcionistaPage(props) {
               ) : null}
             </Form.Group>
 
+            <Col xs={6}>
+            <Form.Group controlId="formGridAddress1">
+              <Form.Label>Email</Form.Label>
+              <Form.Control
+                placeholder="Digite seu email"
+                name="email"
+                {...formik.getFieldProps("email")}
+              />
+              {formik.touched.email && formik.errors.email ? (
+                <div className="fv-plugins-message-container">
+                  <div className="fv-help-block">{formik.errors.email}</div>
+                </div>
+              ) : null}
+            </Form.Group>
+            </Col>
+
             <Form.Group as={Col} controlId="formGridAddress1">
-              <Form.Label>Genêro *</Form.Label>
+              <Form.Label>Genêro</Form.Label>
               <Form.Control
                 as="select"
                 name="gender"
@@ -183,7 +193,7 @@ export function AdicionarRecepcionistaPage(props) {
           <Form.Row>
 
           <Form.Group as={Col} controlId="formGridAddress1">
-              <Form.Label>Celular *</Form.Label>
+              <Form.Label>Celular</Form.Label>
               <Form.Control
                 placeholder="Digite seu celular"
                 name="tel"
@@ -197,7 +207,7 @@ export function AdicionarRecepcionistaPage(props) {
             </Form.Group>
 
             <Form.Group as={Col} controlId="formGridAddress1">
-              <Form.Label>Estado Civil *</Form.Label>
+              <Form.Label>Estado Civil</Form.Label>
               <Form.Control
               as="select"
                 name="status"
@@ -216,9 +226,9 @@ export function AdicionarRecepcionistaPage(props) {
 
 
             <Form.Group as={Col} controlId="formGridAddress1">
-              <Form.Label>Escolaridade *</Form.Label>
+              <Form.Label>Escolaridade</Form.Label>
               <Form.Control
-              as="select" 
+              as="select"
                 name="schooling"
                 {...formik.getFieldProps("schooling")}
               >
@@ -240,49 +250,17 @@ export function AdicionarRecepcionistaPage(props) {
               </Form.Control>
               {formik.touched.schooling && formik.errors.schooling ? (
                 <div className="fv-plugins-message-container">
-                  <div className="fv-help-block">{formik.errors.schooling}</div>
-                </div>
-              ) : null}
-            </Form.Group>
-          </Form.Row>
-
-          <div className="separator separator-solid mt-4 mb-4"></div>
-          <h4 className="mb-4">Dados do usúario</h4>
-
-          <Form.Row>
-    
-            <Form.Group as={Col} controlId="formGridAddress1">
-              <Form.Label>Email *</Form.Label>
-              <Form.Control
-                placeholder="Digite seu email"
-                name="email"
-                {...formik.getFieldProps("email")}
-              />
-              {formik.touched.email && formik.errors.email ? (
-                <div className="fv-plugins-message-container">
-                  <div className="fv-help-block">{formik.errors.email}</div>
+                  <div className="fv-help-block">{formik.errors.escolaridade}</div>
                 </div>
               ) : null}
             </Form.Group>
 
-            <Form.Group as={Col} controlId="formGridPassword">
-              <Form.Label>Senha *</Form.Label>
-              <Form.Control
-                type="password"
-                placeholder="Digite uma senha"
-                name="password"
-                {...formik.getFieldProps("password")}
-              />
-              {formik.touched.name && formik.errors.password ? (
-                <div className="fv-plugins-message-container">
-                  <div className="fv-help-block">{formik.errors.password}</div>
-                </div>
-              ) : null}
-            </Form.Group>
+            
+            
           </Form.Row>
 
           <div className="text-right">
-            <Link to="/recepcionista">
+            <Link to="/paciente">
               <Button className="mr-2" variant="danger">
                 Cancelar
               </Button>

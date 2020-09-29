@@ -1,9 +1,9 @@
 import api from '../services/api'
 
 // DEFINIR AS ROTAS DAS CLINICAS
-const INDEX_CLINICS_URL = "/patient";
+const INDEX_CLINICS_URL = "/patients";
 
-const SHOW_CLINIC_URL = "/";
+const SHOW_CLINIC_URL = "/patient";
 
 const STORE_CLINIC_URL = "/patient";
 
@@ -35,8 +35,8 @@ export function store(authToken, data) {
   });
 }
 
-export function update(authToken, data) {
-  return api.put(UPDATE_CLINIC_URL, data, {
+export function update(authToken, id, data) {
+  return api.put(`${UPDATE_CLINIC_URL}/${id}`, data, {
     headers: {
       Authorization: 'Bearer ' + authToken
     }
