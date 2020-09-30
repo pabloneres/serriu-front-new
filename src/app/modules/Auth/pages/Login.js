@@ -114,10 +114,10 @@ function Login(props) {
         ) : (
           <div className="mb-10 alert alert-custom alert-light-info alert-dismissible">
             <div className="alert-text ">
-              <p>Use a conta  <strong>master@hotmail.com</strong> para acesso no admin</p>
+              {/* <p>Use a conta  <strong>master@hotmail.com</strong> para acesso no admin</p>
               <p>Use a conta  <strong>matriz@hotmail.com</strong> para acesso na matriz</p>
               <p>Use a conta  <strong>clinica@hotmail.com</strong> para acesso na filial</p>
-              <p>Todas as contas usam a mesma senha <strong>master123</strong></p>
+              <p>Todas as contas usam a mesma senha <strong>master123</strong></p> */}
             </div>
           </div>
         )}
