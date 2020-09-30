@@ -4,7 +4,8 @@ import { useSelector } from "react-redux";
 
 import {AsideMenuListMaster} from "./AsideMenuListMaster";
 import {AsideMenuListMatriz} from "./AsideMenuListMatriz";
-import {AsideMenuListFilial} from "./AsineMenuListFilial";
+import {AsideMenuListFilial} from "./AsideMenuListFilial";
+import {AsideMenuListDentista} from "./AsideMenuListDentista";
 
 export function AsideMenu({disableScroll}) {
   const {user} = useSelector((state) => state.auth);
@@ -29,6 +30,10 @@ export function AsideMenu({disableScroll}) {
 
     if (user[0].access_level === 3) {
       return <AsideMenuListFilial layoutProps={props} />
+    }
+
+    if (user[0].access_level === 4) {
+      return <AsideMenuListDentista layoutProps={props} />
     }
   }
 
