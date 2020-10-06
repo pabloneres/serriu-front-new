@@ -29,6 +29,8 @@ import { EditarRecepcionistaPage } from '~/app/pages/usuarios/recepcionistas/Edi
 import { TabelaPreco } from '~/app/pages/configuracoes/tabelaPreco/TabelaPreco'
 import { TabelaProcedimento } from '~/app/pages/configuracoes/tabelaProcedimento/TabelaProcedimento'
 
+import { Equipamentos } from '~/app/pages/configuracoes/equipamentos/Equipamentos'
+
 
 
 const GoogleMaterialPage = lazy(() =>
@@ -80,6 +82,7 @@ export default function BasePage() {
         <ContentRoute exact path="/tabela-precos" component={TabelaPreco} />
         <ContentRoute exact path="/tabela-precos/:id" component={TabelaProcedimento} />
 
+        <ContentRoute exact path="/equipamentos" component={Equipamentos} />
 
         {/* SUBMENU Rotas de Usuarios */}
 
