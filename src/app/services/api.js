@@ -1,11 +1,7 @@
-import * as dotenv from 'dotenv';
 import axios from 'axios'
-dotenv.config()
-
-
 
 const baseUrl = axios.create({
-  baseURL: process.env.APP_URL
+  baseURL: 'http://serriu-back.herokuapp.com'
 })
 
 export default baseUrl
