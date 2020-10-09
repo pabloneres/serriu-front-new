@@ -248,7 +248,7 @@ export function TabelaPreco() {
                 <SVG style={{"fill": "#3699FF", "color": "#3699FF", "marginLeft": 8}} src={toAbsoluteUrl("/media/svg/icons/Design/delete.svg")} />
               </span>
               <span onClick={() => history.push(`/tabela-precos/${tabela.id}/procedimentos`) }  style={{"cursor": "pointer"}} className="svg-icon menu-icon">
-                <SVG style={{"fill": "#3699FF", "color": "#3699FF", "marginLeft": 8}} src={toAbsoluteUrl("/media/svg/icons/General/visible.svg")} />
+                <SVG style={{"fill": "#3699FF", "color": "#3699FF", "marginLeft": 8}} src={toAbsoluteUrl("/media/svg/icons/Design/view.svg")} />
               </span>
               </td>
             </tr>
