@@ -23,6 +23,7 @@ export function Equipamentos() {
   const [machines, setMachines] = useState([])
   const [logout, setLogout] = useState(false)
   const [show, setShow] = useState(false);
+  const [changed, setChanged] = useState(false);
   const [showOn, setShowOn] = useState(false);
   const [id_maquina, setIdMaquina] = useState();
   const [showEdit, setShowEdit] = useState(false);
@@ -78,6 +79,7 @@ export function Equipamentos() {
       api.get(`/on?id_cliente=${values.id_cliente}&id_colaborador=${values.id_dentista}&id_maquina=${id_maquina}`)
         .then(() => {
           setShowOn(false)
+          setChanged(!changed)
         })
     },
   });
@@ -92,13 +94,14 @@ export function Equipamentos() {
           setLogout(true)
         }
       })
-  }, [show])
+  }, [show, changed])
 
   if (logout) {
     return <Redirect to="/logout" />
   }
 
   function handleDelete(id) {
+    console.log(id)
     destroy(authToken, id).then(() => {
       index(authToken)
         .then(({ data }) => {
@@ -119,6 +122,14 @@ export function Equipamentos() {
   function handleOn(id) {
     setShowOn(true)
     setIdMaquina(id)
+    setChanged(!changed)
+  }
+
+  async function handleOff(id_maquina, id_dentista, id_cliente) {
+    api.get(`/off?id_cliente=${id_cliente}&id_colaborador=${id_dentista}&id_maquina=${id_maquina}`)
+    .then(() => {
+      setChanged(!changed)
+    })
   }
 
   return (
@@ -258,6 +269,8 @@ export function Equipamentos() {
               <th style={{ "width": 80 }} >Id</th>
               <th style={{ "width": 80 }} >Estado</th>
               <th>Nome</th>
+              <th>Dentista</th>
+              <th>Paciente</th>
               <th style={{ "width": 80 }}>Ações</th>
             </tr>
           </thead>
@@ -267,11 +280,18 @@ export function Equipamentos() {
                 <td>{machine.id_machine}</td>
                 <td>{machine.status === 0 ? 'Off' : 'On'}</td>
                 <td>{machine.name_machine}</td>
+                <td>{machine.id_collaborator}</td>
+                <td>{machine.id_patient}</td>
                 <td><Link to={''} />
+                  {machine.status === 0 ? 
                   <span onClick={() => { handleOn(machine.id_machine) }} style={{ "cursor": "pointer" }} className="svg-icon menu-icon" className="svg-icon menu-icon">
                     <SVG style={{ "fill": "#3699FF", "color": "#3699FF" }} src={toAbsoluteUrl("/media/svg/icons/Navigation/power.svg")} />
+                  </span> :
+                  <span onClick={() => { handleOff(machine.id_machine, machine.id_collaborator, machine.id_patient ) }} style={{ "cursor": "pointer" }} className="svg-icon menu-icon" className="svg-icon menu-icon">
+                    <SVG style={{ "fill": "#3699FF", "color": "#3699FF" }} src={toAbsoluteUrl("/media/svg/icons/Navigation/power_off.svg")} />
                   </span>
-                  <span onClick={() => handleDelete(machine.id)} style={{ "cursor": "pointer" }} className="svg-icon menu-icon" className="svg-icon menu-icon">
+                }
+                  <span onClick={() => handleDelete(machine.id_machine)} style={{ "cursor": "pointer" }} className="svg-icon menu-icon" className="svg-icon menu-icon">
                     <SVG style={{ "fill": "#3699FF", "color": "#3699FF", "marginLeft": 8 }} src={toAbsoluteUrl("/media/svg/icons/Design/delete.svg")} />
                   </span>
                 </td>

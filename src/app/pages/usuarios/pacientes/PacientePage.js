@@ -78,6 +78,7 @@ export function PacientePage() {
             <tr>
               <th>Nome</th>
               <th>CPF</th>
+              <th>Codigo</th>
               <th>E-mail</th>
               <th>Celular</th>
               <th>Sexo</th>
@@ -89,6 +90,7 @@ export function PacientePage() {
             <tr key={patient.id} >
               <td>{patient.name}</td>
               <td>{patient.cpf}</td>
+              <td>{patient.id_acesso}</td>
               <td>{patient.email}</td>
               <td>{patient.tel}</td>
               <td>{patient.gender}</td>

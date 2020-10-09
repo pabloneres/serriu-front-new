@@ -78,7 +78,7 @@ export function DentistaPage() {
         <Table striped bordered hover>
           <thead>
             <tr>
-              <th>Id</th>
+              <th>Codigo</th>
               <th>Nome</th>
               <th>CPF</th>
               <th>CRO UF</th>
@@ -91,7 +91,7 @@ export function DentistaPage() {
           <tbody>
           {users.map( dentist => (
             <tr key={dentist.id} >
-              <td>{dentist.id}</td>
+              <td>{dentist.id_acesso}</td>
               <td>{dentist.name}</td>
               <td>{dentist.cpf}</td>
               <td>{dentist.cro}</td>

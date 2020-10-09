@@ -1,18 +1,18 @@
 import api from '../services/api'
 
 // DEFINIR AS ROTAS DAS CLINICAS
-const INDEX_CLINICS_URL = "/precos";
+const INDEX_CLINICS_URL = "/procedimentos";
 
 const SHOW_CLINIC_URL = "/";
 
-const STORE_CLINIC_URL = "/preco";
+const STORE_CLINIC_URL = "/procedimento";
 
-const UPDATE_CLINIC_URL = "/preco";
+const UPDATE_CLINIC_URL = "/procedimento";
 
-const DESTROY_CLINIC_URL = "/preco";
+const DESTROY_CLINIC_URL = "/procedimento";
 
-export function index(authToken) {
-  return api.get(INDEX_CLINICS_URL, {
+export function index(authToken, id) {
+  return api.get(`${INDEX_CLINICS_URL}/${id}`, {
     headers: {
       Authorization: 'Bearer ' + authToken
     }
