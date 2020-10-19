@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Card, CardHeader, CardBody,  } from "~/_metronic/_partials/controls";
 import { toAbsoluteUrl, checkIsActive } from "~/_metronic/_helpers";
-import { Form, Table, Col, Button,CardGroup } from "react-bootstrap";
+import { Form, Table, Col, Button, CardGroup, Modal } from "react-bootstrap";
 import SVG from 'react-inlinesvg'
 
 import { connect } from "react-redux";
@@ -42,6 +42,8 @@ export function AdicionarOrcamentoPage(props) {
     const [ procedimentos, setProcedimentos ] = useState([])
     const [ procedimentosFinalizados, setProcedimentosFinalizados ] = useState([])
     const [ dadosAPI, setDadosAPI ] = useState([])
+    const [ modalOrcamento, setModalOrcamento ] = useState(false)
+    const [ modalOrcamentoProcedimento, setModalOrcamentoProcedimento ] = useState({})
 
     const [procedimento,setProcedimento] = useState();
 
@@ -61,6 +63,8 @@ export function AdicionarOrcamentoPage(props) {
         tabela: ''
     };
 
+ 
+
     useEffect(() => {
         index(authToken)
         .then( ({data}) => {
@@ -76,6 +80,14 @@ export function AdicionarOrcamentoPage(props) {
           
         })
     },[])
+
+
+    const openModalProcedimento = (proced) =>{
+
+        console.log(proced);
+        setModalOrcamentoProcedimento(proced);
+        setModalOrcamento(true);
+    }
 
 
     const handlerMudancaTabela = (e) => {
@@ -97,11 +109,11 @@ export function AdicionarOrcamentoPage(props) {
 
       
       setProcedimentosFinalizados([...procedimentosFinalizados, proced]);
-     
-
-     console.log(procedimentosFinalizados);
       
-     //setProcedimento(undefined); 
+
+     
+      
+     setProcedimento(undefined); 
     };
 
     const removerProcedimento = (key) =>{
@@ -211,6 +223,77 @@ export function AdicionarOrcamentoPage(props) {
     ];
   return (
     <Card>
+      <Modal
+        show={modalOrcamento}
+        size="lg"
+        aria-labelledby="contained-modal-title-vcenter"
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title id="contained-modal-title-vcenter">
+          {modalOrcamentoProcedimento.label}
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {(() => {
+              
+
+              if(modalOrcamentoProcedimento.geral == 0){
+
+                return(
+                  <div className="relatorio">
+                      <CardGroup>
+                        <Card>
+                          <CardHeader title="Informações"></CardHeader>
+                          <CardBody>
+                            <p>
+                              
+                            </p>
+
+                          </CardBody>
+                        </Card>
+                        <Card>
+                        <CardHeader title="Dentes"></CardHeader>
+                            <CardBody>
+                          
+                            <ul className="listaDentes">
+                                {modalOrcamentoProcedimento.dentes.map((dente,key)=>{
+                                    return(
+                                      <li key={key} className="ativo">
+                                          <span>{dente.label}</span>
+                                          <span>{modalOrcamentoProcedimento.labe}</span>
+            
+                                          <div className="faces">
+                                                {dente.faces.map((face,key) =>{
+                                                    return (
+                                                    <div key={key}  className="face ativo" >{face.label}</div>
+                                                    )
+                                                })}
+                                          </div>
+                                        
+                                    </li>
+                                  )
+                                })}
+                              </ul>
+                            </CardBody>
+                        </Card>
+                      </CardGroup>
+                  </div>
+                )
+
+              }
+              
+           
+           })()}
+        
+          <div className="text-left">
+              <h2>Total : {conversorMonetario(modalOrcamentoProcedimento.valor)}</h2>
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button onClick={() => setModalOrcamento(!modalOrcamento)}>Fechar</Button>
+        </Modal.Footer>
+      </Modal>
     <CardHeader title="Adicionar Orcamento"></CardHeader>
     <CardBody>
       <Form
@@ -347,7 +430,7 @@ export function AdicionarOrcamentoPage(props) {
           </Card>
 
           <Card >
-              <CardHeader title="Procedimentos Selecionados"></CardHeader>
+              <CardHeader title="Orçamentos"></CardHeader>
               <CardBody>
 
                   <Table striped bordered hover>
@@ -366,11 +449,18 @@ export function AdicionarOrcamentoPage(props) {
                             <td >{row.label}</td>
                             <td >{conversorMonetario(row.valor)}</td>
                             <td>
-                              <span onClick={() => alterarProcedimento(key) } className="svg-icon menu-icon">
+                             {
+                               /**
+                                <span onClick={() => alterarProcedimento(key) } className="svg-icon menu-icon">
                                 <SVG style={{"fill": "#3699FF", "color": "#3699FF", "cursor": "pointer"}} src={toAbsoluteUrl("/media/svg/icons/Design/create.svg")} />
+                                </span>
+                                */
+                             }
+                             <span onClick={() => openModalProcedimento(row) } className="svg-icon menu-icon info">
+                                <i style={{"fill": "#3699FF", "color": "#3699FF", "marginLeft": 8, "cursor": "pointer"}} className="fa fa-info-circle"></i>
                               </span>
                               <span onClick={() => removerProcedimento(key) } className="svg-icon menu-icon">
-                                <SVG style={{"fill": "#3699FF", "color": "#3699FF", "marginLeft": 8}} src={toAbsoluteUrl("/media/svg/icons/Design/delete.svg")} />
+                                <SVG style={{"fill": "#3699FF", "color": "#3699FF", "marginLeft": 8, "cursor": "pointer"}} src={toAbsoluteUrl("/media/svg/icons/Design/delete.svg")} />
                               </span>
                             </td>
                         </tr>

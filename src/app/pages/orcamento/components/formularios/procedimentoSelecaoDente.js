@@ -3,10 +3,20 @@ import React,{useState} from 'react';
 import { Form, Col, Button, Modal } from "react-bootstrap";
 import Select from 'react-select';
 
+import SelecaoDentes from '../SelecaoDentes';
+
 function ProcedimentoSelecaoDente({onFinish, procedimento}) {
 
-    const numerosPermanetes = ["11","12","13","14","15","16","17","18","21","22","23","24","25","26","27","28","31","32","33","34","35","36","37","38","41","42","43","44","45","46","47","48"];
-    const numerosDeciduos = ["51","52","53","54","55","61","62","63","64","65","71","72","73","74","75","81","82","83","84","85"];
+    const numerosPermanetes = [["18","17","16","15","14","13","12","11"],
+                               ["21","22","23","24","25","26","27","28"],
+                               ["48","47","46","45","44","43","42","41"],
+                               ["31","32","33","34","35","36","37","38"]
+                               ];
+
+    const numerosDeciduos = [["55","54","53","52","51"],
+                             ["61","62","63","64","65"],
+                             ["85","84","83","82","81"],
+                             ["71","72","73","74","75"]];
     const faces = [
         {value: 0,label: "V"},
         {value: 1,label: "D"},
@@ -18,35 +28,63 @@ function ProcedimentoSelecaoDente({onFinish, procedimento}) {
 
 
     const [denticao,setDenticao] = useState();
+    const [dentes,setDentes] = useState();
+
+    procedimento.dentes = [];
 
 
     var listaDenticoes = [
-        { value: '', label: '---' },
+
         { value: '1', label: 'Permanentes', numerosDentes : numerosPermanetes  },
         { value: '2', label: 'Deciduos', numerosDentes : numerosDeciduos  }
     ];
 
     const handlerMudancaDenticao = (value) =>{
 
-        let dentes = value.numerosDentes;
+        let novaDenticao = value.numerosDentes.map((dente) => {
 
-         
+
+            return dente.map(function(numero){
+                
+                  return {
+                      
+                      label: numero,
+                      faces: []
+                  }
+              })
+             
+             
+  
+        });
+
+      
+        setDenticao(novaDenticao)
+
+
         
 
-        setDenticao(dentes.map((row,key) => {
-
-            return {
-                value: key,
-                label: row
-            }
-
-        }))
+        //setDenticao(value.numerosDentes)
 
     }
 
-    const handlerMudancafaces = (value) =>{
 
-        console.log(value);
+
+    const handlerMudancaDentes = (value) =>{
+
+        setDentes(value);
+
+    }
+
+    const handlerFinalizaProcedimento = (e) =>{
+
+
+        procedimento.dentes = dentes;
+
+        
+        procedimento.valor = dentes.length * procedimento.valor;
+
+        onFinish(e,procedimento);
+       
 
     }
 
@@ -73,19 +111,13 @@ function ProcedimentoSelecaoDente({onFinish, procedimento}) {
                 </Form.Group>
             </Form.Row>
 
-          
+          <SelecaoDentes listaDentes={denticao} nomeProcedimento={procedimento.label} callback={(value) => handlerMudancaDentes(value) } />
 
-            <Form.Row>
-                <Form.Group as={Col}>
-                    <Button variant="primary" onClick={(e) => onFinish(e,procedimento)} block>
-                        Adicionar Dente
-                    </Button>
-                </Form.Group>
-            </Form.Row>
+         
 
             <div className="text-right">
            
-            <Button variant="primary" onClick={(e) => onFinish(e,procedimento)}>
+            <Button variant="primary" onClick={(e) => handlerFinalizaProcedimento(e)}>
                 Adicionar
             </Button>
             </div>
