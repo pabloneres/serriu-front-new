@@ -1,0 +1,82 @@
+.listaNumeroDentes {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+   
+    justify-content: space-between;
+    padding: 0px;
+}
+.listaNumeroDentes .numero{
+   
+    font-size: 15px;
+    height: 25px;
+    width: 25px;
+    margin: 1px;
+    text-align: center;
+    cursor: pointer;
+    color: rgb(54, 54, 54);
+    background-color: #f0f0f0;
+    
+}
+
+.svg-icon.menu-icon.info{
+    margin-top: 2px;
+}
+
+
+
+.listaNumeroDentes .numero.ativo{
+    
+    color: #fff;
+    background-color: #90c1f0;
+    
+}
+
+.listaNumeroDentes .sessaoDente{
+    
+    display: flex;
+    margin-bottom: 10px;
+    flex-basis: 50%;
+    
+}
+
+
+
+.listaDentes {
+    padding: 10px;
+    overflow-y: auto;
+    height: 200px ;
+}
+.listaDentes li{
+  
+    display: flex;
+    margin-bottom: 5px;
+    padding: 10px 10px;
+    box-shadow: 0px 1px 15px 1px rgba(160, 160, 160, 0.2);
+    border-radius: 15px;
+    justify-content: space-between;
+}
+
+.listaDentes li .faces{
+    display: flex;
+    
+}
+.listaDentes li .faces .face{
+    
+    font-size: 15px;
+    height: 20px;
+    width: 20px;
+    margin: 1px;
+    text-align: center;
+    cursor: pointer;
+    color: rgb(54, 54, 54);
+    background-color: #f0f0f0;
+}
+
+
+.listaDentes li .faces .face.ativo{
+    
+    color: #fff;
+    background-color: #90c1f0;
+    
+}

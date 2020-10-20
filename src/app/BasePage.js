@@ -10,6 +10,11 @@ import { AdicionarClinicaPage } from "~/app/pages/clinicas/AdicionarClinicaPage"
 import { EditarClinicaPage } from "~/app/pages/clinicas/EditarClinicaPage";
 
 import { AgendaPage } from "~/app/pages/agenda/AgendaPage";
+
+import { OrcamentoPage } from "~/app/pages/orcamento/OrcamentoPage";
+import { AdicionarOrcamentoPage } from "~/app/pages/orcamento/AdicionarOrcamentoPage";
+import { EditarOrcamentoPage } from "~/app/pages/orcamento/EditarOrcamentoPage";
+
 import { FinanceiroPage } from "~/app/pages/financeiro/FinanceiroPage";
 import { UsuariosPage } from "~/app/pages/usuarios/UsuariosPage";
 import { ConfiguracoesPage } from "~/app/pages/configuracoes/ConfiguracoesPage";
@@ -60,6 +65,9 @@ export default function BasePage() {
 
         {/* Rotas de clinicas */}
         <ContentRoute exact path="/agenda" component={AgendaPage} />
+        <ContentRoute exact path="/orcamento" component={OrcamentoPage} />
+        <ContentRoute exact path="/orcamento/adicionar" component={AdicionarOrcamentoPage} />
+        <ContentRoute exact path="/orcamento/editar/:id" component={EditarOrcamentoPage} />
         <ContentRoute exact path="/pacientes" component={PacientePage} />
         <ContentRoute exact path="/financeiro" component={FinanceiroPage} />
         <ContentRoute exact path="/usuarios" component={UsuariosPage} />

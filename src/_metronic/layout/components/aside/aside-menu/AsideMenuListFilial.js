@@ -41,6 +41,17 @@ export function AsideMenuListFilial({ layoutProps }) {
           </NavLink>
         </li>
         <li
+          className={`menu-item ${getMenuItemActive("/orcamento", false)}`}
+          aria-haspopup="true"
+        >
+          <NavLink className="menu-link" to="/orcamento">
+            <span className="svg-icon menu-icon">
+              <SVG style={{"fill": "#3699FF"}} src={toAbsoluteUrl("/media/svg/icons/Design/money.svg")} />
+            </span>
+            <span className="menu-text">Orçamento</span>
+          </NavLink>
+        </li>
+        <li
           className={`menu-item ${getMenuItemActive("/pacientes", false)}`}
           aria-haspopup="true"
         >
