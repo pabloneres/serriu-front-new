@@ -15,6 +15,8 @@ import { OrcamentoPage } from "~/app/pages/orcamento/OrcamentoPage";
 import { AdicionarOrcamentoPage } from "~/app/pages/orcamento/AdicionarOrcamentoPage";
 import { EditarOrcamentoPage } from "~/app/pages/orcamento/EditarOrcamentoPage";
 
+
+
 import { FinanceiroPage } from "~/app/pages/financeiro/FinanceiroPage";
 import { UsuariosPage } from "~/app/pages/usuarios/UsuariosPage";
 import { ConfiguracoesPage } from "~/app/pages/configuracoes/ConfiguracoesPage";
@@ -71,6 +73,9 @@ export default function BasePage() {
         <ContentRoute exact path="/financeiro" component={FinanceiroPage} />
         <ContentRoute exact path="/usuarios" component={UsuariosPage} />
         <ContentRoute exact path="/configuracoes" component={ConfiguracoesPage} />
+
+       
+
         
         {/* SUBMENU Rotas de Usuarios */}
         <ContentRoute exact path="/dentista" component={DentistaPage} />

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Card, CardHeader, CardBody } from "../../../../_metronic/_partials/controls";
+import { Card, CardHeader, CardBody} from "../../../../_metronic/_partials/controls";
 import { connect } from "react-redux";
 import { Link } from 'react-router-dom'
-import { Form, Col, Button } from "react-bootstrap";
+import { Form, Col, Button, Navbar, Nav  } from "react-bootstrap";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { useHistory, useRouteMatch } from "react-router-dom";
 import { useFormik } from "formik";
@@ -78,8 +78,19 @@ export function EditarPacientePage(props) {
 
   return (
     <Card>
-      <CardHeader title="Adicionar novo paciente"></CardHeader>
+      
+      <Navbar bg="light" variant="light">
+      
+        <Nav className="mr-auto">
+          <Nav.Link href="#home">Informações</Nav.Link>
+          <Nav.Link href="#features">Orçamento</Nav.Link>
+     
+        </Nav>
+       
+      </Navbar>
+      <CardHeader title="Editar Paciente"></CardHeader>
       <CardBody>
+      
         <Form
           onSubmit={formik.handleSubmit}
         >

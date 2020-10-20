@@ -40,7 +40,7 @@ export function AsideMenuListDentista({ layoutProps }) {
             <span className="menu-text">Agenda</span>
           </NavLink>
         </li>
-         <li
+         {/* <li
           className={`menu-item ${getMenuItemActive("/orcamento", false)}`}
           aria-haspopup="true"
         >
@@ -51,7 +51,7 @@ export function AsideMenuListDentista({ layoutProps }) {
             <span className="menu-text">Orçamento</span>
           </NavLink>
         </li>
-        {/* <li
+        <li
           className={`menu-item ${getMenuItemActive("/pacientes", false)}`}
           aria-haspopup="true"
         >
