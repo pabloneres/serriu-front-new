@@ -33,7 +33,7 @@ import { EditarRecepcionistaPage } from '~/app/pages/usuarios/recepcionistas/Edi
 
 import { TabelaPreco } from '~/app/pages/configuracoes/tabelaPreco/TabelaPreco'
 import { TabelaProcedimento } from '~/app/pages/configuracoes/tabelaProcedimento/TabelaProcedimento'
-import { TabelaEspecialidade } from '~/app/pages/configuracoes/tabelaEspecialidade/TabelaEspecialidade'
+import { TabelaEspecialidade } from '~/app/pages/configuracoes/tabelaEspecialidade/tabelaEspecialidade'
 
 import { Equipamentos } from '~/app/pages/configuracoes/equipamentos/Equipamentos'
 
