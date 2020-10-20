@@ -22,8 +22,10 @@ export function TabelaProcedimento() {
   const { params, url } = useRouteMatch()
   const {user: {authToken}} = useSelector((state) => state.auth);
   const [ tabelas, setTabelas ] = useState([])
+  const [ name, setName ] = useState('')
   const [ logout, setLogout ] = useState(false)
   const [show, setShow] = useState(false);
+  const [reload, setReload] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
   const [tableEdit, setTableEdit] = useState([]);
   const history = useHistory();
@@ -58,7 +60,7 @@ export function TabelaProcedimento() {
     initialValues,
     validationSchema: tabelaSchema,
     onSubmit: (values, { setStatus, setSubmitting, resetForm }) => {
-      store(authToken, {...values, table_id: params.id})
+      store(authToken, {...values, especialidade_id: params.id})
         .then(() => {
           resetForm()
           setShow(false)
@@ -73,19 +75,17 @@ export function TabelaProcedimento() {
 
   const formik2 = useFormik({
     initialValues: {
-      name: tableEdit[1]
+      name: tableEdit[1],
+      value: tableEdit[2]
     },
     enableReinitialize: true,
     validationSchema: tabelaSchema2,
     onSubmit: (values, { setStatus, setSubmitting, resetForm }) => {
-      update(authToken, values)
+      update(authToken, tableEdit[0], values)
         .then(() => {
           resetForm()
           setShowEdit(false)
-          index(authToken)
-          .then( ({data}) => {
-            setTabelas(data)
-          })
+          setReload(!reload)
         })
         .catch((err)=> {
           return 
@@ -98,13 +98,14 @@ export function TabelaProcedimento() {
   useEffect(() => {
       index(authToken, params.id)
       .then( ({data}) => {
-        setTabelas(data)
+        setTabelas(data[0])
+        setName(data[1].name)
       }).catch((err)=>{
         if (err.response.status === 401) {
           setLogout(true)
         }
       })
-  }, [show])
+  }, [show, reload])
 
   if (logout) {
     return <Redirect to="/logout" />
@@ -112,20 +113,12 @@ export function TabelaProcedimento() {
 
   function handleDelete(id) {
     destroy(authToken, id).then(()=>{
-       index(authToken)
-      .then( ({data}) => {
-        setTabelas(data)
-      }).catch((err)=>{
-        if (err.response.status === 401) {
-          setLogout(true)
-        }
-      })
+      setReload(!reload)
     })
   }
 
-  function handleEdit(id, name) {
-    setTableEdit([id, name])
-    console.log(name)
+  function handleEdit({id, name, value}) {
+    setTableEdit([id, name, value])
     setShowEdit(true)
   }
 
@@ -251,7 +244,7 @@ export function TabelaProcedimento() {
       </Modal>
       
 
-      <CardHeader title="Tabelas de procedimentos">
+      <CardHeader title={`Procedimentos - ${name}`}>
         <CardHeaderToolbar>
           <button
             type="button"
@@ -275,12 +268,13 @@ export function TabelaProcedimento() {
           {tabelas.map( tabela => (
             <tr key={tabela.id} >
               <td>{tabela.name}</td>
-              <td>R$ {tabela.value}</td>
+              <td>{tabela.value.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})}
+              </td>
               {/* <td>{tabela.email}</td>
               <td>{'CNPJ'}</td>
               <td>{'TEMPO DE CONSULTA'}</td> */}
               <td><Link to={''} />
-              <span onClick={() => { handleEdit(tabela.id, tabela.name) } } className="svg-icon menu-icon">
+              <span onClick={() => { handleEdit(tabela) } } className="svg-icon menu-icon">
                 <SVG style={{"fill": "#3699FF", "color": "#3699FF"}} src={toAbsoluteUrl("/media/svg/icons/Design/create.svg")} />
               </span>
               <span onClick={() => handleDelete(tabela.id) }  style={{"cursor": "pointer"}} className="svg-icon menu-icon">
