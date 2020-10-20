@@ -236,7 +236,7 @@ export function TabelaPreco() {
           <tbody>
           {tabelas.map( tabela => (
             <tr key={tabela.id} >
-              <td><Link to={`tabela-precos/${tabela.id}`} >{tabela.name}</Link></td>
+              <td><Link to={`/tabela-precos/${tabela.id}/especialidades`} >{tabela.name}</Link></td>
               {/* <td>{tabela.email}</td>
               <td>{'CNPJ'}</td>
               <td>{'TEMPO DE CONSULTA'}</td> */}
@@ -247,7 +247,7 @@ export function TabelaPreco() {
               <span onClick={() => handleDelete(tabela.id) }  style={{"cursor": "pointer"}} className="svg-icon menu-icon">
                 <SVG style={{"fill": "#3699FF", "color": "#3699FF", "marginLeft": 8}} src={toAbsoluteUrl("/media/svg/icons/Design/delete.svg")} />
               </span>
-              <span onClick={() => history.push(`/tabela-precos/${tabela.id}/procedimentos`) }  style={{"cursor": "pointer"}} className="svg-icon menu-icon">
+              <span onClick={() => history.push(`/tabela-precos/${tabela.id}/especialidades`) }  style={{"cursor": "pointer"}} className="svg-icon menu-icon">
                 <SVG style={{"fill": "#3699FF", "color": "#3699FF", "marginLeft": 8}} src={toAbsoluteUrl("/media/svg/icons/Design/view.svg")} />
               </span>
               </td>

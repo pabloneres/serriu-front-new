@@ -22,6 +22,7 @@ export function TabelaProcedimento() {
   const { params, url } = useRouteMatch()
   const {user: {authToken}} = useSelector((state) => state.auth);
   const [ tabelas, setTabelas ] = useState([])
+  const [ name, setName ] = useState('')
   const [ logout, setLogout ] = useState(false)
   const [show, setShow] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
@@ -58,7 +59,7 @@ export function TabelaProcedimento() {
     initialValues,
     validationSchema: tabelaSchema,
     onSubmit: (values, { setStatus, setSubmitting, resetForm }) => {
-      store(authToken, {...values, table_id: params.id})
+      store(authToken, {...values, especialidade_id: params.id})
         .then(() => {
           resetForm()
           setShow(false)
@@ -98,7 +99,8 @@ export function TabelaProcedimento() {
   useEffect(() => {
       index(authToken, params.id)
       .then( ({data}) => {
-        setTabelas(data)
+        setTabelas(data[0])
+        setName(data[1].name)
       }).catch((err)=>{
         if (err.response.status === 401) {
           setLogout(true)
@@ -114,7 +116,8 @@ export function TabelaProcedimento() {
     destroy(authToken, id).then(()=>{
        index(authToken)
       .then( ({data}) => {
-        setTabelas(data)
+        setTabelas(data[0])
+        setName(data[1].name)
       }).catch((err)=>{
         if (err.response.status === 401) {
           setLogout(true)
@@ -251,7 +254,7 @@ export function TabelaProcedimento() {
       </Modal>
       
 
-      <CardHeader title="Tabelas de procedimentos">
+      <CardHeader title={`Procedimentos - ${name}`}>
         <CardHeaderToolbar>
           <button
             type="button"

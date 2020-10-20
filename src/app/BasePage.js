@@ -27,6 +27,7 @@ import { AdicionarRecepcionistaPage } from '~/app/pages/usuarios/recepcionistas/
 import { EditarRecepcionistaPage } from '~/app/pages/usuarios/recepcionistas/EditarRecepcionistaPage'
 
 import { TabelaPreco } from '~/app/pages/configuracoes/tabelaPreco/TabelaPreco'
+import { TabelaEspecialidade } from '~/app/pages/configuracoes/tabelaEspecialidade/TabelaEspecialidade'
 import { TabelaProcedimento } from '~/app/pages/configuracoes/tabelaProcedimento/TabelaProcedimento'
 
 import { Equipamentos } from '~/app/pages/configuracoes/equipamentos/Equipamentos'
@@ -80,7 +81,8 @@ export default function BasePage() {
         
         
         <ContentRoute exact path="/tabela-precos" component={TabelaPreco} />
-        <ContentRoute exact path="/tabela-precos/:id/procedimentos" component={TabelaProcedimento} />
+        <ContentRoute exact path="/tabela-precos/:id/especialidades" component={TabelaEspecialidade} />
+        <ContentRoute exact path="/especialidades/:id/procedimentos" component={TabelaProcedimento} />
 
         <ContentRoute exact path="/equipamentos" component={Equipamentos} />
 
