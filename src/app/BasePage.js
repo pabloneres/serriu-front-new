@@ -32,8 +32,8 @@ import { AdicionarRecepcionistaPage } from '~/app/pages/usuarios/recepcionistas/
 import { EditarRecepcionistaPage } from '~/app/pages/usuarios/recepcionistas/EditarRecepcionistaPage'
 
 import { TabelaPreco } from '~/app/pages/configuracoes/tabelaPreco/TabelaPreco'
-import { TabelaEspecialidade } from '~/app/pages/configuracoes/tabelaEspecialidade/TabelaEspecialidade'
 import { TabelaProcedimento } from '~/app/pages/configuracoes/tabelaProcedimento/TabelaProcedimento'
+import { TabelaEspecialidade } from '~/app/pages/configuracoes/tabelaEspecialidade/TabelaEspecialidade'
 
 import { Equipamentos } from '~/app/pages/configuracoes/equipamentos/Equipamentos'
 
