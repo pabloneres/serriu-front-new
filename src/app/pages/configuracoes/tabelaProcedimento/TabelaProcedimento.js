@@ -32,7 +32,8 @@ export function TabelaProcedimento() {
   
   let initialValues = {
     name: '',
-    value: ''
+    value: '',
+    geral: ''
   }
   
   const tabelaSchema = Yup.object().shape({
@@ -42,6 +43,10 @@ export function TabelaProcedimento() {
       .required('Campo obrigatorio!'),
     value: Yup.string()
       .min(3, "Minimum 3 symbols")
+      .max(50, "Maximum 50 symbols")
+      .required('Campo obrigatorio!'),
+    geral: Yup.string()
+      .min(1, "Minimum 3 symbols")
       .max(50, "Maximum 50 symbols")
       .required('Campo obrigatorio!')
     });
@@ -53,7 +58,11 @@ export function TabelaProcedimento() {
     value: Yup.string()
       .min(3, "Minimum 3 symbols")
       .max(50, "Maximum 50 symbols")
-      .required('Campo obrigatorio!')
+      .required('Campo obrigatorio!'),
+    geral: Yup.string()
+    .min(1, "Minimum 3 symbols")
+    .max(50, "Maximum 50 symbols")
+    .required('Campo obrigatorio!')
     });
     
   const formik = useFormik({
@@ -73,11 +82,14 @@ export function TabelaProcedimento() {
     },
   });
 
+  let initialValues2 = {
+    name: tableEdit[1],
+    value: tableEdit[2],
+    geral: tableEdit[3],
+  }
+
   const formik2 = useFormik({
-    initialValues: {
-      name: tableEdit[1],
-      value: tableEdit[2]
-    },
+    initialValues: initialValues2,
     enableReinitialize: true,
     validationSchema: tabelaSchema2,
     onSubmit: (values, { setStatus, setSubmitting, resetForm }) => {
@@ -117,8 +129,8 @@ export function TabelaProcedimento() {
     })
   }
 
-  function handleEdit({id, name, value}) {
-    setTableEdit([id, name, value])
+  function handleEdit({id, name, value, geral}) {
+    setTableEdit([id, name, value, geral])
     setShowEdit(true)
   }
 
@@ -157,6 +169,25 @@ export function TabelaProcedimento() {
               </div>
               ) : null}
             </Form.Group>
+
+            <Form.Group as={Col} controlId="formGridAddress1">
+              <Form.Label>Geral *</Form.Label>
+              <Form.Control
+                as="select"
+                name="geral"
+                {...formik.getFieldProps("geral")}
+              >
+               <option value="" ></option>
+               <option value="1" >Sim</option>
+               <option value="0" >Não</option>
+              </Form.Control>
+              {formik.touched.geral && formik.errors.geral ? (
+              <div className="fv-plugins-message-container">
+                <div className="fv-help-block">{formik.errors.geral}</div>
+              </div>
+              ) : null}
+            </Form.Group>
+
           </Form.Row>
           <Form.Row>
             <Form.Group as={Col} controlId="formGridEmail">
@@ -215,6 +246,24 @@ export function TabelaProcedimento() {
               ) : null}
             </Form.Group>
           </Form.Row>
+          <Form.Row>
+          <Form.Group as={Col} controlId="formGridAddress1">
+              <Form.Label>Geral *</Form.Label>
+              <Form.Control
+                as="select"
+                name="geral"
+                {...formik2.getFieldProps("geral")}
+              >
+               <option value="1" >Sim</option>
+               <option value="0" >Não</option>
+              </Form.Control>
+              {formik2.touched.geral && formik2.errors.geral ? (
+              <div className="fv-plugins-message-container">
+                <div className="fv-help-block">{formik2.errors.geral}</div>
+              </div>
+              ) : null}
+            </Form.Group>
+            </Form.Row>
           <Form.Row>
             <Form.Group as={Col} controlId="formGridEmail">
               <Form.Label>Valor *</Form.Label>

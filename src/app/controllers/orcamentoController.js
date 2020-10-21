@@ -3,6 +3,10 @@ import api from '../services/api'
 // DEFINIR AS ROTAS DAS CLINICAS
 const INDEX_CLINICS_URL = "/orcamentos";
 
+const GET_ORCAMENTOS_URL = "/list_orcamentos";
+
+const GET_PROCEDIMENTOS_URL = "/procedimento";
+
 const SHOW_CLINIC_URL = "/orcamento";
 
 const STORE_CLINIC_URL = "/orcamento";
@@ -13,6 +17,22 @@ const DESTROY_CLINIC_URL = "/orcamento";
 
 export function index(authToken) {
   return api.get(`${INDEX_CLINICS_URL}`, {
+    headers: {
+      Authorization: 'Bearer ' + authToken
+    }
+  })
+}
+
+export function getProcedimentos(authToken, id) {
+  return api.get(`${GET_PROCEDIMENTOS_URL}/${id}`, {
+    headers: {
+      Authorization: 'Bearer ' + authToken
+    }
+  })
+}
+
+export function orcamento(authToken, id) {
+  return api.get(`${GET_ORCAMENTOS_URL}/${id}`, {
     headers: {
       Authorization: 'Bearer ' + authToken
     }

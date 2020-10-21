@@ -9,16 +9,21 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useSelector } from "react-redux";
 import { update, show } from '~/app/controllers/pacienteController'
+import { Dados } from './components/Dados'
+import { Orcamentos } from './components/Orcamentos'
+import { AdicionarOrcamentoPage } from "~/app/pages/orcamento/AdicionarOrcamentoPage";
 
 export function EditarPacientePage(props) {
   const { params, url } = useRouteMatch()
   const { intl } = props;
   const { user: { authToken } } = useSelector((state) => state.auth);
   const history = useHistory();
+  
 
   const [patient, setPatient] = useState({})
   const [user, setUser] = useState({})
   const [ufs, setUfs] = useState([])
+  const [menu, setMenu] = useState('dados')
 
   const pacienteSchema = Yup.object().shape({
     name: Yup.string()
@@ -76,19 +81,33 @@ export function EditarPacientePage(props) {
       .catch((err)=> history.push('/pacientes'))
   }, [])
 
+
+  function HandleChangeMenu() {
+    if (menu === 'dados') {
+      return <Dados/>
+    }  
+
+    if (menu === 'orcamentos') {
+      return <Orcamentos/>
+    }
+  }
+  
   return (
     <Card>
       
       <Navbar bg="light" variant="light">
       
         <Nav className="mr-auto">
-          <Nav.Link href="#home">Informações</Nav.Link>
-          <Nav.Link href="#features">Orçamento</Nav.Link>
-     
+          {/* <Nav.Link><Link to={`${url}`}>Dados</Link></Nav.Link>
+          <Nav.Link><Link to={`/orcamento/${params.id}/adicionar`}>Orçamento</Link></Nav.Link> */}
+          <Nav.Link><li onClick={()=> { setMenu('dados') }}>Dados</li></Nav.Link>
+          <Nav.Link><li onClick={()=> { setMenu('orcamentos') }}>Orçamentos</li></Nav.Link>
         </Nav>
        
       </Navbar>
-      <CardHeader title="Editar Paciente"></CardHeader>
+
+      <HandleChangeMenu/>
+      {/* <CardHeader title="Editar Paciente"></CardHeader>
       <CardBody>
       
         <Form
@@ -281,7 +300,7 @@ export function EditarPacientePage(props) {
             </Button>
           </div>
         </Form>
-      </CardBody>
+      </CardBody> */}
     </Card>
   );
 }

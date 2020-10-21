@@ -1,6 +1,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useHistory, Redirect } from "react-router-dom";
+import { AdicionarOrcamentoPage } from "~/app/pages/orcamento/AdicionarOrcamentoPage";
 
 import {
     Card,
@@ -26,8 +27,7 @@ export function OrcamentoPage() {
           </button>
         </CardHeaderToolbar>
       </CardHeader>
-      <CardBody>
-      </CardBody>
+      <AdicionarOrcamentoPage/>
     </Card>
   );
 }

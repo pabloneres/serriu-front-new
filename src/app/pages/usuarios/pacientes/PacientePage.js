@@ -88,7 +88,7 @@ export function PacientePage() {
           <tbody>
           {patients.map( patient => (
             <tr key={patient.id} >
-              <td>{patient.name}</td>
+              <td><Link to={`/paciente/editar/${patient.id}`}>{patient.name}</Link></td>
               <td>{patient.cpf}</td>
               <td>{patient.id_acesso}</td>
               <td>{patient.email}</td>

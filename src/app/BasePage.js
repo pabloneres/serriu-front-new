@@ -68,7 +68,7 @@ export default function BasePage() {
         {/* Rotas de clinicas */}
         <ContentRoute exact path="/agenda" component={AgendaPage} />
         <ContentRoute exact path="/orcamento" component={OrcamentoPage} />
-        <ContentRoute exact path="/orcamento/adicionar" component={AdicionarOrcamentoPage} />
+        <ContentRoute exact path="/orcamento/:id/adicionar" component={AdicionarOrcamentoPage} />
         <ContentRoute exact path="/orcamento/editar/:id" component={EditarOrcamentoPage} />
         <ContentRoute exact path="/pacientes" component={PacientePage} />
         <ContentRoute exact path="/financeiro" component={FinanceiroPage} />
