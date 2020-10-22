@@ -26,11 +26,12 @@ function ProcedimentoSelecaoDente({onFinish, procedimento}) {
         {value: 5,label: "O"}
     ];
 
+  
 
     const [denticao,setDenticao] = useState();
     const [dentes,setDentes] = useState();
 
-    procedimento.dentes = [];
+    
 
 
     var listaDenticoes = [
@@ -57,7 +58,7 @@ function ProcedimentoSelecaoDente({onFinish, procedimento}) {
   
         });
 
-      
+        procedimento.denticao = novaDenticao;
         setDenticao(novaDenticao)
 
 
@@ -71,6 +72,8 @@ function ProcedimentoSelecaoDente({onFinish, procedimento}) {
 
     const handlerMudancaDentes = (value) =>{
 
+    
+        
         setDentes(value);
 
     }
@@ -81,12 +84,28 @@ function ProcedimentoSelecaoDente({onFinish, procedimento}) {
         procedimento.dentes = dentes;
 
         
-        procedimento.valor = dentes.length * procedimento.valor;
+        procedimento.valorTotal = dentes.length * procedimento.valor;
 
         onFinish(e,procedimento);
        
 
     }
+
+    useState(()=>{ 
+
+        if(procedimento.dentes === undefined)
+            procedimento.dentes = [];
+
+
+        if(procedimento.denticao !== undefined)
+        {
+            setDenticao(procedimento.denticao);
+        }
+
+        
+
+    },[procedimento])
+
 
 
 
@@ -111,14 +130,28 @@ function ProcedimentoSelecaoDente({onFinish, procedimento}) {
                 </Form.Group>
             </Form.Row>
 
-          <SelecaoDentes listaDentes={denticao} nomeProcedimento={procedimento.label} callback={(value) => handlerMudancaDentes(value) } />
+          <SelecaoDentes listaDentes={denticao} procedimento={procedimento} callback={(value) => handlerMudancaDentes(value) } />
 
          
 
             <div className="text-right">
            
             <Button variant="primary" onClick={(e) => handlerFinalizaProcedimento(e)}>
-                Adicionar
+                {(()=>{
+
+                   let $nomeBtn = "Adicionar";
+
+                    if(procedimento.acao !== undefined)
+                    {
+                        if(procedimento.acao == "alterar")
+                        {
+                            $nomeBtn =  "Alterar";
+                        }
+                    }
+
+                    return $nomeBtn;
+
+                })()}
             </Button>
             </div>
         </>

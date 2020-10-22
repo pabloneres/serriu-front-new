@@ -83,13 +83,15 @@ export function EditarPacientePage(props) {
 
 
   function HandleChangeMenu() {
-    if (menu === 'dados') {
-      return <Dados/>
-    }  
 
-    if (menu === 'orcamentos') {
-      return <Orcamentos/>
+    const itensMenu = {
+      'dados': () => <Dados/>,
+      'orcamentos': () => <Orcamentos/>
     }
+   
+  
+
+    return itensMenu[menu]();
   }
   
   return (

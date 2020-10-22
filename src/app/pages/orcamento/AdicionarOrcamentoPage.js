@@ -114,7 +114,12 @@ export function AdicionarOrcamentoPage(props) {
   const addProcedimentoFinalizado = (e, proced) => {
 
 
-    setProcedimentosFinalizados([...procedimentosFinalizados, proced]);
+    if(proced.acao === undefined)
+    {
+      setProcedimentosFinalizados([...procedimentosFinalizados, proced]);
+    }
+
+ 
 
 
 
@@ -127,10 +132,10 @@ export function AdicionarOrcamentoPage(props) {
     setProcedimentosFinalizados([...procedimentosFinalizados]);
   };
 
-  const alterarProcedimento = (key) => {
+  const alterarProcedimento = (procedimento) => {
 
-
-    setProcedimento(procedimentosFinalizados[key]);
+    procedimento.acao = "alterar";
+    setProcedimento(procedimento);
 
 
   };
@@ -140,7 +145,7 @@ export function AdicionarOrcamentoPage(props) {
     let total = 0;
 
     procedimentosFinalizados.map((row) => {
-      total += row.valor;
+      total += row.valorTotal;
     })
 
     return total
@@ -381,7 +386,8 @@ export function AdicionarOrcamentoPage(props) {
                 
               <Select
                 placeholder="Busque procedimento..."
-                options={procedimentos}
+                //options={procedimentos}
+                options={options}
                 onChange={handlerMudancaProcedimentos}
                 isOptionDisabled={procedimentos}
               />
@@ -419,7 +425,7 @@ export function AdicionarOrcamentoPage(props) {
                       return (
                         <tr key={key} >
                           <td >{row.label}</td>
-                          <td >{conversorMonetario(row.valor)}</td>
+                          <td >{conversorMonetario(row.valorTotal)}</td>
                           <td>
                             {
                               /**
@@ -428,8 +434,10 @@ export function AdicionarOrcamentoPage(props) {
                                </span>
                                */
                             }
-                            <span onClick={() => openModalProcedimento(row)} className="svg-icon menu-icon info">
-                              <i style={{ "fill": "#3699FF", "color": "#3699FF", "marginLeft": 8, "cursor": "pointer" }} className="fa fa-info-circle"></i>
+                           
+
+                            <span onClick={() => alterarProcedimento(row)} className="svg-icon menu-icon">
+                                <SVG style={{"fill": "#3699FF", "color": "#3699FF"}} src={toAbsoluteUrl("/media/svg/icons/Design/create.svg")} />
                             </span>
                             <span onClick={() => removerProcedimento(key)} className="svg-icon menu-icon">
                               <SVG style={{ "fill": "#3699FF", "color": "#3699FF", "marginLeft": 8, "cursor": "pointer" }} src={toAbsoluteUrl("/media/svg/icons/Design/delete.svg")} />

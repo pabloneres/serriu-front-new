@@ -7,7 +7,7 @@ import { Card, CardHeader, CardBody,  } from "~/_metronic/_partials/controls";
 import { toAbsoluteUrl } from "~/_metronic/_helpers";
 import SVG from 'react-inlinesvg'
 
-function SelecaoDentes({listaDentes,nomeProcedimento,callback}) {
+function SelecaoDentes({listaDentes,procedimento,callback}) {
 
     const [listaDentesFinalizados,setListaDentesFinalizados] = useState([]);
 
@@ -19,6 +19,16 @@ function SelecaoDentes({listaDentes,nomeProcedimento,callback}) {
         setListaDentesFinalizados([]);
         
     },[listaDentes])
+
+    useEffect(() => {
+
+        if(procedimento.dentes !== undefined)
+        {
+            setListaDentesFinalizados(procedimento.dentes);
+        }
+        
+    },[procedimento])
+    
 
     useEffect(() => {
 
@@ -85,14 +95,16 @@ function SelecaoDentes({listaDentes,nomeProcedimento,callback}) {
        /**/
        e.target.classList.add("ativo")
 
-        if(dente.faces.indexOf(face) < 0)
+        console.log(dente);
+
+        if(dente.faces.map(face => face.label).indexOf(face.label) < 0)
         {
-            
+            console.log("adicionando");
             dente.faces.push(face);
         }
         else
         {
-          
+            console.log("removendo");
             //listaDentesFinalizados.splice(listaDentesFinalizados.indexOf(key), 1);
             //setListaDentesFinalizados([...listaDentesFinalizados]);
             dente.faces.splice(dente.faces.indexOf(face) ,1);
@@ -126,7 +138,7 @@ function SelecaoDentes({listaDentes,nomeProcedimento,callback}) {
                         <span key={key} className="sessaoDente">
                             {row.map((dente,key) =>{
 
-                             
+                            
                                 return (
                                     <div key={key} onClick={() => adicionaDente(dente)} className={(dente.active ? 'ativo' : '') + " numero"}  >{dente.label}</div>
                                 )
@@ -155,16 +167,22 @@ function SelecaoDentes({listaDentes,nomeProcedimento,callback}) {
                 {
                     listaDentesFinalizados.map((dente,key) =>{
 
-
+                        
                       return(
                           <li key={key} className="ativo">
                               <span>{dente.label}</span>
-                              <span>{nomeProcedimento}</span>
+                              <span>{procedimento.label}</span>
 
                               <div className="faces">
                                     {listaFaces.map((face,key) =>{
+
+
+                                      
+                                      
+
+                                        
                                         return (
-                                        <div key={key}  onClick={(e) => adicionaFaceDente(e,dente,face)} className="face" >{face.label}</div>
+                                        <div key={key}  onClick={(e) => adicionaFaceDente(e,dente,face)} className={"face " + (dente.faces.map(face => face.label).indexOf(face.label) >= 0 ? 'ativo'  : '')} >{face.label}</div>
                                         )
                                     })}
                               </div>

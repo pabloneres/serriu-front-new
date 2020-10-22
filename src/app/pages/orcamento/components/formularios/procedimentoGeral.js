@@ -9,6 +9,7 @@ function ProcedimentoGeral({onFinish, procedimento}) {
 
 
     procedimento.dentes = [];
+    procedimento.valorTotal = procedimento.valor;
 
 
 
