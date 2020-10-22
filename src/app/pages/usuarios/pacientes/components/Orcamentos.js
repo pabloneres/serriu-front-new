@@ -63,7 +63,7 @@ function handleEdit() {}
             <Table striped bordered hover>
               <thead>
                 <tr>
-                  <th>Procedimento</th>
+                  <th>Data</th>
                   <th>Dentista</th>
                   <th>Valor</th>
                   <th style={{ "width": 80 }}>Ações</th>
@@ -72,9 +72,9 @@ function handleEdit() {}
               <tbody>
               {orcamentos.map( orcamento => (
                 <tr key={orcamento.id} >
-                  <td>{orcamento.procedimento[0].procedimento}</td>
+                  <td>{orcamento.created_at}</td>
                   <td>{orcamento.dentista}</td>
-                  <td>{orcamento.procedimento[0].valor.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})}
+                  <td>{orcamento.total.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})}
                   </td>
                   <td><Link to={''} />
                   <span onClick={() => { handleEdit(orcamento) } } className="svg-icon menu-icon">
