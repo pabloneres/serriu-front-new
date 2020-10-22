@@ -110,11 +110,11 @@ export function getInitLayoutConfig() {
       layout: "subheader-v1",
       fixed: true,
       width: "fluid", // fixed/fluid,
-      clear: false,
-      style: "solid" // solid/transparent
+      clear: true,
+      style: "transparent" // solid/transparent
     },
     content: {
-      width: "fixed" // fluid|fixed
+      width: "fluid" // fluid|fixed
     },
     brand: {
       self: {
@@ -123,12 +123,12 @@ export function getInitLayoutConfig() {
     },
     aside: {
       self: {
-        theme: "dark", // light/dark
+        theme: "light", // light/dark
         display: true,
         fixed: true,
         minimize: {
           toggle: true, // allow toggle
-          default: false, // default state
+          default: true, // default state
           hoverable: true // allow hover
         }
       },
