@@ -45,16 +45,21 @@
 .listaDentes {
     padding: 10px;
     overflow-y: auto;
-    height: 200px ;
+    height: 150px ;
+    font-size: 15px;
 }
 .listaDentes li{
-  
+    border-bottom: 1px dashed rgb(204, 204, 204);
     display: flex;
-    margin-bottom: 5px;
+  
     padding: 10px 10px;
-    box-shadow: 0px 1px 15px 1px rgba(160, 160, 160, 0.2);
-    border-radius: 15px;
+   
+   
     justify-content: space-between;
+}
+
+.listaDentes .numeroDenteSelecionado{
+    margin-right: 5px;
 }
 
 .listaDentes li .faces{
@@ -62,21 +67,88 @@
     
 }
 .listaDentes li .faces .face{
-    
-    font-size: 15px;
-    height: 20px;
-    width: 20px;
-    margin: 1px;
-    text-align: center;
+
     cursor: pointer;
-    color: rgb(54, 54, 54);
-    background-color: #f0f0f0;
+    border: 1px dashed rgb(3, 155, 229);
+   
+    background-color: rgb(179, 229, 252);
+    font-weight: bold;
+    width: 16px;
+    text-align: center;
+    opacity: 0.3;
 }
 
 
 .listaDentes li .faces .face.ativo{
     
-    color: #fff;
-    background-color: #90c1f0;
+    opacity: 1;
     
+}
+
+
+.orcamento
+{
+    width: 100%;
+    min-height: 80px;
+    display: flex;
+    position: relative;
+    border-bottom: 1px solid rgb(204, 204, 204);
+}
+
+
+.todosOrcamentos{
+   
+    width: 100%;
+    top: 0px;
+    bottom: 130px;
+    height: 300px;
+    overflow-y: auto;
+}
+
+.orcamento .conteudo{
+    width: 70%;
+}
+
+.orcamento .conteudo .linha{
+    border-bottom: 1px dashed rgb(204, 204, 204);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+.orcamento .total{
+    width: 30%;
+    background-color: rgb(76, 175, 80);
+    height: 100%;
+    right: 0px;
+    top: 0px;
+    bottom: 0px;
+    line-height: calc(100%);
+    color: white;
+    text-align: center;
+    font-size: 22px;
+    align-items: center;
+    position: absolute;
+}
+
+.orcamento .total .texto{
+    text-align: center;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+}
+
+.orcamento .total .acoes{
+    position: absolute;
+    bottom: 0px;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+
+}
+
+.orcamento .total:hover  .acoes{
+    opacity: 1;
+
 }

@@ -1,5 +1,6 @@
 import React, {useState,useEffect} from 'react';
 
+import { conversorMonetario } from '~/app/modules/Util';
 
 
 import { Form, Table, Col, Button,CardGroup } from "react-bootstrap";
@@ -170,22 +171,19 @@ function SelecaoDentes({listaDentes,procedimento,callback}) {
                         
                       return(
                           <li key={key} className="ativo">
-                              <span>{dente.label}</span>
-                              <span>{procedimento.label}</span>
+                              
+                             
 
                               <div className="faces">
+                              <span className="numeroDenteSelecionado">{dente.label}</span>
                                     {listaFaces.map((face,key) =>{
 
-
-                                      
-                                      
-
-                                        
                                         return (
                                         <div key={key}  onClick={(e) => adicionaFaceDente(e,dente,face)} className={"face " + (dente.faces.map(face => face.label).indexOf(face.label) >= 0 ? 'ativo'  : '')} >{face.label}</div>
                                         )
                                     })}
                               </div>
+                              <span>{conversorMonetario(procedimento.valor)}</span>
                              
                         </li>
                       )

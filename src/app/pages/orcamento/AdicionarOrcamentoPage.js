@@ -95,6 +95,7 @@ export function AdicionarOrcamentoPage(props) {
 
 
   const handlerMudancaTabela = (e) => {
+    
     setTabela(e.target.value)
   }
 
@@ -370,7 +371,7 @@ export function AdicionarOrcamentoPage(props) {
                 <option value=""></option>
                 {
                   tabelas.map(tabela => (
-                    <option key={tabela.id} value={tabela.value}>{tabela.label}</option>
+                    <option key={tabela.id} value={tabela}>{tabela.label}</option>
                   ))
                 }
 
@@ -411,49 +412,49 @@ export function AdicionarOrcamentoPage(props) {
               <CardHeader title="Orçamentos"></CardHeader>
               <CardBody>
 
-                <Table striped bordered hover>
-                  <thead>
-                    <tr>
-                      <th>Nome</th>
-                      <th>Valor</th>
-                      <th>Ação</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-
-                    {procedimentosFinalizados.map((row, key) => {
+                   <div className="todosOrcamentos">
+                   {procedimentosFinalizados.map((row, key) => {
                       return (
-                        <tr key={key} >
-                          <td >{row.label}</td>
-                          <td >{conversorMonetario(row.valorTotal)}</td>
-                          <td>
-                            {
-                              /**
-                               <span onClick={() => alterarProcedimento(key) } className="svg-icon menu-icon">
-                               <SVG style={{"fill": "#3699FF", "color": "#3699FF", "cursor": "pointer"}} src={toAbsoluteUrl("/media/svg/icons/Design/create.svg")} />
-                               </span>
-                               */
-                            }
+                        <div className="orcamento" key={key} >
+                          <div className="conteudo" >
+                            <div className="linha">{row.label}</div>
+                            <div className="linha">{dentista}</div>
+                            <div className="linha">{dentista}</div>
+                            <div className="linha">{dentista}</div>
                            
+                            
+                            </div>
+                          <div className="total" >
+                            <p className="texto">{conversorMonetario(row.valorTotal)}</p>
 
-                            <span onClick={() => alterarProcedimento(row)} className="svg-icon menu-icon">
-                                <SVG style={{"fill": "#3699FF", "color": "#3699FF"}} src={toAbsoluteUrl("/media/svg/icons/Design/create.svg")} />
-                            </span>
-                            <span onClick={() => removerProcedimento(key)} className="svg-icon menu-icon">
-                              <SVG style={{ "fill": "#3699FF", "color": "#3699FF", "marginLeft": 8, "cursor": "pointer" }} src={toAbsoluteUrl("/media/svg/icons/Design/delete.svg")} />
-                            </span>
-                          </td>
-                        </tr>
+                                <div className="acoes">
+                                {
+                                  /**
+                                   <span onClick={() => alterarProcedimento(key) } className="svg-icon menu-icon">
+                                  <SVG style={{"fill": "#3699FF", "color": "#3699FF", "cursor": "pointer"}} src={toAbsoluteUrl("/media/svg/icons/Design/create.svg")} />
+                                  </span>
+                                  */
+                                }
+                              
+
+                                <span onClick={() => alterarProcedimento(row)} className="svg-icon menu-icon">
+                                    <SVG style={{"fill": "#fff", "color": "#fff", "cursor": "pointer"}} src={toAbsoluteUrl("/media/svg/icons/Design/create.svg")} />
+                                </span>
+                                <span onClick={() => removerProcedimento(key)} className="svg-icon menu-icon">
+                                  <SVG style={{ "fill": "#fff", "color": "#fff", "marginLeft": 8, "cursor": "pointer" }} src={toAbsoluteUrl("/media/svg/icons/Design/delete.svg")} />
+                                </span>
+                              </div>
+                            </div>
+                         
+                        </div>
                       )
 
                     })}
+                   </div>
 
 
 
 
-
-                  </tbody>
-                </Table>
 
                 <div className="text-right">
                   <h2>Total : {conversorMonetario(getTotalProcedimentos())}</h2>
