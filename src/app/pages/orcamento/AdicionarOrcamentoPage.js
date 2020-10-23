@@ -387,8 +387,8 @@ export function AdicionarOrcamentoPage(props) {
                 
               <Select
                 placeholder="Busque procedimento..."
-                //options={procedimentos}
-                options={options}
+                options={procedimentos}
+                // options={options}
                 onChange={handlerMudancaProcedimentos}
                 isOptionDisabled={procedimentos}
               />
