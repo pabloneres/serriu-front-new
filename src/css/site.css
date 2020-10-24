@@ -85,6 +85,15 @@
     
 }
 
+.card-orcamento .card-header{
+    background-color: rgb(36, 36, 36)!important ;
+   
+}
+
+.card-orcamento .card-header .card-label{
+    color: #fff!important;
+}
+
 
 .orcamento
 {
@@ -148,7 +157,11 @@
 
 }
 
-.orcamento .total:hover  .acoes{
+.orcamento:hover  .acoes{
     opacity: 1;
 
+}
+
+.selecaoDentes .gutter-b{
+    margin-bottom: 0px;
 }

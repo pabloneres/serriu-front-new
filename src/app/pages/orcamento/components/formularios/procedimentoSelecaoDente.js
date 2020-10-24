@@ -5,7 +5,7 @@ import Select from 'react-select';
 
 import SelecaoDentes from '../SelecaoDentes';
 
-function ProcedimentoSelecaoDente({onFinish, procedimento}) {
+function ProcedimentoSelecaoDente({onFinish, procedimento, dentista}) {
 
     const numerosPermanetes = [["18","17","16","15","14","13","12","11"],
                                ["21","22","23","24","25","26","27","28"],
@@ -58,8 +58,11 @@ function ProcedimentoSelecaoDente({onFinish, procedimento}) {
   
         });
 
-        procedimento.denticao = novaDenticao;
+        procedimento.denticao = {...novaDenticao};
+
+        console.log(procedimento.denticao);
         setDenticao(novaDenticao)
+        
 
 
         
@@ -99,6 +102,7 @@ function ProcedimentoSelecaoDente({onFinish, procedimento}) {
 
         if(procedimento.denticao !== undefined)
         {
+            console.log(procedimento);
             setDenticao(procedimento.denticao);
         }
 
@@ -114,11 +118,10 @@ function ProcedimentoSelecaoDente({onFinish, procedimento}) {
             <Form.Row>
                 <Form.Group as={Col} controlId="formGridAddress1">
                     <Form.Label>Nome</Form.Label>
-                    <Form.Control disabled type="text" name="nome" value={procedimento.label} />
+                    <Form.Control disabled type="text" name="nome" value={dentista} />
                 </Form.Group>
                
-            </Form.Row>
-            <Form.Row>
+        
                 <Form.Group as={Col}>
                     <Form.Label>dentição</Form.Label>
                     <Select

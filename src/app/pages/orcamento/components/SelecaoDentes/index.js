@@ -12,7 +12,58 @@ function SelecaoDentes({listaDentes,procedimento,callback}) {
 
     const [listaDentesFinalizados,setListaDentesFinalizados] = useState([]);
 
+
+    const getFacesDente = (numero) =>{
+
+        let result = [ 
+            {label : 'V'},
+            {label : 'D'},
+            {label : 'M'}
+        ];
+        const facePorQuadrante = {
+            0 : {label : 'P'}, 
+            1 : {label : 'P'},
+            2 : {label : 'L'},
+            3 : {label : 'L'},
    
+        };
+        listaDentes.map((quadrante,key) =>{
+
+            let valueIndex = quadrante.indexOf(numero);
+
+            if(valueIndex >= 0)
+            {
+                result.push(facePorQuadrante[key]);
+
+                if( key%2 == 0 )
+                {
+                    if(valueIndex >= quadrante.length -3 && valueIndex <= quadrante.length )
+                    {
+                        result.push({label : 'I'});
+                    }
+                    else
+                    {
+                        result.push({label : 'O '});
+                    }
+                }
+                else
+                {
+                    if(valueIndex < 3 )
+                    {
+                        result.push({label : 'I'});
+                    }
+                    else
+                    {
+                        result.push({label : 'O'});
+                    }
+                }
+            }
+        })
+    
+        return(result);
+    }
+
+
 
     useEffect(() => {
 
@@ -48,17 +99,7 @@ function SelecaoDentes({listaDentes,procedimento,callback}) {
     ];
 
 
-    const getFacesDente = (dente) => {
 
-        /**
-         * Do 14 ao 18 e do 24 ao 28 e vdmpo 
-         * Do 34 ao 38 e do 44 ao 48 é vdmlo
-         * Do 11 ao 13 e do 21 ao 23   vdmip
-         * Do 31 ao 33 e do 41 ao 43 é VDMIL
-         * 
-         * */
-
-    }
    
    
 
@@ -168,7 +209,6 @@ function SelecaoDentes({listaDentes,procedimento,callback}) {
                 {
                     listaDentesFinalizados.map((dente,key) =>{
 
-                        
                       return(
                           <li key={key} className="ativo">
                               
@@ -176,7 +216,7 @@ function SelecaoDentes({listaDentes,procedimento,callback}) {
 
                               <div className="faces">
                               <span className="numeroDenteSelecionado">{dente.label}</span>
-                                    {listaFaces.map((face,key) =>{
+                                    {getFacesDente(dente).map((face,key) =>{
 
                                         return (
                                         <div key={key}  onClick={(e) => adicionaFaceDente(e,dente,face)} className={"face " + (dente.faces.map(face => face.label).indexOf(face.label) >= 0 ? 'ativo'  : '')} >{face.label}</div>
@@ -199,7 +239,7 @@ function SelecaoDentes({listaDentes,procedimento,callback}) {
 
     
     return (
-        <>
+        <div className="selecaoDentes">
         
         
          <Card>
@@ -222,7 +262,7 @@ function SelecaoDentes({listaDentes,procedimento,callback}) {
               </CardBody>
           </Card>
         
-    </>)
+    </div>)
 }
 
 export default SelecaoDentes;

@@ -33,6 +33,8 @@ data = data.getFullYear() + "-" + ("0" + (data.getMonth() + 1)).slice(-2) + "-" 
 
 let listProcedimento = [];
 
+var batata;
+
 export function AdicionarOrcamentoPage(props) {
   const { intl } = props;
   const { user: { authToken } } = useSelector((state) => state.auth);
@@ -45,12 +47,18 @@ export function AdicionarOrcamentoPage(props) {
   const [dadosAPI, setDadosAPI] = useState([])
   const [modalOrcamento, setModalOrcamento] = useState(false)
   const [modalOrcamentoProcedimento, setModalOrcamentoProcedimento] = useState({})
+
+
   const { params, url } = useRouteMatch()
 
+
   const [tabela, setTabela] = useState()
+  
 
 
-  const [procedimento, setProcedimento] = useState();
+  const [procedimento, setProcedimento] = useState(undefined);
+
+
 
   const history = useHistory();
   const [ufs, setUfs] = useState([]);
@@ -76,14 +84,39 @@ export function AdicionarOrcamentoPage(props) {
       })
   }, [])
 
+
   useEffect(() => {
-    getProcedimentos(authToken, tabela)
-      .then(({ data }) => {
-        setProcedimentos(data)
-      }).catch((err) => {
-        console.log(err)
-      })
+    if(tabela !== undefined)
+    {
+      getProcedimentos(authToken, tabela)
+        .then(({ data }) => {
+          data = data.map(row =>{
+            row.nomeTabela =  getTabelaName(tabela);
+            return row;
+          })
+          setProcedimentos(data)
+        }).catch((err) => {
+          console.log(err)
+        })
+    }
+    
   }, [tabela])
+
+
+  const getDentistaName = value =>{
+    let dentistaName = dentistas.filter( row => row.user_id == value);
+
+
+    return dentistaName[0] !== undefined ? dentistaName[0].name : ''
+  }
+
+
+  const getTabelaName = value =>{
+
+    let tabelaName = tabelas.filter( row => row.value == value);
+    return tabelaName[0].label
+
+  }
 
 
   const openModalProcedimento = (proced) => {
@@ -103,10 +136,12 @@ export function AdicionarOrcamentoPage(props) {
     setDentista(e.target.value)
   }
 
-  const handlerMudancaProcedimentos = (e) => {
-    console.log(e)
-    if (e.value)
-      setProcedimento(e);
+  const handlerMudancaProcedimentos = (procedimento,action) => {
+
+
+    
+    if (procedimento && procedimento.value)
+      setProcedimento({...procedimento});
     else
       setProcedimento(undefined);
 
@@ -114,13 +149,14 @@ export function AdicionarOrcamentoPage(props) {
 
   const addProcedimentoFinalizado = (e, proced) => {
 
+    
+
+    //let newProced = proced.assign({},proced)
 
     if(proced.acao === undefined)
     {
-      setProcedimentosFinalizados([...procedimentosFinalizados, proced]);
+      setProcedimentosFinalizados([...procedimentosFinalizados,proced]);
     }
-
- 
 
 
 
@@ -161,12 +197,12 @@ export function AdicionarOrcamentoPage(props) {
 
       if (procedimento.geral) {
         html = (
-          <ProcedimentoGeral onFinish={addProcedimentoFinalizado} procedimento={procedimento} />
+          <ProcedimentoGeral onFinish={addProcedimentoFinalizado} procedimento={procedimento} dentista={dentista} />
         );
       }
       else {
         html = (
-          <ProcedimentoSelecaoDente onFinish={addProcedimentoFinalizado} procedimento={procedimento} />
+          <ProcedimentoSelecaoDente onFinish={addProcedimentoFinalizado} procedimento={procedimento} dentista={getDentistaName(dentista)} />
         );
       }
 
@@ -214,6 +250,31 @@ export function AdicionarOrcamentoPage(props) {
   //       })
   //   },
   // });
+
+  const getFacesProcedimentoFormatado = (procedimento) =>{
+    let strFaces = '';
+    procedimento.dentes.map(dente =>{
+
+        strFaces = strFaces.concat(dente.label);
+
+        if(dente.faces !== undefined)
+        {
+            dente.faces.map(face =>{
+
+                strFaces = strFaces.concat(face.label);
+
+            })
+        }
+
+        strFaces = strFaces.concat(', ');
+
+    })
+
+    strFaces = strFaces.slice(0,-2);
+
+    return strFaces;
+
+}
 
 
   const handleSubmit = (e) => {
@@ -340,7 +401,7 @@ export function AdicionarOrcamentoPage(props) {
                 <option value=""></option>
                 {
                   dentistas.map(row => {
-                    return <option key={row.user_id} value={row.id}>{row.name}</option>
+                    return <option key={row.user_id} value={row.user_id}>{row.name}</option>
                   })
                 }
               </Form.Control>
@@ -371,7 +432,7 @@ export function AdicionarOrcamentoPage(props) {
                 <option value=""></option>
                 {
                   tabelas.map(tabela => (
-                    <option key={tabela.id} value={tabela}>{tabela.label}</option>
+                    <option key={tabela.id} value={tabela.value}>{tabela.label}</option>
                   ))
                 }
 
@@ -379,17 +440,22 @@ export function AdicionarOrcamentoPage(props) {
             
             </Form.Group>
 
-          </Form.Row>
+            </Form.Row>
 
-          <Form.Row>
+            <Form.Row>
+
+       
             <Form.Group as={Col} controlId="formGridAddress1">
               <Form.Label>Procedimentos *</Form.Label>
                 
               <Select
+                isClearable={true}
+               
                 placeholder="Busque procedimento..."
                 options={procedimentos}
-                // options={options}
-                onChange={handlerMudancaProcedimentos}
+                //options={options}
+                onChange={(value,action) => { handlerMudancaProcedimentos(value,action)}}
+                
                 isOptionDisabled={procedimentos}
               />
 
@@ -408,19 +474,20 @@ export function AdicionarOrcamentoPage(props) {
               </CardBody>
             </Card>
 
-            <Card >
-              <CardHeader title="Orçamentos"></CardHeader>
+            <Card className="card-orcamento">
+              <CardHeader title="Orçamentos" ></CardHeader>
               <CardBody>
 
                    <div className="todosOrcamentos">
                    {procedimentosFinalizados.map((row, key) => {
+                     console.log(row);
                       return (
                         <div className="orcamento" key={key} >
                           <div className="conteudo" >
                             <div className="linha">{row.label}</div>
-                            <div className="linha">{dentista}</div>
-                            <div className="linha">{dentista}</div>
-                            <div className="linha">{dentista}</div>
+                            <div className="linha">{getDentistaName(dentista)}</div>
+                            <div className="linha">{row.nomeTabela}</div>
+                            <div className="linha">{getFacesProcedimentoFormatado(row)}</div>
                            
                             
                             </div>
