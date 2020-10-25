@@ -47,7 +47,53 @@ export function AdicionarOrcamentoPage(props) {
   const [dadosAPI, setDadosAPI] = useState([])
 
   const [modalFormaPagamento, setModalFormaPagamento] = useState(false)
-  const [formaPagamento, setFormaPagamento] = useState({})
+  const [formFormaPagamento, setFormFormaPagamento] = useState({
+      formaCobranca : '',
+      formaPagamento : '',
+      tipoPagamento : 0,
+      entrada: 0,
+      valorEntrada : null,
+      parcelas: null,
+
+     
+
+      
+    
+      
+
+  })
+
+  const setFormaCobranca = (formaCobranca) =>{
+    formFormaPagamento.formaCobranca = formaCobranca;
+    setFormFormaPagamento({...formFormaPagamento})
+  }
+
+  const setFormaPagamento = (formaPagamento) =>{
+    formFormaPagamento.formaPagamento = formaPagamento;
+    setFormFormaPagamento({...formFormaPagamento})
+  }
+
+  const setTipoPagamento = (tipoPagamento) =>{
+    formFormaPagamento.tipoPagamento = tipoPagamento;
+    setFormFormaPagamento({...formFormaPagamento})
+  }
+
+  const setEntrada = (entrada) =>{
+    formFormaPagamento.entrada = entrada;
+    setFormFormaPagamento({...formFormaPagamento})
+  }
+  const setValorEntrada = (valorEntrada) =>{
+    formFormaPagamento.valorEntrada = valorEntrada;
+    setFormFormaPagamento({...formFormaPagamento})
+  }
+  const setParcelas = (parcelas) =>{
+    formFormaPagamento.parcelas = parcelas;
+    setFormFormaPagamento({...formFormaPagamento})
+  }
+
+
+
+
 
 
   const { params, url } = useRouteMatch()
@@ -290,6 +336,9 @@ export function AdicionarOrcamentoPage(props) {
       })
   }
 
+
+
+
   var options = [
     { value: '', label: 'Busque procedimento...' },
     { value: '1', label: 'procedimento1', id: 1, geral: 0, valor: 100.0 },
@@ -303,18 +352,120 @@ export function AdicionarOrcamentoPage(props) {
         </Modal.Header>
         <Modal.Body>
         <Form> 
-            <Form.Row>
-                <Form.Group as={Col} controlId="formGridAddress1">
-                    <Form.Check type="radio" value={'valor total'} id="valorTotal" name="formaCobranca" label={"Valor Total"} inline selected  />
-                    <Form.Check type="radio" name="formaCobranca" id="proProcedimento" value={'por procedimento'} label={"Por procedimento executado"} inline />
+            <Form.Row className="justify-content-md-center" >
+                <Form.Group  controlId="formGridAddress1">
+                    <Form.Check 
+                      type="radio" 
+                      value={'valor total'} 
+                      id="valorTotal" 
+                      name="formaCobranca" 
+                      label={"Valor Total"} 
+                      inline 
+                      onClick={() => {}} 
+                      //checked={formFormaPagamento.formaCobranca == 'valor total'}   
+                    />
+                    <Form.Check 
+                      type="radio" 
+                      value={'por procedimento'} 
+                      id="proProcedimento" 
+                      name="formaCobranca" 
+                      label={"Por procedimento executado"} 
+                      inline 
+                      onClick={() => {}} 
+                      //checked={formFormaPagamento.formaCobranca == 'por procedimento'} 
+                    />
                 </Form.Group>
             </Form.Row>
-            <Form.Row>
-                <Form.Group as={Col} controlId="formGridAddress1">
-                    <Form.Check type="radio" value={'dinheiro'} id="dinheiro" name="formaPagamento" label={"Dinheiro"} inline selected  />
-                    <Form.Check type="radio" value={'boleto'} id="boleto" name="formaPagamento"  label={"Boleto"} inline />
+            <Form.Row className="justify-content-md-center">
+                <Form.Group  controlId="formGridAddress1">
+                    <Form.Check 
+                      type="radio" 
+                      value={'dinheiro'} 
+                      id="dinheiro" 
+                      name="formaPagamento" 
+                      label={"Dinheiro"} 
+                      inline 
+                      onClick={() => {}} 
+                      //checked={formFormaPagamento.formaPagamento == 'dinheiro'}
+                      />
+                    <Form.Check 
+                      type="radio" 
+                      value={'boleto'} 
+                      id="boleto" 
+                      name="formaPagamento" 
+                      label={"Boleto"} 
+                      inline 
+                        ={() => {} }  
+                      //checked={formFormaPagamento.formaPagamento == 'dinheiro'} 
+                      />
                 </Form.Group>
             </Form.Row>
+
+            <Form.Row className="justify-content-md-center">
+                <Form.Group  controlId="formGridAddress1">
+                    <Form.Check 
+                      type="radio" 
+                      value={0} 
+                      id="avista" 
+                      name="tipoPagamento" 
+                      label={"À vista"} 
+                      inline 
+                      onClick={() => setTipoPagamento(0)}  
+                      checked={formFormaPagamento.tipoPagamento == 0}
+                      />
+                      
+                    <Form.Check 
+                      type="radio" 
+                      value={1} 
+                      id="parcelado" 
+                      name="tipoPagamento"  
+                      label={"Parcelado/À prazo"} 
+                      inline 
+                      onClick={() => setTipoPagamento(1)} 
+                      checked={formFormaPagamento.tipoPagamento == 1}
+                      />
+                </Form.Group>
+            </Form.Row>
+
+            {(()=>{
+
+                if(formFormaPagamento.tipoPagamento == 1)
+                {
+                  return (
+                    <Form.Row className="justify-content-md-center">
+                      <Form.Group as={Col} sm={2}  controlId="formGridAddress1">
+                          <Form.Check type="checkbox"  id="entrada" name="entrada" label={"Entrada"} inline  onClick={() => setEntrada(!formFormaPagamento.entrada)} checked={formFormaPagamento.entrada}  />
+                      </Form.Group>
+
+                      {(()=>{
+                          if(formFormaPagamento.entrada)
+                          {
+                            return (
+                              <Form.Group as={Col} sm={2} >
+                                <Form.Label>Valor Entrada</Form.Label>
+                                <Form.Control type="number" name="valorEntrada"  />
+                            </Form.Group>
+                            )
+                          }
+                      })()}
+
+
+                      <Form.Group as={Col} sm={2} >
+                          <Form.Label>parcelas</Form.Label>
+                          <Form.Control as="select" name="parcelas">
+                            {(()=> [...Array(11).keys()].map( row =>{
+
+                              return <option key={row + 1} value={row + 1}>{row + 1}</option>
+
+                            }))()}
+                          </Form.Control>
+                      </Form.Group>
+                    </Form.Row>
+                  )
+                }
+
+            })()}
+     
         </Form>
           </Modal.Body>
         <Modal.Footer>
