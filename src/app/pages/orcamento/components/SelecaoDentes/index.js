@@ -8,9 +8,66 @@ import { Card, CardHeader, CardBody,  } from "~/_metronic/_partials/controls";
 import { toAbsoluteUrl } from "~/_metronic/_helpers";
 import SVG from 'react-inlinesvg'
 
-function SelecaoDentes({listaDentes,procedimento,callback}) {
+function SelecaoDentes({numeroListaDentes,procedimento,callback}) {
 
     const [listaDentesFinalizados,setListaDentesFinalizados] = useState([]);
+    const [listaDentes,setListaDentes] = useState([]);
+
+
+    const numerosPermanetes = [["18","17","16","15","14","13","12","11"],
+                              ["21","22","23","24","25","26","27","28"],
+                              ["48","47","46","45","44","43","42","41"],
+                              ["31","32","33","34","35","36","37","38"]];
+
+    const numerosDeciduos = [["55","54","53","52","51"],
+                            ["61","62","63","64","65"],
+                            ["85","84","83","82","81"],
+                            ["71","72","73","74","75"]];
+
+
+    const listaNumero = {
+        0: numerosPermanetes,
+        1: numerosDeciduos
+    }
+
+
+                            
+
+    useEffect(() => {
+        let novaLista = listaNumero[numeroListaDentes];
+
+
+       
+
+        if(novaLista){
+            let novaDenticao = novaLista.map((dente) => {
+
+
+                return dente.map(function(numero){
+                    
+                      return {
+                          
+                          label: numero,
+                          faces: []
+                      }
+                  })
+                 
+                 
+      
+            });
+    
+            setListaDentes(novaDenticao);
+
+
+           
+        }
+       
+
+        
+      
+                                
+     },[numeroListaDentes])
+
 
 
     const getFacesDente = (numero) =>{
@@ -27,59 +84,64 @@ function SelecaoDentes({listaDentes,procedimento,callback}) {
             3 : {label : 'L'},
    
         };
-        listaDentes.map((quadrante,key) =>{
+       
+        if(listaDentes)
+            listaDentes.map((quadrante,key) =>{
 
-            let valueIndex = quadrante.indexOf(numero);
-
-            if(valueIndex >= 0)
-            {
-                result.push(facePorQuadrante[key]);
-
-                if( key%2 == 0 )
+                let valueIndex = quadrante.map(row => row.label).indexOf(numero.label);
+                
+                if(valueIndex >= 0)
                 {
-                    if(valueIndex >= quadrante.length -3 && valueIndex <= quadrante.length )
+                    result.push(facePorQuadrante[key]);
+
+                    if( key%2 == 0 )
                     {
-                        result.push({label : 'I'});
+                        if(valueIndex >= quadrante.length -3 && valueIndex <= quadrante.length )
+                        {
+                            result.push({label : 'I'});
+                        }
+                        else
+                        {
+                            result.push({label : 'O '});
+                        }
                     }
                     else
                     {
-                        result.push({label : 'O '});
+                        if(valueIndex < 3 )
+                        {
+                            result.push({label : 'I'});
+                        }
+                        else
+                        {
+                            result.push({label : 'O'});
+                        }
                     }
                 }
-                else
-                {
-                    if(valueIndex < 3 )
-                    {
-                        result.push({label : 'I'});
-                    }
-                    else
-                    {
-                        result.push({label : 'O'});
-                    }
-                }
-            }
-        })
+            })
+
+
+        
     
         return(result);
     }
 
 
 
-    useEffect(() => {
-
-     
-        setListaDentesFinalizados([]);
-        
-    },[listaDentes])
+  
 
     useEffect(() => {
 
-        if(procedimento.dentes !== undefined)
-        {
-            setListaDentesFinalizados(procedimento.dentes);
-        }
+        if(procedimento.dentes === undefined)
+            procedimento.dentes = [];
+
+       
         
-    },[procedimento])
+        setListaDentesFinalizados(procedimento.dentes);
+
+        
+    },[procedimento.dentes])
+
+ 
     
 
     useEffect(() => {
@@ -137,16 +199,16 @@ function SelecaoDentes({listaDentes,procedimento,callback}) {
        /**/
        e.target.classList.add("ativo")
 
-        console.log(dente);
+        
 
         if(dente.faces.map(face => face.label).indexOf(face.label) < 0)
         {
-            console.log("adicionando");
+            
             dente.faces.push(face);
         }
         else
         {
-            console.log("removendo");
+            
             //listaDentesFinalizados.splice(listaDentesFinalizados.indexOf(key), 1);
             //setListaDentesFinalizados([...listaDentesFinalizados]);
             dente.faces.splice(dente.faces.indexOf(face) ,1);
@@ -160,6 +222,21 @@ function SelecaoDentes({listaDentes,procedimento,callback}) {
         
 
     }
+
+    const isDenteAtivo = (dente) =>{
+
+        let ativo = false;
+
+        listaDentesFinalizados.map(row =>{
+
+      
+
+            ativo = row.label == dente.label ? true : ativo;
+
+        })
+
+        return ativo;
+    }
     
 
    
@@ -169,7 +246,7 @@ function SelecaoDentes({listaDentes,procedimento,callback}) {
 
         if(listaDentes)
         {
-            
+           
             return(
                <>
                 {
@@ -182,7 +259,7 @@ function SelecaoDentes({listaDentes,procedimento,callback}) {
 
                             
                                 return (
-                                    <div key={key} onClick={() => adicionaDente(dente)} className={(dente.active ? 'ativo' : '') + " numero"}  >{dente.label}</div>
+                                    <div key={key} onClick={() => adicionaDente(dente)} className={(isDenteAtivo(dente) ? 'ativo' : '') + " numero"}  >{dente.label}</div>
                                 )
                             })}
                         </span>
@@ -200,6 +277,8 @@ function SelecaoDentes({listaDentes,procedimento,callback}) {
 
     const getListaDentesSelecionados = () => {
         let html = "";
+
+
 
         if(listaDentesFinalizados)
         {

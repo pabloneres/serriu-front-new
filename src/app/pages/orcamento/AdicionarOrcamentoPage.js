@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Card, CardHeader, CardBody, } from "~/_metronic/_partials/controls";
 import { toAbsoluteUrl, checkIsActive } from "~/_metronic/_helpers";
-import { Form, Table, Col, Button, CardGroup, Modal } from "react-bootstrap";
+import { Form, Table, Col, Button, CardGroup, Modal, ButtonToolbar, ButtonGroup } from "react-bootstrap";
 import SVG from 'react-inlinesvg'
 
 import { connect } from "react-redux";
@@ -45,8 +45,9 @@ export function AdicionarOrcamentoPage(props) {
   const [clinicas, setClinicas] = useState([])
   const [procedimentosFinalizados, setProcedimentosFinalizados] = useState([])
   const [dadosAPI, setDadosAPI] = useState([])
-  const [modalOrcamento, setModalOrcamento] = useState(false)
-  const [modalOrcamentoProcedimento, setModalOrcamentoProcedimento] = useState({})
+
+  const [modalFormaPagamento, setModalFormaPagamento] = useState(false)
+  const [formaPagamento, setFormaPagamento] = useState({})
 
 
   const { params, url } = useRouteMatch()
@@ -119,11 +120,10 @@ export function AdicionarOrcamentoPage(props) {
   }
 
 
-  const openModalProcedimento = (proced) => {
+  const exibeModalFormaPagamento = () => {
 
-    console.log(proced);
-    setModalOrcamentoProcedimento(proced);
-    setModalOrcamento(true);
+    
+    setModalFormaPagamento(true);
   }
 
 
@@ -172,6 +172,7 @@ export function AdicionarOrcamentoPage(props) {
   const alterarProcedimento = (procedimento) => {
 
     procedimento.acao = "alterar";
+   
     setProcedimento(procedimento);
 
 
@@ -279,7 +280,7 @@ export function AdicionarOrcamentoPage(props) {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    console.log(procedimentosFinalizados)
+
     store(authToken, {procedimentos:procedimentosFinalizados, dentista, paciente_id: params.id})
       .then(() => history.push(`${url}`))
       .catch((err) => {
@@ -296,75 +297,33 @@ export function AdicionarOrcamentoPage(props) {
   ];
   return (
     <Card>
-      <Modal
-        show={modalOrcamento}
-        size="lg"
-        aria-labelledby="contained-modal-title-vcenter"
-        centered
-      >
+      <Modal show={modalFormaPagamento} size="lg" >
         <Modal.Header closeButton>
-          <Modal.Title id="contained-modal-title-vcenter">
-            {modalOrcamentoProcedimento.label}
-          </Modal.Title>
+          <Modal.Title>Forma de Pagamento</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {(() => {
-
-
-            if (modalOrcamentoProcedimento.geral == 0) {
-
-              return (
-                <div className="relatorio">
-                  <CardGroup>
-                    <Card>
-                      <CardHeader title="Informações"></CardHeader>
-                      <CardBody>
-                        <p>
-
-                        </p>
-
-                      </CardBody>
-                    </Card>
-                    <Card>
-                      <CardHeader title="Dentes"></CardHeader>
-                      <CardBody>
-
-                        <ul className="listaDentes">
-                          {modalOrcamentoProcedimento.dentes.map((dente, key) => {
-                            return (
-                              <li key={key} className="ativo">
-                                <span>{dente.label}</span>
-                                <span>{modalOrcamentoProcedimento.labe}</span>
-
-                                <div className="faces">
-                                  {dente.faces.map((face, key) => {
-                                    return (
-                                      <div key={key} className="face ativo" >{face.label}</div>
-                                    )
-                                  })}
-                                </div>
-
-                              </li>
-                            )
-                          })}
-                        </ul>
-                      </CardBody>
-                    </Card>
-                  </CardGroup>
-                </div>
-              )
-
-            }
-
-
-          })()}
-
-          <div className="text-left">
-            <h2>Total : {conversorMonetario(modalOrcamentoProcedimento.valor)}</h2>
-          </div>
-        </Modal.Body>
+        <Form> 
+            <Form.Row>
+                <Form.Group as={Col} controlId="formGridAddress1">
+                    <Form.Check type="radio" value={'valor total'} id="valorTotal" name="formaCobranca" label={"Valor Total"} inline selected  />
+                    <Form.Check type="radio" name="formaCobranca" id="proProcedimento" value={'por procedimento'} label={"Por procedimento executado"} inline />
+                </Form.Group>
+            </Form.Row>
+            <Form.Row>
+                <Form.Group as={Col} controlId="formGridAddress1">
+                    <Form.Check type="radio" value={'dinheiro'} id="dinheiro" name="formaPagamento" label={"Dinheiro"} inline selected  />
+                    <Form.Check type="radio" value={'boleto'} id="boleto" name="formaPagamento"  label={"Boleto"} inline />
+                </Form.Group>
+            </Form.Row>
+        </Form>
+          </Modal.Body>
         <Modal.Footer>
-          <Button onClick={() => setModalOrcamento(!modalOrcamento)}>Fechar</Button>
+          <Button variant="secondary" onClick={() => setModalFormaPagamento(false)}>
+            Fechar
+          </Button>
+          <Button variant="primary" onClick={() => setModalFormaPagamento(false)}>
+            Salvar
+          </Button>
         </Modal.Footer>
       </Modal>
       <CardHeader title="Adicionar Orcamento"></CardHeader>
@@ -480,7 +439,7 @@ export function AdicionarOrcamentoPage(props) {
 
                    <div className="todosOrcamentos">
                    {procedimentosFinalizados.map((row, key) => {
-                     console.log(row);
+                     
                       return (
                         <div className="orcamento" key={key} >
                           <div className="conteudo" >
@@ -525,6 +484,12 @@ export function AdicionarOrcamentoPage(props) {
 
                 <div className="text-right">
                   <h2>Total : {conversorMonetario(getTotalProcedimentos())}</h2>
+                </div>
+                <div className="text-right">
+                <span onClick={() => exibeModalFormaPagamento()} className="svg-icon menu-icon btn-formapagamento">
+                   <SVG style={{ "fill": "#3699FF", "color": "#3699FF",  "marginRight": 8, "cursor": "pointer" }} src={toAbsoluteUrl("/media/svg/icons/Design/create.svg")} />
+                   DEFINIR FORMA DE PAGAMENTO
+                </span>
                 </div>
 
               </CardBody>
