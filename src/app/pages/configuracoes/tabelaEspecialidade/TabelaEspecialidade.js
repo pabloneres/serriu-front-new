@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom'
 import { index, destroy, store, update } from '~/app/controllers/especialidadeController'
 import { toAbsoluteUrl, checkIsActive } from "~/_metronic/_helpers";
 import { Modal, Button, Form, Col, InputGroup } from 'react-bootstrap'
+import Select from 'react-select';
 import { useFormik } from "formik";
 import * as Yup from "yup";
 
@@ -27,6 +28,7 @@ export function TabelaEspecialidade() {
   const [show, setShow] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
   const [tableEdit, setTableEdit] = useState([]);
+  const [reload, setReload] = useState(false);
   const history = useHistory();
   
   let initialValues = {
@@ -50,7 +52,7 @@ export function TabelaEspecialidade() {
     initialValues,
     validationSchema: tabelaSchema,
     onSubmit: (values, { setStatus, setSubmitting, resetForm }) => {
-      store(authToken, {...values, table_id: params.id})
+      store(authToken, values)
         .then(() => {
           resetForm()
           setShow(false)
@@ -70,14 +72,11 @@ export function TabelaEspecialidade() {
     enableReinitialize: true,
     validationSchema: tabelaSchema2,
     onSubmit: (values, { setStatus, setSubmitting, resetForm }) => {
-      update(authToken, values)
+      update(authToken, tableEdit[0], values)
         .then(() => {
           resetForm()
           setShowEdit(false)
-          index(authToken)
-          .then( ({data}) => {
-            setEspecialidades(data[0])
-          })
+          setReload(!reload)
         })
         .catch((err)=> {
           return 
@@ -88,16 +87,15 @@ export function TabelaEspecialidade() {
   });
 
   useEffect(() => {
-      index(authToken, params.id)
+      index(authToken)
       .then( ({data}) => {
-        setEspecialidades(data[0])
-        setName(data[1].name)
+        setEspecialidades(data)
       }).catch((err)=>{
         if (err.response.status === 401) {
           setLogout(true)
         }
       })
-  }, [show])
+  }, [show, reload])
 
   if (logout) {
     return <Redirect to="/logout" />
@@ -105,14 +103,7 @@ export function TabelaEspecialidade() {
 
   function handleDelete(id) {
     destroy(authToken, id).then(()=>{
-       index(authToken)
-      .then( ({data}) => {
-        setEspecialidades(data[0])
-      }).catch((err)=>{
-        if (err.response.status === 401) {
-          setLogout(true)
-        }
-      })
+      setReload(!reload)
     })
   }
 
@@ -212,7 +203,7 @@ export function TabelaEspecialidade() {
         </Modal.Body>
       </Modal>
 
-      <CardHeader title={`Especialidades - Tabela ${name}`}>
+      <CardHeader title={`Especialidades`}>
         <CardHeaderToolbar>
           <button
             type="button"
@@ -224,7 +215,13 @@ export function TabelaEspecialidade() {
         </CardHeaderToolbar>
       </CardHeader>
       <CardBody>
-        <Table striped bordered hover>
+        <Select
+          placeholder="Digite o nome da especialidade"
+        />
+        <Table 
+          style={{marginTop: 10}}
+          striped bordered hover
+        >
           <thead>
             <tr>
               <th>Nome</th>
@@ -245,9 +242,9 @@ export function TabelaEspecialidade() {
               <span onClick={() => handleDelete(especialidade.id) }  style={{"cursor": "pointer"}} className="svg-icon menu-icon">
                 <SVG style={{"fill": "#3699FF", "color": "#3699FF", "marginLeft": 8}} src={toAbsoluteUrl("/media/svg/icons/Design/delete.svg")} />
               </span>
-              <span onClick={() => history.push(`/especialidades/${especialidade.id}/procedimentos`) }  style={{"cursor": "pointer"}} className="svg-icon menu-icon">
+              {/* <span onClick={() => history.push(`/especialidades/${especialidade.id}/procedimentos`) }  style={{"cursor": "pointer"}} className="svg-icon menu-icon">
                 <SVG style={{"fill": "#3699FF", "color": "#3699FF", "marginLeft": 8}} src={toAbsoluteUrl("/media/svg/icons/Design/view.svg")} />
-              </span>
+              </span> */}
               </td>
             </tr>
           ))}

@@ -3,6 +3,9 @@ import api from '../services/api'
 // DEFINIR AS ROTAS DAS CLINICAS
 const INDEX_CLINICS_URL = "/procedimentos";
 
+const INDEX_ESPECIALIDADE = "/especialidades";
+const INDEX_PRECOS = "/precos";
+
 const SHOW_CLINIC_URL = "/";
 
 const STORE_CLINIC_URL = "/procedimento";
@@ -10,6 +13,14 @@ const STORE_CLINIC_URL = "/procedimento";
 const UPDATE_CLINIC_URL = "/procedimento";
 
 const DESTROY_CLINIC_URL = "/procedimento";
+
+export function indexAll(authToken) {
+  return api.get(`${INDEX_CLINICS_URL}`, {
+    headers: {
+      Authorization: 'Bearer ' + authToken
+    }
+  })
+}
 
 export function index(authToken, id) {
   return api.get(`${INDEX_CLINICS_URL}/${id}`, {
@@ -51,3 +62,20 @@ export function destroy(authToken, id) {
     }
   })
 }
+
+export function indexEspecialidade(authToken) {
+  return api.get(`${INDEX_ESPECIALIDADE}`, {
+    headers: {
+      Authorization: 'Bearer ' + authToken
+    }
+  })
+}
+
+export function indexPrecos(authToken) {
+  return api.get(`${INDEX_PRECOS}`, {
+    headers: {
+      Authorization: 'Bearer ' + authToken
+    }
+  })
+}
+

@@ -94,8 +94,8 @@ export default function BasePage() {
         
         
         <ContentRoute exact path="/tabela-precos" component={TabelaPreco} />
-        <ContentRoute exact path="/tabela-precos/:id/especialidades" component={TabelaEspecialidade} />
-        <ContentRoute exact path="/especialidades/:id/procedimentos" component={TabelaProcedimento} />
+        <ContentRoute exact path="/tabela-especialidades" component={TabelaEspecialidade} />
+        <ContentRoute exact path="/tabela-procedimentos" component={TabelaProcedimento} />
 
         <ContentRoute exact path="/equipamentos" component={Equipamentos} />
 

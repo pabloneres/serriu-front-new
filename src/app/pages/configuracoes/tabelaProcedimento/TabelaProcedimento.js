@@ -4,10 +4,11 @@ import { useHistory, Redirect, useRouteMatch } from "react-router-dom";
 import { useSelector } from "react-redux";
 import SVG from 'react-inlinesvg'
 import { Link } from 'react-router-dom'
-import { index, destroy, store, update } from '~/app/controllers/procedimentoController'
+import { index, destroy, store, update, indexEspecialidade, indexPrecos, indexAll } from '~/app/controllers/procedimentoController'
 import { toAbsoluteUrl, checkIsActive } from "~/_metronic/_helpers";
 import { Modal, Button, Form, Col, InputGroup } from 'react-bootstrap'
 import { useFormik } from "formik";
+import Select from 'react-select';
 import * as Yup from "yup";
 
 import {
@@ -21,7 +22,6 @@ import {
 export function TabelaProcedimento() {
   const { params, url } = useRouteMatch()
   const {user: {authToken}} = useSelector((state) => state.auth);
-  const [ tabelas, setTabelas ] = useState([])
   const [ name, setName ] = useState('')
   const [ logout, setLogout ] = useState(false)
   const [show, setShow] = useState(false);
@@ -29,11 +29,16 @@ export function TabelaProcedimento() {
   const [showEdit, setShowEdit] = useState(false);
   const [tableEdit, setTableEdit] = useState([]);
   const history = useHistory();
+  const [ tabelas, setTabelas ] = useState([])
+  const [ especialidades, setEspecialidades ] = useState([])
+  const [ procedimentos, setProcedimentos ] = useState([])
   
   let initialValues = {
     name: '',
     value: '',
-    geral: ''
+    geral: '',
+    preco: '',
+    especialidade: ''
   }
   
   const tabelaSchema = Yup.object().shape({
@@ -41,11 +46,19 @@ export function TabelaProcedimento() {
       .min(3, "Minimum 3 symbols")
       .max(50, "Maximum 50 symbols")
       .required('Campo obrigatorio!'),
-    value: Yup.string()
-      .min(3, "Minimum 3 symbols")
+    value: Yup.number()
+      .min(1, "Minimum 3 symbols")
       .max(50, "Maximum 50 symbols")
       .required('Campo obrigatorio!'),
     geral: Yup.string()
+      .min(1, "Minimum 3 symbols")
+      .max(50, "Maximum 50 symbols")
+      .required('Campo obrigatorio!'),
+    preco: Yup.string()
+      .min(2, "Minimum 3 symbols")
+      .max(10, "Maximum 50 symbols")
+      .required('Campo obrigatorio!'),
+    especialidade: Yup.string()
       .min(1, "Minimum 3 symbols")
       .max(50, "Maximum 50 symbols")
       .required('Campo obrigatorio!')
@@ -56,10 +69,18 @@ export function TabelaProcedimento() {
       .max(50, "Maximum 50 symbols")
       .required('Campo obrigatorio!'),
     value: Yup.string()
-      .min(3, "Minimum 3 symbols")
+      .min(2, "Minimum 3 symbols")
       .max(50, "Maximum 50 symbols")
       .required('Campo obrigatorio!'),
     geral: Yup.string()
+    .min(1, "Minimum 3 symbols")
+    .max(50, "Maximum 50 symbols")
+    .required('Campo obrigatorio!'),
+    preco: Yup.string()
+    .min(1, "Minimum 3 symbols")
+    .max(50, "Maximum 50 symbols")
+    .required('Campo obrigatorio!'),
+    especialidade: Yup.string()
     .min(1, "Minimum 3 symbols")
     .max(50, "Maximum 50 symbols")
     .required('Campo obrigatorio!')
@@ -69,7 +90,7 @@ export function TabelaProcedimento() {
     initialValues,
     validationSchema: tabelaSchema,
     onSubmit: (values, { setStatus, setSubmitting, resetForm }) => {
-      store(authToken, {...values, especialidade_id: params.id})
+      store(authToken, values)
         .then(() => {
           resetForm()
           setShow(false)
@@ -86,6 +107,8 @@ export function TabelaProcedimento() {
     name: tableEdit[1],
     value: tableEdit[2],
     geral: tableEdit[3],
+    preco: tableEdit[4],
+    especialidade: tableEdit[5]
   }
 
   const formik2 = useFormik({
@@ -108,14 +131,40 @@ export function TabelaProcedimento() {
   });
 
   useEffect(() => {
-      index(authToken, params.id)
+    indexPrecos(authToken)
       .then( ({data}) => {
-        setTabelas(data[0])
-        setName(data[1].name)
-      }).catch((err)=>{
+        const serialiazedItems = data.map(item => {
+          return {
+            label: item.name,
+            value: item.id
+          }
+        })
+        setTabelas(serialiazedItems)
+      })
+      .catch((err)=>{
         if (err.response.status === 401) {
           setLogout(true)
         }
+      })
+    indexEspecialidade(authToken)
+      .then( ({data}) => {
+        const serialiazedItems = data.map(item => {
+          return {
+            label: item.name,
+            value: item.id
+          }
+        })
+        setEspecialidades(serialiazedItems)
+      })
+      .catch((err)=>{
+        if (err.response.status === 401) {
+          setLogout(true)
+        }
+      })
+
+    indexAll(authToken)
+      .then(({data}) => {
+        setProcedimentos(data)
       })
   }, [show, reload])
 
@@ -138,6 +187,18 @@ export function TabelaProcedimento() {
     setShowEdit(true)
   }
  
+
+  function handleSelectEspecialidade(e) {
+    if (!e) {
+      setReload(!reload)
+      return
+    }
+    index(authToken, e.value).then(({data}) => {
+      setProcedimentos(data)
+      return
+    })
+  }
+
   return (
     <Card>
       <Modal show={show}
@@ -187,13 +248,66 @@ export function TabelaProcedimento() {
               </div>
               ) : null}
             </Form.Group>
-
+              
           </Form.Row>
+
+          <Form.Row>
+
+            <Form.Group as={Col} controlId="formGridAddress1">
+              <Form.Label>Tabela de preços *</Form.Label>
+              <Form.Control
+                as="select"
+                name="preco"
+                {...formik.getFieldProps("preco")}
+              >
+               <option value="" ></option>
+                
+                {
+                  tabelas.map(item => (
+                    <option value={item.value} >{item.label}</option>
+                  ))
+                }
+                
+              </Form.Control>
+              {formik.touched.preco && formik.errors.preco ? (
+              <div className="fv-plugins-message-container">
+                <div className="fv-help-block">{formik.errors.preco}</div>
+              </div>
+              ) : null}
+            </Form.Group>   
+
+            <Form.Group as={Col} controlId="formGridAddress1">
+              <Form.Label>Especialidade *</Form.Label>
+              <Form.Control
+                as="select"
+                name="especialidade"
+                {...formik.getFieldProps("especialidade")}
+              >
+               <option value="" ></option>
+                
+                {
+                  especialidades.map(item => (
+                    <option value={item.value} >{item.label}</option>
+                  ))
+                }
+                
+              </Form.Control>
+              {formik.touched.especialidade && formik.errors.especialidade ? (
+              <div className="fv-plugins-message-container">
+                <div className="fv-help-block">{formik.errors.especialidade}</div>
+              </div>
+              ) : null}
+            </Form.Group>   
+
+
+          
+          </Form.Row>
+
           <Form.Row>
             <Form.Group as={Col} controlId="formGridEmail">
               <Form.Label>Valor *</Form.Label>
               <Form.Control 
-                type="text"
+                type="number"
                 name="value"
                 {...formik.getFieldProps("value")}
                 />
@@ -292,8 +406,7 @@ export function TabelaProcedimento() {
         </Modal.Body>
       </Modal>
       
-
-      <CardHeader title={`Procedimentos - ${name}`}>
+      <CardHeader title={`Procedimentos`}>
         <CardHeaderToolbar>
           <button
             type="button"
@@ -305,28 +418,44 @@ export function TabelaProcedimento() {
         </CardHeaderToolbar>
       </CardHeader>
       <CardBody>
-        <Table striped bordered hover>
+        <Select
+          placeholder="Selecione a tabela de preços"
+          options={tabelas}
+          onChange={(e)=> {handleSelectEspecialidade(e)}}
+          isOptionDisabled={especialidades}
+          defaultValue={0}
+          isClearable={true}
+        >
+        </Select>
+        <Table 
+        striped bordered hover
+        style={{marginTop: 10}}
+        >
           <thead>
             <tr>
               <th>Nome</th>
+              <th>Tabela</th>
+              <th>Especialidade</th>
               <th>Valor</th>
               <th style={{"width": 80}}>Ações</th>
             </tr>
           </thead>
           <tbody>
-          {tabelas.map( tabela => (
-            <tr key={tabela.id} >
-              <td>{tabela.name}</td>
-              <td>{tabela.value.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})}
+          {procedimentos.map( procedimento => (
+            <tr key={procedimento.id} >
+              <td>{procedimento.name}</td>
+              <td>{procedimento.table_name}</td>
+              <td>{procedimento.especialidade_name}</td>
+              <td>{procedimento.value.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})}
               </td>
-              {/* <td>{tabela.email}</td>
+              {/* <td>{procedimento.email}</td>
               <td>{'CNPJ'}</td>
               <td>{'TEMPO DE CONSULTA'}</td> */}
               <td><Link to={''} />
-              <span onClick={() => { handleEdit(tabela) } } className="svg-icon menu-icon">
+              <span onClick={() => { handleEdit(procedimento) } } className="svg-icon menu-icon">
                 <SVG style={{"fill": "#3699FF", "color": "#3699FF"}} src={toAbsoluteUrl("/media/svg/icons/Design/create.svg")} />
               </span>
-              <span onClick={() => handleDelete(tabela.id) }  style={{"cursor": "pointer"}} className="svg-icon menu-icon">
+              <span onClick={() => handleDelete(procedimento.id) }  style={{"cursor": "pointer"}} className="svg-icon menu-icon">
                 <SVG style={{"fill": "#3699FF", "color": "#3699FF", "marginLeft": 8}} src={toAbsoluteUrl("/media/svg/icons/Design/delete.svg")} />
               </span>
               </td>
