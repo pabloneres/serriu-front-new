@@ -47,8 +47,6 @@ export function TabelaProcedimento() {
       .max(50, "Maximum 50 symbols")
       .required('Campo obrigatorio!'),
     value: Yup.number()
-      .min(1, "Minimum 3 symbols")
-      .max(50, "Maximum 50 symbols")
       .required('Campo obrigatorio!'),
     geral: Yup.string()
       .min(1, "Minimum 3 symbols")
