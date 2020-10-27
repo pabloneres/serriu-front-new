@@ -115,7 +115,17 @@
 }
 
 .orcamento .conteudo{
-    width: 70%;
+    width: 63%;
+}
+.orcamento.desabilitado{
+
+    filter: grayscale(1);
+
+}
+.orcamento .ativar{
+    width: 7%; 
+    display: flex; 
+    justify-content: center;
 }
 
 .orcamento .conteudo .linha{
