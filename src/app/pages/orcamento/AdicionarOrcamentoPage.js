@@ -201,6 +201,7 @@ export function AdicionarOrcamentoPage(props) {
 
     if(proced.acao === undefined)
     {
+      proced.abilitado = true;
       setProcedimentosFinalizados([...procedimentosFinalizados,proced]);
     }
 
@@ -214,6 +215,12 @@ export function AdicionarOrcamentoPage(props) {
     procedimentosFinalizados.splice(key, 1);
     setProcedimentosFinalizados([...procedimentosFinalizados]);
   };
+  const alternarProcedimento = (proced) =>{
+
+    proced.abilitado = !proced.abilitado;
+
+    setProcedimentosFinalizados([...procedimentosFinalizados]);
+  }
 
   const alterarProcedimento = (procedimento) => {
 
@@ -453,9 +460,9 @@ export function AdicionarOrcamentoPage(props) {
                       <Form.Group as={Col} sm={2} >
                           <Form.Label>parcelas</Form.Label>
                           <Form.Control as="select" name="parcelas">
-                            {(()=> [...Array(11).keys()].map( row =>{
+                            {(()=> [...Array(10).keys()].map( row =>{
 
-                              return <option key={row + 1} value={row + 1}>{row + 1}</option>
+                            return <option key={row + 1} value={row + 1}>{row + 1} X {conversorMonetario(getTotalProcedimentos() / (row + 1))}</option>
 
                             }))()}
                           </Form.Control>
@@ -592,7 +599,10 @@ export function AdicionarOrcamentoPage(props) {
                    {procedimentosFinalizados.map((row, key) => {
                      
                       return (
-                        <div className="orcamento" key={key} >
+                        <div className={"orcamento " + (!row.abilitado ? 'desabilitado' : '' )} key={key} >
+                          <div>
+                            <Form.Check onChange={() => alternarProcedimento(row)} defaultChecked={row.abilitado} />
+                          </div>
                           <div className="conteudo" >
                             <div className="linha">{row.label}</div>
                             <div className="linha">{getDentistaName(dentista)}</div>
@@ -637,10 +647,17 @@ export function AdicionarOrcamentoPage(props) {
                   <h2>Total : {conversorMonetario(getTotalProcedimentos())}</h2>
                 </div>
                 <div className="text-right">
-                <span onClick={() => exibeModalFormaPagamento()} className="svg-icon menu-icon btn-formapagamento">
-                   <SVG style={{ "fill": "#3699FF", "color": "#3699FF",  "marginRight": 8, "cursor": "pointer" }} src={toAbsoluteUrl("/media/svg/icons/Design/create.svg")} />
-                   DEFINIR FORMA DE PAGAMENTO
-                </span>
+                {(()=>{
+
+                  
+                    return (
+                      <span onClick={() => exibeModalFormaPagamento()} className="svg-icon menu-icon btn-formapagamento">
+                          <SVG style={{ "fill": "#3699FF", "color": "#3699FF",  "marginRight": 8, "cursor": "pointer" }} src={toAbsoluteUrl("/media/svg/icons/Design/create.svg")} />
+                          DEFINIR FORMA DE PAGAMENTO
+                      </span>
+                    )
+                 
+                })()}
                 </div>
 
               </CardBody>

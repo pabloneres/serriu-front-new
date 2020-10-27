@@ -21,17 +21,22 @@ function ProcedimentoSelecaoDente({onFinish, procedimento, dentista}) {
 
   
 
-    const [denticao,setDenticao] = useState();
+    const [denticao,setDenticao] = useState('0');
     const [dentes,setDentes] = useState();
 
     
 
 
-    var listaDenticoes = [
+    const listaDenticoes = [
 
         { value: '0', label: 'Permanentes'},
         { value: '1', label: 'Deciduos'}
     ];
+
+
+    const buscaListaDenticoes = (chave) =>{
+        return listaDenticoes.filter(row => row.value == chave)[0];
+    }
 
     const handlerMudancaDenticao = (value) =>{
 
@@ -85,7 +90,7 @@ function ProcedimentoSelecaoDente({onFinish, procedimento, dentista}) {
 
             if(procedimento.denticao !== undefined)
             {
-                setDenticao(procedimento.denticao);
+                setDenticao(...procedimento.denticao);
                 
             }
 
@@ -114,7 +119,7 @@ function ProcedimentoSelecaoDente({onFinish, procedimento, dentista}) {
                     <Form.Label>dentição</Form.Label>
                     <Select
                         placeholder="Selecione dentição"
-                       
+                        value={buscaListaDenticoes(denticao)}
                         options={listaDenticoes}
                         onChange={handlerMudancaDenticao}
                     />
