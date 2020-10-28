@@ -36,6 +36,18 @@ let listProcedimento = [];
 var batata;
 
 export function AdicionarOrcamentoPage(props) {
+
+  const formaPagamentoInicial = {
+    formaCobranca : null,
+    formaPagamento : null,
+    tipoPagamento : 0,
+    entrada: 0,
+    valorEntrada : null,
+    parcelas: null,
+
+   };
+
+
   const { intl } = props;
   const { user: { authToken } } = useSelector((state) => state.auth);
   const [tabelas, setTabelas] = useState([])
@@ -47,21 +59,9 @@ export function AdicionarOrcamentoPage(props) {
   const [dadosAPI, setDadosAPI] = useState([])
 
   const [modalFormaPagamento, setModalFormaPagamento] = useState(false)
-  const [formFormaPagamento, setFormFormaPagamento] = useState({
-      formaCobranca : '',
-      formaPagamento : '',
-      tipoPagamento : 0,
-      entrada: 0,
-      valorEntrada : null,
-      parcelas: null,
 
-     
 
-      
-    
-      
-
-  })
+  const [formFormaPagamento, setFormFormaPagamento] = useState(formaPagamentoInicial)
 
   const setFormaCobranca = (formaCobranca) =>{
     formFormaPagamento.formaCobranca = formaCobranca;
@@ -70,6 +70,7 @@ export function AdicionarOrcamentoPage(props) {
 
   const setFormaPagamento = (formaPagamento) =>{
     formFormaPagamento.formaPagamento = formaPagamento;
+
     setFormFormaPagamento({...formFormaPagamento})
   }
 
@@ -83,7 +84,7 @@ export function AdicionarOrcamentoPage(props) {
     setFormFormaPagamento({...formFormaPagamento})
   }
   const setValorEntrada = (valorEntrada) =>{
-    formFormaPagamento.valorEntrada = valorEntrada;
+    formFormaPagamento.valorEntrada = valorEntrada / 100;
     setFormFormaPagamento({...formFormaPagamento})
   }
   const setParcelas = (parcelas) =>{
@@ -91,8 +92,13 @@ export function AdicionarOrcamentoPage(props) {
     setFormFormaPagamento({...formFormaPagamento})
   }
 
+  const getValorEntrada  = () =>{
 
+   
 
+    return getTotalProcedimentos() * formFormaPagamento.valorEntrada;
+
+  }
 
 
 
@@ -175,6 +181,7 @@ export function AdicionarOrcamentoPage(props) {
 
   const handlerMudancaTabela = (e) => {
     
+    setProcedimento(undefined);
     setTabela(e.target.value)
   }
 
@@ -368,8 +375,8 @@ export function AdicionarOrcamentoPage(props) {
                       name="formaCobranca" 
                       label={"Valor Total"} 
                       inline 
-                      onClick={() => {}} 
-                      //checked={formFormaPagamento.formaCobranca == 'valor total'}   
+                      onClick={(e) => {setFormaCobranca(e.target.value)}} 
+                      checked={formFormaPagamento.formaCobranca == 'valor total'}   
                     />
                     <Form.Check 
                       type="radio" 
@@ -378,8 +385,12 @@ export function AdicionarOrcamentoPage(props) {
                       name="formaCobranca" 
                       label={"Por procedimento executado"} 
                       inline 
-                      onClick={() => {}} 
-                      //checked={formFormaPagamento.formaCobranca == 'por procedimento'} 
+                      onClick={(e) => {
+                        setFormaCobranca(e.target.value)
+                        setTipoPagamento(0)
+                       
+                      }} 
+                      checked={formFormaPagamento.formaCobranca == 'por procedimento'} 
                     />
                 </Form.Group>
             </Form.Row>
@@ -392,8 +403,10 @@ export function AdicionarOrcamentoPage(props) {
                       name="formaPagamento" 
                       label={"Dinheiro"} 
                       inline 
-                      onClick={() => {}} 
-                      //checked={formFormaPagamento.formaPagamento == 'dinheiro'}
+                      onClick={(e) => {setFormaPagamento(e.target.value)}} 
+                      
+                      required={true}
+                      checked={formFormaPagamento.formaPagamento == 'dinheiro'}
                       />
                     <Form.Check 
                       type="radio" 
@@ -402,8 +415,9 @@ export function AdicionarOrcamentoPage(props) {
                       name="formaPagamento" 
                       label={"Boleto"} 
                       inline 
-                        ={() => {} }  
-                      //checked={formFormaPagamento.formaPagamento == 'dinheiro'} 
+                      required={true}
+                      onClick={(e) => {setFormaPagamento(e.target.value)}}  
+                      checked={formFormaPagamento.formaPagamento == 'boleto'} 
                       />
                 </Form.Group>
             </Form.Row>
@@ -417,7 +431,7 @@ export function AdicionarOrcamentoPage(props) {
                       name="tipoPagamento" 
                       label={"À vista"} 
                       inline 
-                      onClick={() => setTipoPagamento(0)}  
+                      onClick={(e) => setTipoPagamento(e.target.value)}  
                       checked={formFormaPagamento.tipoPagamento == 0}
                       />
                       
@@ -428,8 +442,9 @@ export function AdicionarOrcamentoPage(props) {
                       name="tipoPagamento"  
                       label={"Parcelado/À prazo"} 
                       inline 
-                      onClick={() => setTipoPagamento(1)} 
+                      onClick={(e) => setTipoPagamento(e.target.value)} 
                       checked={formFormaPagamento.tipoPagamento == 1}
+                      disabled={formFormaPagamento.formaCobranca == 'por procedimento' || !formFormaPagamento.formaCobranca }
                       />
                 </Form.Group>
             </Form.Row>
@@ -448,10 +463,16 @@ export function AdicionarOrcamentoPage(props) {
                           if(formFormaPagamento.entrada)
                           {
                             return (
-                              <Form.Group as={Col} sm={2} >
+                              <>
+                              <Form.Group as={Col}  >
+                                <Form.Label>Porcentagem Entrada</Form.Label>
+                                <Form.Control type="number" name="valorEntrada" value={formFormaPagamento.entrada * 100} onChange={(e) => setValorEntrada(e.target.value) }  />
+                              </Form.Group>
+                              <Form.Group as={Col} >
                                 <Form.Label>Valor Entrada</Form.Label>
-                                <Form.Control type="number" name="valorEntrada"  />
-                            </Form.Group>
+                                <Form.Control type="text" name="valorEntrada" disabled value={conversorMonetario(getValorEntrada())} />
+                              </Form.Group>
+                              </>
                             )
                           }
                       })()}
@@ -459,10 +480,10 @@ export function AdicionarOrcamentoPage(props) {
 
                       <Form.Group as={Col} sm={2} >
                           <Form.Label>parcelas</Form.Label>
-                          <Form.Control as="select" name="parcelas">
+                          <Form.Control as="select" name="parcelas" >
                             {(()=> [...Array(10).keys()].map( row =>{
 
-                            return <option key={row + 1} value={row + 1}>{row + 1} X {conversorMonetario(getTotalProcedimentos() / (row + 1))}</option>
+                            return <option  key={row + 1} value={row + 1}>{row + 1} X {conversorMonetario((getTotalProcedimentos() - getValorEntrada()) / (row + 1))}</option>
 
                             }))()}
                           </Form.Control>
@@ -476,7 +497,10 @@ export function AdicionarOrcamentoPage(props) {
         </Form>
           </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setModalFormaPagamento(false)}>
+          <Button variant="secondary" onClick={() => {
+            setFormFormaPagamento(formaPagamentoInicial);
+            setModalFormaPagamento(false);
+            }}>
             Fechar
           </Button>
           <Button variant="primary" onClick={() => setModalFormaPagamento(false)}>
@@ -567,7 +591,7 @@ export function AdicionarOrcamentoPage(props) {
                 
               <Select
                 isClearable={true}
-               
+                value={procedimento}
                 placeholder="Busque procedimento..."
                 options={procedimentos}
                 //options={options}
