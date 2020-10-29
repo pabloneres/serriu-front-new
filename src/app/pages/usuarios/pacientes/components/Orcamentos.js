@@ -5,7 +5,7 @@ import { AdicionarOrcamentoPage } from "~/app/pages/orcamento/AdicionarOrcamento
 import { Link } from 'react-router-dom'
 import SVG from 'react-inlinesvg'
 import { Table } from "react-bootstrap";
-import { store, index, getProcedimentos, orcamento } from '~/app/controllers/orcamentoController';
+import { store, index, getProcedimentos, orcamento, show } from '~/app/controllers/orcamentoController';
 import { useSelector } from "react-redux";
 
 import { toAbsoluteUrl, checkIsActive } from "~/_metronic/_helpers";
@@ -24,6 +24,7 @@ export function Orcamentos() {
   const [showForm, setShowForm] = useState(false)
   const [ logout, setLogout ] = useState(false)
   const [orcamentos, setOrcamentos] = useState([])
+  const [ getOrcamento, setGetOrcamento ] = useState([])
   const [showOrcamento, setShowOrcamento] = useState(false)
   const history = useHistory();
 
@@ -41,6 +42,13 @@ export function Orcamentos() {
 
 function handleDelete() {}
 function handleEdit() {}
+function handleShow(id) {
+  show(authToken, id).then(({data}) => {
+    console.log(data)
+    setGetOrcamento(data)
+  })
+  setShowOrcamento(true)
+}
 
 
   function HandleOrcamento() {
@@ -77,7 +85,7 @@ function handleEdit() {}
                 <tr key={orcamento.id} >
                   <td>{orcamento.created_at}</td>
                   <td>{orcamento.dentista}</td>
-                  <td>{orcamento.total.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})}
+                  <td>{ orcamento.total ? orcamento.total.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) : '' }
                   </td>
                   <td><Link to={''} />
                   <span onClick={() => { handleEdit(orcamento) } } className="svg-icon menu-icon">
@@ -86,7 +94,7 @@ function handleEdit() {}
                   <span onClick={() => handleDelete(orcamento.id) }  style={{"cursor": "pointer"}} className="svg-icon menu-icon">
                     <SVG style={{"fill": "#3699FF", "color": "#3699FF", "marginLeft": 8}} src={toAbsoluteUrl("/media/svg/icons/Design/delete.svg")} />
                   </span>
-                  <span onClick={() => setShowOrcamento(true) }  style={{"cursor": "pointer"}} className="svg-icon menu-icon">
+                  <span onClick={() => handleShow(orcamento.id) }  style={{"cursor": "pointer"}} className="svg-icon menu-icon">
                     <SVG style={{"fill": "#3699FF", "color": "#3699FF", "marginLeft": 8}} src={toAbsoluteUrl("/media/svg/icons/Design/view.svg")} />
                   </span>
                   </td>
@@ -125,7 +133,7 @@ function handleEdit() {}
                   Dentista
                 </td>
                 <td>
-                  Pablo Neres
+                  {getOrcamento.dentista}
                 </td>
               </tr>
               <tr>
@@ -133,7 +141,7 @@ function handleEdit() {}
                   Data
                 </td>
                 <td>
-                  22/10/2020
+                  {getOrcamento.created_at}
                 </td>
               </tr>
               <tr>
@@ -141,7 +149,7 @@ function handleEdit() {}
                   Status
                 </td>
                 <td>
-                  Pendente
+                  {getOrcamento.aprovado === null ? 'Em aberto' : ''}
                 </td>
               </tr>
             </tbody>
@@ -156,75 +164,31 @@ function handleEdit() {}
                 </tr>
             </thead>
             <tbody>
-              <tr>
+             { getOrcamento.procedimento ? 
+               getOrcamento.procedimento.map( orcamento => (
+                <tr key={orcamento.id}>
                 <td>
-                  Restauração
+                  {orcamento.procedimento}
                 </td>
                 <td>
-                  3
+                  { orcamento.dentes.length === 0 ? 'Geral' : orcamento.dentes.length }
                 </td>
                 <td>
-                  22<span style={{color: 'red'}}>VD</span>,{' '}
-                  25<span style={{color: 'red'}}>ML</span>,{' '}
-                  26<span style={{color: 'red'}}>O</span>
+                  {orcamento.dentes.map(dente => (
+                    <span key={dente.id}>{dente.label}<span style={{color: 'red'}}>{dente.faces}</span>,{' '}</span>
+                  ))}
                 </td>
                 <td>
-                  R$ 500,00
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  Restauração
-                </td>
-                <td>
-                  3
-                </td>
-                <td>
-                  22<span style={{color: 'red'}}>VD</span>,{' '}
-                  25<span style={{color: 'red'}}>ML</span>,{' '} 
-                  26<span style={{color: 'red'}}>O</span>
-                </td>
-                <td>
-                  R$ 500,00
+                  {orcamento.valorTotal.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})}
                 </td>
               </tr>
-              <tr>
-                <td>
-                  Restauração
-                </td>
-                <td>
-                  3
-                </td>
-                <td>
-                  22<span style={{color: 'red'}}>VD</span>,{' '}
-                  25<span style={{color: 'red'}}>ML</span>,{' '} 
-                  26<span style={{color: 'red'}}>O</span>
-                </td>
-                <td>
-                  R$ 500,00
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  Restauração
-                </td>
-                <td>
-                  3
-                </td>
-                <td>
-                  22<span style={{color: 'red'}}>VD</span>,{' '}
-                  25<span style={{color: 'red'}}>ML</span>,{' '} 
-                  26<span style={{color: 'red'}}>O</span>
-                </td>
-                <td>
-                  R$ 500,00
-                </td>
-              </tr>
+               )) : ''
+             }
             </tbody>
           </Table>
-
+  
           <div className="text-right" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-              Total R$ 2.000,00
+              <span>Total <strong>{getOrcamento.total ? getOrcamento.total.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) : ''}</strong></span>            
               <Button onClick={() => {setShowOrcamento(false)}} className="mr-2" variant="danger">
                 Fechar
               </Button>
