@@ -41,9 +41,9 @@ export function AdicionarOrcamentoPage(props) {
     formaCobranca : null,
     formaPagamento : null,
     tipoPagamento : 0,
-    entrada: 0,
     valorEntrada : null,
     parcelas: null,
+    salvo: false
 
    };
 
@@ -70,7 +70,7 @@ export function AdicionarOrcamentoPage(props) {
 
   const setFormaPagamento = (formaPagamento) =>{
     formFormaPagamento.formaPagamento = formaPagamento;
-
+    
     setFormFormaPagamento({...formFormaPagamento})
   }
 
@@ -94,11 +94,21 @@ export function AdicionarOrcamentoPage(props) {
 
   const getValorEntrada  = () =>{
 
-   
-
     return getTotalProcedimentos() * formFormaPagamento.valorEntrada;
 
   }
+
+
+
+  const handleSubmitFormaPagamento = (e) =>{
+
+    e.preventDefault();
+
+    formFormaPagamento.salvo = true;
+   
+    setModalFormaPagamento(false);
+
+  };
 
 
 
@@ -365,7 +375,7 @@ export function AdicionarOrcamentoPage(props) {
           <Modal.Title>Forma de Pagamento</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-        <Form> 
+        <Form onSubmit={handleSubmitFormaPagamento}> 
             <Form.Row className="justify-content-md-center" >
                 <Form.Group  controlId="formGridAddress1">
                     <Form.Check 
@@ -376,7 +386,8 @@ export function AdicionarOrcamentoPage(props) {
                       label={"Valor Total"} 
                       inline 
                       onClick={(e) => {setFormaCobranca(e.target.value)}} 
-                      checked={formFormaPagamento.formaCobranca == 'valor total'}   
+                      checked={formFormaPagamento.formaCobranca == 'valor total'}  
+                      required
                     />
                     <Form.Check 
                       type="radio" 
@@ -384,14 +395,19 @@ export function AdicionarOrcamentoPage(props) {
                       id="proProcedimento" 
                       name="formaCobranca" 
                       label={"Por procedimento executado"} 
-                      inline 
+                      inline
+                      required
                       onClick={(e) => {
-                        setFormaCobranca(e.target.value)
-                        setTipoPagamento(0)
+                        setFormaCobranca(e.target.value);
+                        setTipoPagamento(0);
+                        setFormaPagamento('dinheiro');
                        
                       }} 
                       checked={formFormaPagamento.formaCobranca == 'por procedimento'} 
                     />
+                     <Form.Control.Feedback type="invalid">
+                        Esse campo é necessario!
+                     </Form.Control.Feedback>
                 </Form.Group>
             </Form.Row>
             <Form.Row className="justify-content-md-center">
@@ -403,9 +419,12 @@ export function AdicionarOrcamentoPage(props) {
                       name="formaPagamento" 
                       label={"Dinheiro"} 
                       inline 
-                      onClick={(e) => {setFormaPagamento(e.target.value)}} 
+                      onClick={(e) => {
+                        setFormaPagamento(e.target.value)
+                        setTipoPagamento(0);
+                      }} 
                       
-                      required={true}
+                      required
                       checked={formFormaPagamento.formaPagamento == 'dinheiro'}
                       />
                     <Form.Check 
@@ -415,11 +434,18 @@ export function AdicionarOrcamentoPage(props) {
                       name="formaPagamento" 
                       label={"Boleto"} 
                       inline 
-                      required={true}
-                      onClick={(e) => {setFormaPagamento(e.target.value)}}  
+                      required
+                      onClick={(e) => {
+                        setFormaPagamento(e.target.value)
+                        setTipoPagamento(1)
+                      }}  
+                      disabled={ formFormaPagamento.formaCobranca == 'por procedimento' }
                       checked={formFormaPagamento.formaPagamento == 'boleto'} 
                       />
                 </Form.Group>
+                <Form.Control.Feedback type="invalid">
+                    Esse campo é necessario!
+                </Form.Control.Feedback>
             </Form.Row>
 
             <Form.Row className="justify-content-md-center">
@@ -431,8 +457,13 @@ export function AdicionarOrcamentoPage(props) {
                       name="tipoPagamento" 
                       label={"À vista"} 
                       inline 
-                      onClick={(e) => setTipoPagamento(e.target.value)}  
+                      onClick={(e) =>{
+                        setTipoPagamento(e.target.value)
+                       
+                      }}  
                       checked={formFormaPagamento.tipoPagamento == 0}
+                      disabled={ formFormaPagamento.formaPagamento == 'boleto' }
+                      required
                       />
                       
                     <Form.Check 
@@ -444,9 +475,13 @@ export function AdicionarOrcamentoPage(props) {
                       inline 
                       onClick={(e) => setTipoPagamento(e.target.value)} 
                       checked={formFormaPagamento.tipoPagamento == 1}
-                      disabled={formFormaPagamento.formaCobranca == 'por procedimento' || !formFormaPagamento.formaCobranca }
+                      disabled={formFormaPagamento.formaCobranca == 'por procedimento' || !formFormaPagamento.formaCobranca || formFormaPagamento.formaPagamento == 'dinheiro' }
+                      required
                       />
                 </Form.Group>
+                <Form.Control.Feedback type="invalid">
+                    Esse campo é necessario!
+                </Form.Control.Feedback>
             </Form.Row>
 
             {(()=>{
@@ -455,38 +490,43 @@ export function AdicionarOrcamentoPage(props) {
                 {
                   return (
                     <Form.Row className="justify-content-md-center">
-                      <Form.Group as={Col} sm={2}  controlId="formGridAddress1">
-                          <Form.Check type="checkbox"  id="entrada" name="entrada" label={"Entrada"} inline  onClick={() => setEntrada(!formFormaPagamento.entrada)} checked={formFormaPagamento.entrada}  />
+                     
+                      <Form.Group as={Col}   >
+                          <Form.Label>Porcentagem Entrada</Form.Label>
+                          <Form.Control type="number" name="valorEntrada" defaultValue={formFormaPagamento.valorEntrada * 100} onChange={(e) => setValorEntrada(e.target.value) } required  />
+                          <Form.Control.Feedback type="invalid">  
+                            Esse campo é necessario!
+                          </Form.Control.Feedback>
+                      </Form.Group>
+                      <Form.Group as={Col}  >
+                          <Form.Label>Total</Form.Label>
+                          <Form.Control type="text" name="valorEntrada" disabled value={conversorMonetario((getTotalProcedimentos() - getValorEntrada()))}  />
+                          <Form.Control.Feedback type="invalid">
+                            Esse campo é necessario!
+                          </Form.Control.Feedback>
+                      </Form.Group>
+                      <Form.Group as={Col}  >
+                          <Form.Label>Valor Entrada</Form.Label>
+                          <Form.Control type="text" name="valorEntrada" disabled value={conversorMonetario(getValorEntrada())} required />
+                          <Form.Control.Feedback type="invalid">
+                            Esse campo é necessario!
+                          </Form.Control.Feedback>
                       </Form.Group>
 
-                      {(()=>{
-                          if(formFormaPagamento.entrada)
-                          {
-                            return (
-                              <>
-                              <Form.Group as={Col}  >
-                                <Form.Label>Porcentagem Entrada</Form.Label>
-                                <Form.Control type="number" name="valorEntrada" value={formFormaPagamento.entrada * 100} onChange={(e) => setValorEntrada(e.target.value) }  />
-                              </Form.Group>
-                              <Form.Group as={Col} >
-                                <Form.Label>Valor Entrada</Form.Label>
-                                <Form.Control type="text" name="valorEntrada" disabled value={conversorMonetario(getValorEntrada())} />
-                              </Form.Group>
-                              </>
-                            )
-                          }
-                      })()}
 
-
-                      <Form.Group as={Col} sm={2} >
+                      <Form.Group as={Col}  >{/*sm={3}*/}
                           <Form.Label>parcelas</Form.Label>
-                          <Form.Control as="select" name="parcelas" >
+                          <Form.Control as="select" name="parcelas" required onChange={(e) => setParcelas(e.target.value)}>
                             {(()=> [...Array(10).keys()].map( row =>{
 
-                            return <option  key={row + 1} value={row + 1}>{row + 1} X {conversorMonetario((getTotalProcedimentos() - getValorEntrada()) / (row + 1))}</option>
+                            return <option  key={row + 1} value={row + 1}  selected={formFormaPagamento.parcelas == row + 1 } >  {row + 1} X {conversorMonetario((getTotalProcedimentos() - getValorEntrada()) / (row + 1))}</option>
 
                             }))()}
+                            
                           </Form.Control>
+                          <Form.Control.Feedback type="invalid">
+                            Esse campo é necessario!
+                          </Form.Control.Feedback>
                       </Form.Group>
                     </Form.Row>
                   )
@@ -494,8 +534,7 @@ export function AdicionarOrcamentoPage(props) {
 
             })()}
      
-        </Form>
-          </Modal.Body>
+        
         <Modal.Footer>
           <Button variant="secondary" onClick={() => {
             setFormFormaPagamento(formaPagamentoInicial);
@@ -503,10 +542,12 @@ export function AdicionarOrcamentoPage(props) {
             }}>
             Fechar
           </Button>
-          <Button variant="primary" onClick={() => setModalFormaPagamento(false)}>
+          <Button variant="primary" type="submit" >
             Salvar
           </Button>
         </Modal.Footer>
+        </Form>
+          </Modal.Body>
       </Modal>
       <CardHeader title="Adicionar Orcamento"></CardHeader>
       <CardBody>
@@ -689,14 +730,24 @@ export function AdicionarOrcamentoPage(props) {
           </CardGroup>
 
           <div className="text-right">
-            <Link to={`${url}`}>
-              <Button className="mr-2" variant="danger">
-                Cancelar
-            </Button>
-            </Link>
-            <Button variant="primary" type="submit">
-              Salvar
-          </Button>
+             {(()=>{
+               if(formFormaPagamento.salvo)
+               {
+                
+                return ( 
+                  <>
+                  <Link to={`${url}`}>
+                     <Button className="mr-2" variant="danger">
+                         Cancelar
+                     </Button>
+                  </Link>
+                  <Button variant="primary" type="submit">
+                     Salvar
+                  </Button>
+                  </>
+                )
+               }
+             })()}
           </div>
         </Form>
       </CardBody>
