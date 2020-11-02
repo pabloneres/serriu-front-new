@@ -14,9 +14,7 @@ import { useSelector } from "react-redux";
 import axios from 'axios';
 import { store, index, getProcedimentos } from '~/app/controllers/orcamentoController';
 
-
-
-import { conversorMonetario } from '~/app/modules/Util';
+import { conversorMonetario, formatDate } from '~/app/modules/Util';
 
 
 //COMPONENTES
@@ -26,9 +24,6 @@ import ProcedimentoSelecaoDente from "./components/formularios/procedimentoSelec
 
 import Select from 'react-select';
 
-let data = new Date();
-
-data = data.getFullYear() + "-" + ("0" + (data.getMonth() + 1)).slice(-2) + "-" + + data.getDate();
 
 
 let listProcedimento = [];
@@ -47,6 +42,8 @@ export function AdicionarOrcamentoPage({orcamento}) {
 
    };
 
+   let data = formatDate();
+
 
   const { user: { authToken } } = useSelector((state) => state.auth);
   const [tabelas, setTabelas] = useState([])
@@ -64,6 +61,24 @@ export function AdicionarOrcamentoPage({orcamento}) {
 
 
   
+  useEffect(() => {
+
+    if(orcamento !== undefined)
+    {
+      console.log(orcamento)
+      let procedimentos = orcamento.procedimento;
+      console.log(procedimentos)
+
+      procedimentos.map((row) =>{
+        row.nomeTabela = row.procedimento;
+        row.label = row.procedimento
+        row.abilitado = true;
+      })
+      setProcedimentosFinalizados(procedimentos)
+      setDentista(orcamento.dentista);
+    }
+
+  },[orcamento])
 
 
 
@@ -109,6 +124,8 @@ export function AdicionarOrcamentoPage({orcamento}) {
     e.preventDefault();
 
     formFormaPagamento.salvo = true;
+
+    console.log(formFormaPagamento);
    
     setModalFormaPagamento(false);
 
@@ -355,13 +372,16 @@ export function AdicionarOrcamentoPage({orcamento}) {
   const handleSubmit = (e) => {
     e.preventDefault()
 
-    store(authToken, {procedimentos:procedimentosFinalizados, dentista, paciente_id: params.id,formFormaPagamento})
+   
+    store(authToken, {procedimentos:procedimentosFinalizados, dentista, paciente_id: params.id, formFormaPagamento})
       .then(() => history.push(`${url}`))
       .catch((err) => {
         return
         // retirar a linha debaixo e retornar o erro
         // setSubmitting(false);
       })
+    
+
   }
 
 
@@ -587,7 +607,7 @@ export function AdicionarOrcamentoPage({orcamento}) {
                 <option value=""></option>
                 {
                   dentistas.map(row => {
-                    return <option key={row.user_id} value={row.user_id}>{row.name}</option>
+                    return <option key={row.user_id} value={row.user_id} selected={dentista == row.user_id} >{row.name}</option>
                   })
                 }
               </Form.Control>
@@ -666,6 +686,8 @@ export function AdicionarOrcamentoPage({orcamento}) {
 
                    <div className="todosOrcamentos">
                    {procedimentosFinalizados.map((row, key) => {
+
+                     console.log(row)
                      
                       return (
                         <div className={"orcamento " + (!row.abilitado ? 'desabilitado' : '' )} key={key} >
@@ -748,6 +770,7 @@ export function AdicionarOrcamentoPage({orcamento}) {
                   <Button variant="primary" type="submit">
                      Salvar
                   </Button>
+                
                   </>
                 )
                }
