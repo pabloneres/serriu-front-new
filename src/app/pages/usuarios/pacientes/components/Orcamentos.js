@@ -5,7 +5,7 @@ import { AdicionarOrcamentoPage } from "~/app/pages/orcamento/AdicionarOrcamento
 import { Link } from 'react-router-dom'
 import SVG from 'react-inlinesvg'
 import { Table } from "react-bootstrap";
-import { store, index, getProcedimentos, orcamento, show } from '~/app/controllers/orcamentoController';
+import { store, index, getProcedimentos, orcamento, show, destroy } from '~/app/controllers/orcamentoController';
 import { useSelector } from "react-redux";
 
 import { toAbsoluteUrl, checkIsActive } from "~/_metronic/_helpers";
@@ -26,6 +26,7 @@ export function Orcamentos() {
   const [orcamentos, setOrcamentos] = useState([])
   const [ getOrcamento, setGetOrcamento ] = useState([])
   const [showOrcamento, setShowOrcamento] = useState(false)
+  const [reload, setReload] = useState(false)
   const history = useHistory();
 
   useEffect(() => {
@@ -38,9 +39,13 @@ export function Orcamentos() {
         setLogout(true)
       }
     })
-}, [])
+}, [reload])
 
-function handleDelete() {}
+function handleDelete(id) {
+  destroy(authToken, id).then(()=>{
+    setReload(!reload)
+  }).catch((err)=> console.log(err))
+}
 function handleEdit() {}
 function handleShow(id) {
   show(authToken, id).then(({data}) => {
@@ -76,6 +81,7 @@ function handleShow(id) {
                 <tr>
                   <th>Data</th>
                   <th>Dentista</th>
+                  <th>Status</th>
                   <th>Valor</th>
                   <th style={{ "width": 100 }}>Ações</th>
                 </tr>
@@ -85,6 +91,7 @@ function handleShow(id) {
                 <tr key={orcamento.id} >
                   <td>{orcamento.created_at}</td>
                   <td>{orcamento.dentista}</td>
+                  <td>{orcamento.aprovado === null ? 'Em aberto' : ''}</td>
                   <td>{ orcamento.total ? orcamento.total.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) : '' }
                   </td>
                   <td><Link to={''} />
@@ -175,7 +182,13 @@ function handleShow(id) {
                 </td>
                 <td>
                   {orcamento.dentes.map(dente => (
-                    <span key={dente.id}>{dente.label}<span style={{color: 'red'}}>{dente.faces}</span>,{' '}</span>
+                    <span key={dente.id}>{dente.label}
+                      {dente.faces.map( face => (
+                        <span style={{color: 'red'}}>{face.label}</span>
+                      ))}
+                    {' '}
+                    {' '}
+                    </span>
                   ))}
                 </td>
                 <td>
@@ -186,12 +199,16 @@ function handleShow(id) {
              }
             </tbody>
           </Table>
-  
           <div className="text-right" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
               <span>Total <strong>{getOrcamento.total ? getOrcamento.total.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) : ''}</strong></span>            
+             <div>
+             <Button onClick={() => {setShowOrcamento(false)}} className="mr-2" variant="primary">
+                Executar
+              </Button>
               <Button onClick={() => {setShowOrcamento(false)}} className="mr-2" variant="danger">
                 Fechar
               </Button>
+             </div>
           </div>
         </Modal.Body>
       </Modal>

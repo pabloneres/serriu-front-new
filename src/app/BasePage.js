@@ -37,6 +37,8 @@ import { TabelaPreco } from '~/app/pages/configuracoes/tabelaPreco/TabelaPreco'
 import { TabelaEspecialidade } from '~/app/pages/configuracoes/tabelaEspecialidade/TabelaEspecialidade'
 import { TabelaProcedimento } from '~/app/pages/configuracoes/tabelaProcedimento/TabelaProcedimento'
 
+import { RelatorioPage } from '~/app/pages/configuracoes/relatorios/RelatorioPage'
+
 import { Equipamentos } from '~/app/pages/configuracoes/equipamentos/Equipamentos'
 
 
@@ -98,6 +100,8 @@ export default function BasePage() {
         <ContentRoute exact path="/tabela-procedimentos" component={TabelaProcedimento} />
 
         <ContentRoute exact path="/equipamentos" component={Equipamentos} />
+
+        <ContentRoute exact path="/relatorios" component={RelatorioPage} />
 
         {/* SUBMENU Rotas de Usuarios */}
 

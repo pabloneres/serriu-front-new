@@ -24,7 +24,7 @@ export function AsideMenuListFilial({ layoutProps }) {
         >
           <NavLink className="menu-link" to="/dashboard">
             <span className="svg-icon menu-icon">
-              <SVG style={{"fill": "#3699FF", "color": "#3699FF"}} src={toAbsoluteUrl("/media/svg/icons/Design/Layers.svg")} />
+              <SVG style={{ "fill": "#3699FF", "color": "#3699FF" }} src={toAbsoluteUrl("/media/svg/icons/Design/Layers.svg")} />
             </span>
             <span className="menu-text">Dashboard</span>
           </NavLink>
@@ -35,31 +35,31 @@ export function AsideMenuListFilial({ layoutProps }) {
         >
           <NavLink className="menu-link" to="/agenda">
             <span className="svg-icon menu-icon">
-              <SVG style={{"fill": "#3699FF"}} src={toAbsoluteUrl("/media/svg/icons/Design/calendar.svg")} />
+              <SVG style={{ "fill": "#3699FF" }} src={toAbsoluteUrl("/media/svg/icons/Design/calendar.svg")} />
             </span>
             <span className="menu-text">Agenda</span>
           </NavLink>
         </li>
-     {
-       /**   <li
-          className={`menu-item ${getMenuItemActive("/orcamento", false)}`}
-          aria-haspopup="true"
-        >
-          <NavLink className="menu-link" to="/orcamento">
-            <span className="svg-icon menu-icon">
-              <SVG style={{"fill": "#3699FF"}} src={toAbsoluteUrl("/media/svg/icons/Design/money.svg")} />
-            </span>
-            <span className="menu-text">Orçamento</span>
-          </NavLink>
-        </li> */
-     }
+        {
+          /**   <li
+             className={`menu-item ${getMenuItemActive("/orcamento", false)}`}
+             aria-haspopup="true"
+           >
+             <NavLink className="menu-link" to="/orcamento">
+               <span className="svg-icon menu-icon">
+                 <SVG style={{"fill": "#3699FF"}} src={toAbsoluteUrl("/media/svg/icons/Design/money.svg")} />
+               </span>
+               <span className="menu-text">Orçamento</span>
+             </NavLink>
+           </li> */
+        }
         <li
           className={`menu-item ${getMenuItemActive("/pacientes", false)}`}
           aria-haspopup="true"
         >
           <NavLink className="menu-link" to="/pacientes">
             <span className="svg-icon menu-icon">
-              <SVG style={{"fill": "#3699FF"}} src={toAbsoluteUrl("/media/svg/icons/Design/pacients.svg")} />
+              <SVG style={{ "fill": "#3699FF" }} src={toAbsoluteUrl("/media/svg/icons/Design/pacients.svg")} />
             </span>
             <span className="menu-text">Pacientes</span>
           </NavLink>
@@ -70,7 +70,7 @@ export function AsideMenuListFilial({ layoutProps }) {
         >
           <NavLink className="menu-link" to="/financeiro">
             <span className="svg-icon menu-icon">
-              <SVG style={{"fill": "#3699FF"}} src={toAbsoluteUrl("/media/svg/icons/Design/money.svg")} />
+              <SVG style={{ "fill": "#3699FF" }} src={toAbsoluteUrl("/media/svg/icons/Design/money.svg")} />
             </span>
             <span className="menu-text">Financeiros</span>
           </NavLink>
@@ -82,30 +82,30 @@ export function AsideMenuListFilial({ layoutProps }) {
         >
           <NavLink className="menu-link menu-toggle" to="/usuarios">
             <span className="svg-icon menu-icon">
-              <SVG style={{"fill": "#3699FF"}} src={toAbsoluteUrl("/media/svg/icons/Design/users.svg")} />
+              <SVG style={{ "fill": "#3699FF" }} src={toAbsoluteUrl("/media/svg/icons/Design/users.svg")} />
             </span>
             <span className="menu-text">Usúarios</span>
             <i className="menu-arrow" ></i>
           </NavLink>
           <div className="menu-submenu ">
-          <i className="menu-arrow"></i>
-          <ul className="menu-subnav">
-          <li className="menu-item  menu-item-parent" aria-haspopup="true">
-            <span className="menu-link">
-              <span className="menu-text">Usúarios</span>
-            </span>
-          </li>
-            <li className="menu-item menu-item-submenu " aria-haspopup="true" data-menu-toggle="hover">
-              <NavLink className="menu-link menu-toggle" to="/dentista">
-                <span className="menu-text">Dentistas</span>
-              </NavLink>
-            </li>
-            <li className="menu-item menu-item-submenu " aria-haspopup="true" data-menu-toggle="hover">
-              <NavLink className="menu-link menu-toggle" to="/recepcionista">
-                <span className="menu-text">Recepcionistas</span>
-              </NavLink>
-            </li>
-          </ul>
+            <i className="menu-arrow"></i>
+            <ul className="menu-subnav">
+              <li className="menu-item  menu-item-parent" aria-haspopup="true">
+                <span className="menu-link">
+                  <span className="menu-text">Usúarios</span>
+                </span>
+              </li>
+              <li className="menu-item menu-item-submenu " aria-haspopup="true" data-menu-toggle="hover">
+                <NavLink className="menu-link menu-toggle" to="/dentista">
+                  <span className="menu-text">Dentistas</span>
+                </NavLink>
+              </li>
+              <li className="menu-item menu-item-submenu " aria-haspopup="true" data-menu-toggle="hover">
+                <NavLink className="menu-link menu-toggle" to="/recepcionista">
+                  <span className="menu-text">Recepcionistas</span>
+                </NavLink>
+              </li>
+            </ul>
           </div>
         </li>
         <li
@@ -115,20 +115,20 @@ export function AsideMenuListFilial({ layoutProps }) {
         >
           <NavLink className="menu-link menu-toggle" to="/configuracoes">
             <span className="svg-icon menu-icon">
-              <SVG style={{"fill": "#3699FF"}} src={toAbsoluteUrl("/media/svg/icons/Design/settings.svg")} />
+              <SVG style={{ "fill": "#3699FF" }} src={toAbsoluteUrl("/media/svg/icons/Design/settings.svg")} />
             </span>
             <span className="menu-text">Configurações</span>
             <i className="menu-arrow" ></i>
           </NavLink>
           <div className="menu-submenu ">
-          <i className="menu-arrow"></i>
-          <ul className="menu-subnav">
-          <li className="menu-item  menu-item-parent" aria-haspopup="true">
-            <span className="menu-link">
-              <span className="menu-text">Configurações</span>
-            </span>
-          </li>
-            <li className="menu-item menu-item-submenu " aria-haspopup="true" data-menu-toggle="hover">
+            <i className="menu-arrow"></i>
+            <ul className="menu-subnav">
+              <li className="menu-item  menu-item-parent" aria-haspopup="true">
+                <span className="menu-link">
+                  <span className="menu-text">Configurações</span>
+                </span>
+              </li>
+              {/* <li className="menu-item menu-item-submenu " aria-haspopup="true" data-menu-toggle="hover">
               <NavLink className="menu-link menu-toggle" to="/tabela-precos">
                 <span className="menu-text">Tabela de Preço</span>
               </NavLink>
@@ -142,13 +142,56 @@ export function AsideMenuListFilial({ layoutProps }) {
               <NavLink className="menu-link menu-toggle" to="/tabela-procedimentos">
                 <span className="menu-text">Tabela de Procedimentos</span>
               </NavLink>
-            </li>
-            <li className="menu-item menu-item-submenu " aria-haspopup="true" data-menu-toggle="hover">
-              <NavLink className="menu-link menu-toggle" to="/equipamentos">
-                <span className="menu-text">Equipamentos</span>
-              </NavLink>
-            </li>
-          </ul>
+            </li> */}
+              <li
+                className={`menu-item menu-item-submenu ${getMenuItemActive("/configuracoes", false)}`}
+                aria-haspopup="true"
+                data-menu-toggle="hover"
+              >
+                <NavLink className="menu-link menu-toggle" to="/configuracoes">
+                  {/* <span className="svg-icon menu-icon">
+              <SVG style={{"fill": "#3699FF"}} src={toAbsoluteUrl("/media/svg/icons/Design/settings.svg")} />
+            </span> */}
+                  <span className="menu-text">Tabelas</span>
+                  <i className="menu-arrow" ></i>
+                </NavLink>
+                <div className="menu-submenu ">
+                  <i className="menu-arrow"></i>
+                  <ul className="menu-subnav">
+                    <li className="menu-item  menu-item-parent" aria-haspopup="true">
+                      <span className="menu-link">
+                        <span className="menu-text">Configurações</span>
+                      </span>
+                    </li>
+                    <li className="menu-item menu-item-submenu " aria-haspopup="true" data-menu-toggle="hover">
+                      <NavLink className="menu-link menu-toggle" to="/tabela-precos">
+                        <span className="menu-text">Tabela de Preço</span>
+                      </NavLink>
+                    </li>
+                    <li className="menu-item menu-item-submenu " aria-haspopup="true" data-menu-toggle="hover">
+                      <NavLink className="menu-link menu-toggle" to="/tabela-especialidades">
+                        <span className="menu-text">Tabela de Especialidade</span>
+                      </NavLink>
+                    </li>
+                    <li className="menu-item menu-item-submenu " aria-haspopup="true" data-menu-toggle="hover">
+                      <NavLink className="menu-link menu-toggle" to="/tabela-procedimentos">
+                        <span className="menu-text">Tabela de Procedimentos</span>
+                      </NavLink>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li className="menu-item menu-item-submenu " aria-haspopup="true" data-menu-toggle="hover">
+                <NavLink className="menu-link menu-toggle" to="/equipamentos">
+                  <span className="menu-text">Equipamentos</span>
+                </NavLink>
+              </li>
+              <li className="menu-item menu-item-submenu " aria-haspopup="true" data-menu-toggle="hover">
+                <NavLink className="menu-link menu-toggle" to="/relatorios">
+                  <span className="menu-text">Relatórios</span>
+                </NavLink>
+              </li>
+            </ul>
           </div>
         </li>
       </ul>
