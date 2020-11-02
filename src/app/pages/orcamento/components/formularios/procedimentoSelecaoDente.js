@@ -86,13 +86,15 @@ function ProcedimentoSelecaoDente({onFinish, procedimento, dentista}) {
         if(procedimento.dentes === undefined)
             procedimento.dentes = [];
 
-           
+        console.log(procedimento);
+        
+        if(procedimento.denticao !== undefined)
+        {
+            setDenticao(...procedimento.denticao);
 
-            if(procedimento.denticao !== undefined)
-            {
-                setDenticao(...procedimento.denticao);
+            console.log(buscaListaDenticoes(procedimento.denticao));
                 
-            }
+        }
 
           
 

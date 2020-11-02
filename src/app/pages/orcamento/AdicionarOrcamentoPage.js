@@ -35,7 +35,7 @@ let listProcedimento = [];
 
 var batata;
 
-export function AdicionarOrcamentoPage(props) {
+export function AdicionarOrcamentoPage({orcamento}) {
 
   const formaPagamentoInicial = {
     formaCobranca : null,
@@ -48,7 +48,6 @@ export function AdicionarOrcamentoPage(props) {
    };
 
 
-  const { intl } = props;
   const { user: { authToken } } = useSelector((state) => state.auth);
   const [tabelas, setTabelas] = useState([])
   const [procedimentos, setProcedimentos] = useState([])
@@ -62,6 +61,11 @@ export function AdicionarOrcamentoPage(props) {
 
 
   const [formFormaPagamento, setFormFormaPagamento] = useState(formaPagamentoInicial)
+
+
+  
+
+
 
   const setFormaCobranca = (formaCobranca) =>{
     formFormaPagamento.formaCobranca = formaCobranca;
@@ -351,7 +355,7 @@ export function AdicionarOrcamentoPage(props) {
   const handleSubmit = (e) => {
     e.preventDefault()
 
-    store(authToken, {procedimentos:procedimentosFinalizados, dentista, paciente_id: params.id})
+    store(authToken, {procedimentos:procedimentosFinalizados, dentista, paciente_id: params.id,formFormaPagamento})
       .then(() => history.push(`${url}`))
       .catch((err) => {
         return

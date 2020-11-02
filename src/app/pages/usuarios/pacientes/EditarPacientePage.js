@@ -11,6 +11,7 @@ import { useSelector } from "react-redux";
 import { update, show } from '~/app/controllers/pacienteController'
 import { Dados } from './components/Dados'
 import { Orcamentos } from './components/Orcamentos'
+import { FichaClinica } from './components/FichaClinica'
 import { AdicionarOrcamentoPage } from "~/app/pages/orcamento/AdicionarOrcamentoPage";
 
 export function EditarPacientePage(props) {
@@ -86,7 +87,8 @@ export function EditarPacientePage(props) {
 
     const itensMenu = {
       'dados': () => <Dados/>,
-      'orcamentos': () => <Orcamentos/>
+      'orcamentos': () => <Orcamentos/>,
+      'fichaClinica': () => <FichaClinica/>
     }
    
   
@@ -96,18 +98,24 @@ export function EditarPacientePage(props) {
   
   return (
     <Card>
-      
-      <Navbar bg="light" variant="light">
-      
-        <Nav className="mr-auto">
+    
+        
+        <Nav className="mr-auto" variant="tabs">
           {/* <Nav.Link><Link to={`${url}`}>Dados</Link></Nav.Link>
           <Nav.Link><Link to={`/orcamento/${params.id}/adicionar`}>Orçamento</Link></Nav.Link> */}
-          <Nav.Link><li onClick={()=> { setMenu('dados') }}>Dados</li></Nav.Link>
-          <Nav.Link><li onClick={()=> { setMenu('orcamentos') }}>Orçamentos</li></Nav.Link>
-        </Nav>
-       
-      </Navbar>
 
+          <Nav.Item>
+            <Nav.Link onClick={()=> { setMenu('dados') }} className={menu == 'dados' ? 'active' : ''} >Dados</Nav.Link>
+          </Nav.Item>
+          <Nav.Item>
+            <Nav.Link onClick={()=> { setMenu('orcamentos') }}className={menu == 'orcamentos' ? 'active' : ''}  >Orçamentos</Nav.Link>
+          </Nav.Item>
+          <Nav.Item>
+            <Nav.Link onClick={()=> { setMenu('fichaClinica') }}  className={menu == 'fichaClinica' ? 'active' : ''} >Ficha Clinica</Nav.Link>
+          </Nav.Item>
+        </Nav>
+
+     
       <HandleChangeMenu/>
       {/* <CardHeader title="Editar Paciente"></CardHeader>
       <CardBody>
