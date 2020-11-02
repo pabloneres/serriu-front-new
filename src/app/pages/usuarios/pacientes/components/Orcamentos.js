@@ -17,6 +17,7 @@ import {
 } from "~/_metronic/_partials/controls";
 
 import { Modal, Button, Form, Col, InputGroup } from 'react-bootstrap'
+import { set } from "lodash";
 
 export function Orcamentos() {
   const {user: {authToken}} = useSelector((state) => state.auth);
@@ -24,6 +25,7 @@ export function Orcamentos() {
   const [showForm, setShowForm] = useState(false)
   const [ logout, setLogout ] = useState(false)
   const [orcamentos, setOrcamentos] = useState([])
+  const [orcamentoSelecionado, setOrcamentoSelecionado] = useState([])
   const [ getOrcamento, setGetOrcamento ] = useState([])
   const [showOrcamento, setShowOrcamento] = useState(false)
   const [reload, setReload] = useState(false)
@@ -58,7 +60,7 @@ function handleShow(id) {
 
   function HandleOrcamento() {
     if (showForm) {
-      return <AdicionarOrcamentoPage />
+      return <AdicionarOrcamentoPage orcamento={orcamentoSelecionado} />
     }
 
     if (!showForm) {

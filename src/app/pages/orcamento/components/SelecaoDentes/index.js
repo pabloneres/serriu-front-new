@@ -167,25 +167,26 @@ function SelecaoDentes({numeroListaDentes,procedimento,callback}) {
 
     const adicionaDente = (key) =>{
 
-        if(key )
-        
-        
-        key.active = true;
-
-        if(listaDentesFinalizados.indexOf(key) < 0)
+        if(key)
         {
-          
-            setListaDentesFinalizados([...listaDentesFinalizados,key]);
-        }
-        else
-        {
-          
-            listaDentesFinalizados.splice(listaDentesFinalizados.indexOf(key), 1);
-            setListaDentesFinalizados([...listaDentesFinalizados]);
+            key.active = true;
+            console.log(key);
+            let indice = listaDentesFinalizados.map(row => row.label).indexOf(key.label);
+            if( indice < 0)
+            {
+            
+                setListaDentesFinalizados([...listaDentesFinalizados,key]);
+            }
+            else
+            {
+            
+                listaDentesFinalizados.splice(indice, 1);
+                setListaDentesFinalizados([...listaDentesFinalizados]);
 
-            key.active = false;
-        }
+                key.active = false;
+            }
 
+        }
        
 
     }
