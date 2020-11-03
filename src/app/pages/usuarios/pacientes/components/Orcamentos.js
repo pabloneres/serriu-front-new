@@ -48,7 +48,11 @@ function handleDelete(id) {
     setReload(!reload)
   }).catch((err)=> console.log(err))
 }
-function handleEdit() {}
+function handleEdit(orcamento) {
+  setOrcamentoSelecionado(orcamento)
+  setShowForm(true);
+
+}
 function handleShow(id) {
   show(authToken, id).then(({data}) => {
     console.log(data)
@@ -71,7 +75,10 @@ function handleShow(id) {
               <button
                 type="button"
                 className="btn btn-primary"
-                onClick={() => { setShowForm(true) }}
+                onClick={() => { 
+                  setShowForm(true) 
+                  setOrcamentoSelecionado(undefined);
+                }}
               >
                 Adicionar Orcamento
                 </button>
@@ -97,7 +104,7 @@ function handleShow(id) {
                   <td>{ orcamento.total ? orcamento.total.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) : '' }
                   </td>
                   <td><Link to={''} />
-                  <span onClick={() => { handleEdit(orcamento) } } className="svg-icon menu-icon">
+                  <span onClick={() => { handleEdit(orcamento) } } style={{"cursor": "pointer"}} className="svg-icon menu-icon">
                     <SVG style={{"fill": "#3699FF", "color": "#3699FF"}} src={toAbsoluteUrl("/media/svg/icons/Design/create.svg")} />
                   </span>
                   <span onClick={() => handleDelete(orcamento.id) }  style={{"cursor": "pointer"}} className="svg-icon menu-icon">

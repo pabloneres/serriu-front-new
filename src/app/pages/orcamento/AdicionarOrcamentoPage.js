@@ -70,7 +70,7 @@ export function AdicionarOrcamentoPage({orcamento}) {
       console.log(procedimentos)
 
       procedimentos.map((row) =>{
-        row.nomeTabela = row.procedimento;
+       
         row.label = row.procedimento
         row.abilitado = true;
       })
@@ -697,7 +697,6 @@ export function AdicionarOrcamentoPage({orcamento}) {
                           <div className="conteudo" >
                             <div className="linha">{row.label}</div>
                             <div className="linha">{getDentistaName(dentista)}</div>
-                            <div className="linha">{row.nomeTabela}</div>
                             <div className="linha">{getFacesProcedimentoFormatado(row)}</div>
                            
                             
