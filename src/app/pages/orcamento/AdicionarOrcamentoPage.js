@@ -378,25 +378,39 @@ export function AdicionarOrcamentoPage({orcamento, alterar}) {
 }
 
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-
-    if(alterar)
-    {
+  function handleSubmit(type) {
+    
+    if(alterar) {
       console.log(orcamento.id)
-     
-       update(authToken, orcamento.id, {procedimentos:procedimentosFinalizados, dentista, paciente_id: params.id, formaPagamento : formFormaPagamento})
-      .then(() => history.push(`${url}`))
+      
+      if (type === 'aprovar') {
+        update(authToken, orcamento.id, {procedimentos:procedimentosFinalizados, dentista, paciente_id: params.id, formaPagamento : formFormaPagamento, aprovado: 1})
+        .then(() => {
+          return history.push(`${url}`)
+        })
+        .catch((err) => {
+          return
+          // retirar a linha debaixo e retornar o erro
+          // setSubmitting(false);
+        })
+      }
+
+      update(authToken, orcamento.id, {procedimentos:procedimentosFinalizados, dentista, paciente_id: params.id, formaPagamento : formFormaPagamento})
+      .then(() => {
+        return history.push(`${url}`)
+      })
       .catch((err) => {
         return
         // retirar a linha debaixo e retornar o erro
         // setSubmitting(false);
       })
-      
+
+      return
+
     }
-    else
-    {
-      store(authToken, {procedimentos:procedimentosFinalizados, dentista, paciente_id: params.id, formaPagamento : formFormaPagamento})
+    
+    if (type === 'aprovar') {
+      store(authToken, {procedimentos:procedimentosFinalizados, dentista, paciente_id: params.id, formaPagamento : formFormaPagamento, aprovado: 1})
       .then(() => history.push(`${url}`))
       .catch((err) => {
         return
@@ -405,7 +419,15 @@ export function AdicionarOrcamentoPage({orcamento, alterar}) {
       })
     }
    
-    
+    if (type === 'salvar') {
+      store(authToken, {procedimentos:procedimentosFinalizados, dentista, paciente_id: params.id, formaPagamento : formFormaPagamento})
+      .then(() => history.push(`${url}`))
+      .catch((err) => {
+        return
+        // retirar a linha debaixo e retornar o erro
+        // setSubmitting(false);
+      })
+    }
 
   }
 
@@ -600,9 +622,7 @@ export function AdicionarOrcamentoPage({orcamento, alterar}) {
       </Modal>
       <CardHeader title="Adicionar Orcamento"></CardHeader>
       <CardBody>
-        <Form
-          onSubmit={handleSubmit}
-        >
+        <Form>
  
           <Form.Row>
 
@@ -785,17 +805,32 @@ export function AdicionarOrcamentoPage({orcamento, alterar}) {
                {
                 
                 return ( 
-                  <>
+                  <div>
+                  <div style={{
+                    width: '165px',
+                    marginLeft: 'auto',
+                    display: 'flex',
+                    flexDirection: 'column'
+                  }}>
+                  <Button variant="success" onClick={()=>{handleSubmit('aprovar')}}>
+                         Aprovar
+                  </Button>
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    marginTop: '10px'
+                  }}>
                   <Link to={`${url}`}>
-                     <Button className="mr-2" variant="danger">
+                     <Button className="" variant="danger">
                          Cancelar
                      </Button>
                   </Link>
-                  <Button variant="primary" type="submit">
+                  <Button variant="primary" onClick={()=>{handleSubmit('salvar')}}>
                      {alterar ? 'Alterar' : 'Salvar'}
                   </Button>
-                
-                  </>
+                  </div>
+                  </div>
+                  </div>
                 )
                }
              })()}
