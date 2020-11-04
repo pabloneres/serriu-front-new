@@ -9,9 +9,13 @@ const GET_PROCEDIMENTOS_URL = "/procedimento";
 
 const SHOW_CLINIC_URL = "/orcamento";
 
+const SHOW_EDIT = "/orcamento_edit";
+
 const STORE_CLINIC_URL = "/orcamento";
 
 const UPDATE_CLINIC_URL = "/orcamento";
+
+const UPDATE_APROVAR = "/orcamento_aprovar";
 
 const DESTROY_CLINIC_URL = "/orcamento";
 
@@ -47,6 +51,14 @@ export function show(authToken, id) {
   })
 }
 
+export function show_edit(authToken, id) {
+  return api.get(`${SHOW_EDIT}/${id}`, {
+    headers: {
+      Authorization: 'Bearer ' + authToken
+    }
+  })
+}
+
 export function store(authToken, data) {
   return api.post(STORE_CLINIC_URL, data, {
     headers: {
@@ -57,6 +69,15 @@ export function store(authToken, data) {
 
 export function update(authToken, id, data) {
   return api.put(`${UPDATE_CLINIC_URL}/${id}`, data, {
+    headers: {
+      Authorization: 'Bearer ' + authToken
+    }
+  });
+}
+
+export function aprovar(authToken, id, data) {
+
+  return api.get(`${UPDATE_APROVAR}/${id}`, {
     headers: {
       Authorization: 'Bearer ' + authToken
     }

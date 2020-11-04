@@ -5,7 +5,7 @@ import { AdicionarOrcamentoPage } from "~/app/pages/orcamento/AdicionarOrcamento
 import { Link } from 'react-router-dom'
 import SVG from 'react-inlinesvg'
 import { Table } from "react-bootstrap";
-import { store, index, getProcedimentos, orcamento, show, destroy } from '~/app/controllers/orcamentoController';
+import { store, index, getProcedimentos, orcamento, show, destroy, aprovar } from '~/app/controllers/orcamentoController';
 import { useSelector } from "react-redux";
 
 import { toAbsoluteUrl, checkIsActive } from "~/_metronic/_helpers";
@@ -56,11 +56,38 @@ function handleEdit(orcamento) {
 function handleShow(id) {
   show(authToken, id).then(({data}) => {
     console.log(data)
-    setGetOrcamento(data)
+    setGetOrcamento({...data, procedimento: JSON.parse(data.procedimento)})
   })
   setShowOrcamento(true)
 }
 
+function handleAprovar(id) {
+  aprovar(authToken, id).then(()=>{
+    setReload(!reload)
+    setShowOrcamento(false)
+    setGetOrcamento([])
+  })
+}
+
+function verifyAprovado(el) {
+  if (el === null) {
+    return (
+      <strong style={{color: 'blue'}}>Em aberto</strong>
+    )
+  }
+
+  if (el === 0) {
+    return (
+      <strong style={{color: 'red'}}>Rejeitado</strong>
+    )
+  }
+
+  if (el === 1) {
+    return (
+      <strong style={{color: 'green'}}>Aprovado</strong>
+    )
+  }
+}
 
   function HandleOrcamento() {
     if (showForm) {
@@ -99,8 +126,8 @@ function handleShow(id) {
               {orcamentos.map( orcamento => (
                 <tr key={orcamento.id} >
                   <td>{orcamento.created_at}</td>
-                  <td>{orcamento.dentista}</td>
-                  <td>{orcamento.aprovado === null ? 'Em aberto' : ''}</td>
+                  <td>{orcamento.dentista_nome}</td>
+                  <td>{verifyAprovado(orcamento.aprovado)}</td>
                   <td>{ orcamento.total ? orcamento.total.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) : '' }
                   </td>
                   <td><Link to={''} />
@@ -149,7 +176,7 @@ function handleShow(id) {
                   Dentista
                 </td>
                 <td>
-                  {getOrcamento.dentista}
+                  {getOrcamento.dentista_nome}
                 </td>
               </tr>
               <tr>
@@ -165,7 +192,7 @@ function handleShow(id) {
                   Status
                 </td>
                 <td>
-                  {getOrcamento.aprovado === null ? 'Em aberto' : ''}
+                  {verifyAprovado(getOrcamento.aprovado)}
                 </td>
               </tr>
             </tbody>
@@ -208,12 +235,58 @@ function handleShow(id) {
              }
             </tbody>
           </Table>
+          <Table striped bordered hover>
+            <thead>
+                <tr>
+                  <th>
+                  Forma de pagamento
+                  </th>
+                </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  Total / Parcelado
+                </td>
+                <td>
+                  {getOrcamento.formaCobranca === 'valor total' ? 'Total' : 'Parcelado'}
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  Forma de pagamento
+                </td>
+                <td>
+                  {getOrcamento.formaPagamento === 'dinheiro' ? 'Dinheiro' : 'Boleto'}
+                </td>
+              </tr>
+              
+                {getOrcamento.tipoPagamento === 0 ? 
+                  ''
+                : (
+                  <tr>
+                    <td>
+                      Parcelamento
+                    </td>
+                    <td>
+                      {getOrcamento.total ? `Entrada de ${(getOrcamento.total*getOrcamento.valorEntrada).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})} + ` : ''}
+                      <span style={{color: 'red'}}>
+                      {`${getOrcamento.parcelas} X ${((getOrcamento.total - (getOrcamento.total*getOrcamento.valorEntrada)) / getOrcamento.parcelas).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})}`}
+                      </span>
+                    </td>
+                  </tr>
+                )}
+              
+            </tbody>
+          </Table>
           <div className="text-right" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
               <span>Total <strong>{getOrcamento.total ? getOrcamento.total.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) : ''}</strong></span>            
              <div>
-             <Button onClick={() => {setShowOrcamento(false)}} className="mr-2" variant="primary">
-                Executar
-              </Button>
+              {getOrcamento.aprovado === 1 ? '' : (
+                <Button onClick={() => {handleAprovar(getOrcamento.id)}} className="mr-2" variant="primary">
+                  Aprovar
+                </Button>
+              ) }
               <Button onClick={() => {setShowOrcamento(false)}} className="mr-2" variant="danger">
                 Fechar
               </Button>

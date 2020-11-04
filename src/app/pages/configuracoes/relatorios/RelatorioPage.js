@@ -62,17 +62,19 @@ export function RelatorioPage() {
               <th>Estado</th>
               <th>Ligado em</th>
               <th>Desligado em</th>
+              <th>Tempo conectado</th>
             </tr>
           </thead>
           <tbody>
           {relatorios.map( relatorio => (
             <tr key={relatorio.id} >
               <td>{relatorio.id_machine}</td>
-              <td>{relatorio.id_operator}</td>
-              <td>{relatorio.id_client}</td>
+              <td>{relatorio.nome_dentista}</td>
+              <td>{relatorio.nome_paciente}</td>
               <td>{relatorio.estado}</td>
               <td>{relatorio.ligado_em}</td>
               <td>{relatorio.desligado_em}</td>
+              <td>{relatorio.tempo_ligado}</td>
             </tr>
           ))}
           </tbody>
