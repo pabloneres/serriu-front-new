@@ -64,7 +64,7 @@ function handleShow(id) {
 
   function HandleOrcamento() {
     if (showForm) {
-      return <AdicionarOrcamentoPage orcamento={orcamentoSelecionado} />
+      return <AdicionarOrcamentoPage orcamento={orcamentoSelecionado} alterar={orcamentoSelecionado !== undefined} />
     }
 
     if (!showForm) {

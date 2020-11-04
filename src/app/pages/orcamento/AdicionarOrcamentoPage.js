@@ -12,7 +12,7 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useSelector } from "react-redux";
 import axios from 'axios';
-import { store, index, getProcedimentos } from '~/app/controllers/orcamentoController';
+import { store, index, update, getProcedimentos } from '~/app/controllers/orcamentoController';
 
 import { conversorMonetario, formatDate } from '~/app/modules/Util';
 
@@ -30,7 +30,7 @@ let listProcedimento = [];
 
 var batata;
 
-export function AdicionarOrcamentoPage({orcamento}) {
+export function AdicionarOrcamentoPage({orcamento, alterar}) {
 
   const formaPagamentoInicial = {
     formaCobranca : null,
@@ -72,7 +72,7 @@ export function AdicionarOrcamentoPage({orcamento}) {
       procedimentos.map((row) =>{
        
         row.label = row.procedimento
-        row.abilitado = true;
+        row.habilitado = true;
       })
       setProcedimentosFinalizados(procedimentos)
       setDentista(orcamento.dentista);
@@ -239,7 +239,7 @@ export function AdicionarOrcamentoPage({orcamento}) {
 
     if(proced.acao === undefined)
     {
-      proced.abilitado = true;
+      proced.habilitado = true;
       setProcedimentosFinalizados([...procedimentosFinalizados,proced]);
     }
 
@@ -255,7 +255,7 @@ export function AdicionarOrcamentoPage({orcamento}) {
   };
   const alternarProcedimento = (proced) =>{
 
-    proced.abilitado = !proced.abilitado;
+    proced.habilitado = !proced.habilitado;
 
     setProcedimentosFinalizados([...procedimentosFinalizados]);
   }
@@ -372,14 +372,30 @@ export function AdicionarOrcamentoPage({orcamento}) {
   const handleSubmit = (e) => {
     e.preventDefault()
 
-   
-    store(authToken, {procedimentos:procedimentosFinalizados, dentista, paciente_id: params.id, formFormaPagamento})
+    if(alterar)
+    {
+      console.log(orcamento.id)
+     
+       update(authToken, orcamento.id, {procedimentos:procedimentosFinalizados, dentista, paciente_id: params.id, formaPagamento : formFormaPagamento})
       .then(() => history.push(`${url}`))
       .catch((err) => {
         return
         // retirar a linha debaixo e retornar o erro
         // setSubmitting(false);
       })
+      
+    }
+    else
+    {
+      store(authToken, {procedimentos:procedimentosFinalizados, dentista, paciente_id: params.id, formaPagamento : formFormaPagamento})
+      .then(() => history.push(`${url}`))
+      .catch((err) => {
+        return
+        // retirar a linha debaixo e retornar o erro
+        // setSubmitting(false);
+      })
+    }
+   
     
 
   }
@@ -690,9 +706,9 @@ export function AdicionarOrcamentoPage({orcamento}) {
                      console.log(row)
                      
                       return (
-                        <div className={"orcamento " + (!row.abilitado ? 'desabilitado' : '' )} key={key} >
+                        <div className={"orcamento " + (!row.habilitado ? 'desabilitado' : '' )} key={key} >
                           <div>
-                            <Form.Check onChange={() => alternarProcedimento(row)} defaultChecked={row.abilitado} />
+                            <Form.Check onChange={() => alternarProcedimento(row)} defaultChecked={row.habilitado} />
                           </div>
                           <div className="conteudo" >
                             <div className="linha">{row.label}</div>
@@ -767,7 +783,7 @@ export function AdicionarOrcamentoPage({orcamento}) {
                      </Button>
                   </Link>
                   <Button variant="primary" type="submit">
-                     Salvar
+                     {alterar ? 'Alterar' : 'Salvar'}
                   </Button>
                 
                   </>
