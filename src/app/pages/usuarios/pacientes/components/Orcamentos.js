@@ -7,6 +7,7 @@ import SVG from 'react-inlinesvg'
 import { Table } from "react-bootstrap";
 import { store, index, getProcedimentos, orcamento, show, destroy, aprovar } from '~/app/controllers/orcamentoController';
 import { useSelector } from "react-redux";
+import {format} from 'date-fns-tz'
 
 import { toAbsoluteUrl, checkIsActive } from "~/_metronic/_helpers";
 import {
@@ -125,7 +126,7 @@ function verifyAprovado(el) {
               <tbody>
               {orcamentos.map( orcamento => (
                 <tr key={orcamento.id} >
-                  <td>{orcamento.created_at}</td>
+                  <td>{orcamento.criado_em}</td>
                   <td>{orcamento.dentista_nome}</td>
                   <td>{verifyAprovado(orcamento.aprovado)}</td>
                   <td>{ orcamento.total ? orcamento.total.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) : '' }
@@ -184,7 +185,7 @@ function verifyAprovado(el) {
                   Data
                 </td>
                 <td>
-                  {getOrcamento.created_at}
+                  {getOrcamento.criado_em}
                 </td>
               </tr>
               <tr>

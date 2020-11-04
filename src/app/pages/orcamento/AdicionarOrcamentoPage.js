@@ -4,6 +4,9 @@ import { toAbsoluteUrl, checkIsActive } from "~/_metronic/_helpers";
 import { Form, Table, Col, Button, CardGroup, Modal, ButtonToolbar, ButtonGroup } from "react-bootstrap";
 import SVG from 'react-inlinesvg'
 
+import moment from 'moment'
+import {format} from 'date-fns-tz'
+
 import { connect } from "react-redux";
 import { Link } from 'react-router-dom'
 import { FormattedMessage, injectIntl } from "react-intl";
@@ -42,8 +45,14 @@ export function AdicionarOrcamentoPage({orcamento, alterar}) {
 
    };
 
-   let data = formatDate();
 
+   const date_now = new Date()
+
+   const data = format(date_now, `dd/MM/yyyy HH:mm:ss`, {
+     timeZone: 'America/Sao_Paulo',
+   })
+
+   console.log(data)
 
   const { user: { authToken } } = useSelector((state) => state.auth);
   const [tabelas, setTabelas] = useState([])
@@ -66,7 +75,7 @@ export function AdicionarOrcamentoPage({orcamento, alterar}) {
     if(orcamento !== undefined)
     {
       console.log(orcamento)
-      let procedimentos = orcamento.procedimento;
+      let procedimentos = JSON.parse(orcamento.procedimento);
       console.log(procedimentos)
 
       procedimentos.map((row) =>{
@@ -633,7 +642,7 @@ export function AdicionarOrcamentoPage({orcamento, alterar}) {
               <Form.Label>Data *</Form.Label>
               <Form.Control
                 disabled
-                type="date"
+                type="text"
                 name="data"
                 value={data}
               />
