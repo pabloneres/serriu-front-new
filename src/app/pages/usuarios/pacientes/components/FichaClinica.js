@@ -17,11 +17,70 @@ export function FichaClinica()
     const [modalExecutar,setModelExecutar] = useState(false);
 
 
+    useEffect(()=>{
+        setOrcamentos([
+            {
+                data : '99/99/999',
+                profissional: 'ewerton',
+                procedimentos : [
+                    {
+                        nome: 'Periapical',
+                        status: 'Aprovado',
+                        tipo: 'Permanente',
+                        dentes: [
+                            {label: '17' , faces : ['V','D']},
+                            //{label: '11' , faces : ['V','D']},
+                        ],
+                        profissional: 'ewerton', 
+                        valor: 22.85, 
+                    }
+                ],
+                valor: 45.70,
+                status: "Em Aberto"
+            }
+        ])
+    },[]);
 
-    function executarProcedimento(e)
+
+    const getFacesProcedimentoFormatado = (procedimento) =>{
+        let strFaces = '';
+        procedimento.dentes.map(dente =>{
+    
+            strFaces = strFaces.concat(dente.label);
+    
+            if(dente.faces !== undefined)
+            {
+                dente.faces.map(face =>{
+    
+                    strFaces = strFaces.concat(face);
+    
+                })
+            }
+    
+            strFaces = strFaces.concat(', ');
+    
+        })
+    
+        strFaces = strFaces.slice(0,-2);
+    
+        return strFaces;
+    
+    }
+
+
+    function executarProcedimento(e,orcamento,procedimento)
     {
-        setModelExecutar(true);
-        console.log(e.target.val);
+        setModelExecutar({
+            orcamento: orcamento,
+            procedimento: procedimento,
+        });
+        
+    }
+
+    function handlerFormExecutarProcedimento(e)
+    {
+        e.preventDefault();
+        setModelExecutar(false);
     }
 
     
@@ -31,57 +90,95 @@ export function FichaClinica()
                 <Modal.Header closeButton>
                 <Modal.Title>Executar procedimento</Modal.Title>
                 </Modal.Header>
-                <Form>
-                    <Modal.Body>
-                         <Form.Group as={Col} controlId="formGridPassword">
-                            <Form.Label>Data *</Form.Label>
-                            <Form.Control
-                                
-                                type="date"
-                                name="data"
-                                value={data}
-                            />
-                        </Form.Group>
+                <Form onSubmit={handlerFormExecutarProcedimento}>
+                    {(()=> {
 
-                        <Form.Group as={Col} controlId="formGridPassword">
-                            <Form.Label>Detalhes proxima consulta</Form.Label>
-                            <Form.Control
-                                
-                                as="select"
-                                name="clinica"
-                            >
-                                <option key={0}>ewerton</option>
-                            </Form.Control>
-                        </Form.Group>
-
-                        <Form.Group as={Col} controlId="formGridPassword">
-                            <Form.Label>Detalhes proxima consulta</Form.Label>
-                            <Form.Control
-                                
-                                type="text"
-                                name="proximaConsulta"
-                            />
-                        </Form.Group>
-
-                        <Form.Group as={Col} controlId="formGridPassword">
-                            <Form.Label>Observação *</Form.Label>
-                            <Form.Control
-                                
-                                type="text"
-                                name="observacao"
-                             
-                            />
-                        </Form.Group>
-
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Button variant="secondary" onClick={() => setModelExecutar(false)}>
-                            Fechar
-                        </Button>
-                        <Button variant="primary" onClick={() => setModelExecutar(false)}>
-                            Salvar
-                        </Button>
-                    </Modal.Footer>
+                        if(modalExecutar)
+                        {
+                            console.log(modalExecutar.orcamento.profissional);
+                            return(
+                                <>
+                                    <Modal.Body>
+                                        <Form.Row>
+                                            <Form.Group as={Col} controlId="formGridPassword">
+                                                <Form.Label>Data *</Form.Label>
+                                                <Form.Control
+                                                    
+                                                    type="date"
+                                                    name="data"
+                                                    value={data}
+                                                />
+                                            </Form.Group>
+                                        </Form.Row>
+                                        <Form.Row>
+                                            <Form.Group as={Col} controlId="formGridPassword">
+                                                <Form.Label>Tipo</Form.Label>
+                                                <Form.Control
+                                                    disabled
+                                                    type="text"
+                                                    name="data"
+                                                    value={modalExecutar.procedimento.tipo}
+                                                    
+                                                />
+                                            </Form.Group>
+                                            <Form.Group as={Col} controlId="formGridPassword">
+                                                <Form.Label>dente</Form.Label>
+                                                <Form.Control
+                                                    disabled
+                                                    type="text"
+                                                    name="data"
+                                                    value={modalExecutar.procedimento.dentes[0].label}
+                                                />
+                                            </Form.Group>
+                                        </Form.Row>
+                                        <Form.Row>
+                                            <Form.Group as={Col} controlId="formGridPassword">
+                                                <Form.Label>Profissional</Form.Label>
+                                                <Form.Control
+                                                    disabled
+                                                    type="text"
+                                                    name="clinica"
+                                                    value={modalExecutar.orcamento.profissional}
+                                                >
+                                                
+                                                </Form.Control>
+                                            </Form.Group>
+                                        </Form.Row>
+                                        <Form.Row>
+                                            <Form.Group as={Col} controlId="formGridPassword">
+                                                <Form.Label>Detalhes proxima consulta</Form.Label>
+                                                <Form.Control
+                                                    
+                                                    type="text"
+                                                    name="proximaConsulta"
+                                                />
+                                            </Form.Group>
+                                        </Form.Row>
+                                        <Form.Row>
+                                            <Form.Group as={Col} controlId="formGridPassword">
+                                                <Form.Label>Observação *</Form.Label>
+                                                <Form.Control
+                                                    
+                                                    type="text"
+                                                    name="observacao"
+                                                
+                                                />
+                                            </Form.Group>
+                                        </Form.Row>
+                                    </Modal.Body>
+                                    <Modal.Footer>
+                                        <Button variant="secondary" onClick={() => setModelExecutar(false)}>
+                                            Fechar
+                                        </Button>
+                                        <Button variant="primary" type="submit">
+                                            Salvar
+                                        </Button>
+                                    </Modal.Footer>
+                                </>
+                            )
+                        }
+                    
+                    })()}
                 </Form>
                
              </Modal>
@@ -92,34 +189,44 @@ export function FichaClinica()
                 </Accordion.Toggle>
                 <Accordion.Collapse eventKey="0" className="listaProcedimentos">
                     <Accordion >
-                        <Card className="procedimento">
-                            <Accordion.Toggle as={Card.Header} eventKey="0">
-                                
-                                <Container>
-                                    <Row>
-                                        <Col xs={2}>99/99/9999</Col>
-                                        <Col>Profissional: </Col>
-                                        <Col>Valor: </Col>
-                                        <Col >Status: </Col>
-                                    </Row>
-                                </Container>
-                            </Accordion.Toggle>
-                            <Accordion.Collapse eventKey="0">
-                                <Card.Body className="statusProcedimento aberto">
-                                    <div className="statusProcedimento aberto">Em Aberto </div>
+                        {orcamentos.map((orcamento,key) => {
+
+                           return(
+                            <Card className="procedimento" key={key}>
+                                <Accordion.Toggle as={Card.Header} eventKey="0">
+                                    
                                     <Container>
                                         <Row>
-                                            <Col xs={1}>1</Col>
-                                            <Col>Nome do procedimento</Col>
-                                            <Col>Status </Col>
-                                            <Col>Dentes: </Col>
-                                            <Col><Button onClick={(e) => executarProcedimento(e,1)}>Executar</Button> </Col>
-                                            <Col>Profissional: </Col>
+                                            <Col xs={2}>{orcamento.data}</Col>
+                                            <Col>Profissional: {orcamento.profissional}</Col>
+                                            <Col>Valor: {conversorMonetario(orcamento.valor)}</Col>
+                                            <Col >Status: {orcamento.status}</Col>
                                         </Row>
                                     </Container>
-                                </Card.Body>
-                            </Accordion.Collapse>
-                        </Card>
+                                </Accordion.Toggle>
+                                <Accordion.Collapse eventKey="0">
+                                    <Card.Body className="statusProcedimento aberto">
+                                        <div className="statusProcedimento aberto">{orcamento.status} </div>
+                                    
+                                            {orcamento.procedimentos.map((procedimento,key) =>{
+                                                return(
+                                                    <Row key={key}>
+                                                        <Col xs={1}>{key+1}</Col>
+                                                        <Col>{procedimento.nome}</Col>
+                                                        <Col>Status:  {procedimento.status}</Col>
+                                                        <Col>Dentes: {getFacesProcedimentoFormatado(procedimento)}</Col>
+                                                        <Col><Button onClick={(e) => executarProcedimento(e,orcamento,procedimento)}>Executar</Button> </Col>
+                                                        <Col>Profissional: {orcamento.profissional} </Col>
+                                                    </Row>
+                                                )
+                                            })}
+                                        
+                                    </Card.Body>
+                                </Accordion.Collapse>
+                            </Card>
+                           )
+
+                        })}
                       
                     </Accordion>
                 </Accordion.Collapse>
