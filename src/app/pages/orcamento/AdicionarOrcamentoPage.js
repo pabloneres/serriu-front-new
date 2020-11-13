@@ -647,7 +647,7 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
                 <option value=""></option>
                 {
                   dentistas.map(row => {
-                    return <option key={row.user_id} value={row.user_id} selected={dentista == row.user_id} >{row.name}</option>
+                    return <option key={row.user_id} value={row.dentista_id } selected={dentista == row.user_id} >{row.name}</option>
                   })
                 }
               </Form.Control>

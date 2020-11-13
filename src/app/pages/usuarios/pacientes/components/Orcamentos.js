@@ -56,8 +56,17 @@ function handleEdit(orcamento) {
 }
 function handleShow(id) {
   show(authToken, id).then(({data}) => {
-    console.log(data)
-    setGetOrcamento({...data, procedimento: JSON.parse(data.procedimento)})
+    // setGetOrcamento(data)
+
+    setGetOrcamento({
+      ...data, 
+      dentes: data.dentes.map(item => {
+        return {
+          ...item, 
+          procedimento: JSON.parse(item.procedimento)
+        }
+      })
+    })
   })
   setShowOrcamento(true)
 }
@@ -127,7 +136,7 @@ function verifyAprovado(el) {
               {orcamentos.map( orcamento => (
                 <tr key={orcamento.id} >
                   <td>{orcamento.criado_em}</td>
-                  <td>{orcamento.dentista_nome}</td>
+                  <td>{orcamento.dentistas.name}</td>
                   <td>{verifyAprovado(orcamento.aprovado)}</td>
                   <td>{ orcamento.total ? orcamento.total.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) : '' }
                   </td>
@@ -177,7 +186,7 @@ function verifyAprovado(el) {
                   Dentista
                 </td>
                 <td>
-                  {getOrcamento.dentista_nome}
+                  {getOrcamento.dentistas ? getOrcamento.dentistas.name : ''}
                 </td>
               </tr>
               <tr>
@@ -208,17 +217,18 @@ function verifyAprovado(el) {
                 </tr>
             </thead>
             <tbody>
-             { getOrcamento.procedimento ? 
-               getOrcamento.procedimento.map( orcamento => (
+             { getOrcamento.dentes ? 
+               getOrcamento.dentes.map( orcamento => (
                 <tr key={orcamento.id}>
                 <td>
-                  {orcamento.procedimento}
+                  {orcamento.procedimento.procedimento}
                 </td>
                 <td>
-                  { orcamento.dentes.length === 0 ? 'Geral' : orcamento.dentes.length }
+                  {console.log(orcamento)}
+                  { orcamento.procedimento.dentes.length === 0 ? 'Geral' : orcamento.procedimento.dentes.length }
                 </td>
                 <td>
-                  {orcamento.dentes.map(dente => (
+                  {orcamento.procedimento.dentes.map(dente => (
                     <span key={dente.id}>{dente.label}
                       {dente.faces.map( face => (
                         <span style={{color: 'red'}}>{face.label}</span>
@@ -229,7 +239,7 @@ function verifyAprovado(el) {
                   ))}
                 </td>
                 <td>
-                  {orcamento.valorTotal.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})}
+                  {orcamento.procedimento.valorTotal.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})}
                 </td>
               </tr>
                )) : ''

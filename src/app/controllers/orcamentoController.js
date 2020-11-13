@@ -5,7 +5,7 @@ const INDEX_CLINICS_URL = "/orcamentos";
 
 const GET_ORCAMENTOS_URL = "/list_orcamentos";
 
-const GET_ORCAMENTOS_APROVADOS = "/list_orcamentos_aprovados";
+const GET_ORCAMENTOS_APROVADOS = "/procedimentos_aprovados";
 
 const GET_PROCEDIMENTOS_URL = "/procedimento";
 
@@ -20,6 +20,8 @@ const UPDATE_CLINIC_URL = "/orcamento";
 const UPDATE_APROVAR = "/orcamento_aprovar";
 
 const DESTROY_CLINIC_URL = "/orcamento";
+
+const UPDATE_APROVADO = "orcamento_aprovado"
 
 export function index(authToken) {
   return api.get(`${INDEX_CLINICS_URL}`, {
@@ -79,6 +81,14 @@ export function store(authToken, data) {
 
 export function update(authToken, id, data) {
   return api.put(`${UPDATE_CLINIC_URL}/${id}`, data, {
+    headers: {
+      Authorization: 'Bearer ' + authToken
+    }
+  });
+}
+
+export function updateAprovado(authToken, id, data) {
+  return api.put(`${UPDATE_APROVADO}/${id}`, data, {
     headers: {
       Authorization: 'Bearer ' + authToken
     }
