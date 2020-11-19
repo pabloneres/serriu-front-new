@@ -165,6 +165,7 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
   useEffect(() => {
     index(authToken)
       .then(({ data }) => {
+        console.log(data)
         setDadosAPI(data);
         setTabelas(data.precos);
         setDentistas(data.dentistas);
@@ -195,7 +196,8 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
 
 
   const getDentistaName = value => {
-    let dentistaName = dentistas.filter(row => row.user_id == value);
+    console.log(value)
+    let dentistaName = dentistas.filter(row => row.dentista_id == value);
 
 
     return dentistaName[0] !== undefined ? dentistaName[0].name : ''

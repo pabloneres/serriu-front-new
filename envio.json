@@ -1,0 +1,68 @@
+{
+    "procedimentos": [
+        {
+            "id": 1,
+            "label": "Extração",
+            "value": 1,
+            "geral": 0,
+            "valor": 80,
+            "nomeTabela": "Convenio Amil",
+            "dentes": [
+                {
+                    "label": "12",
+                    "faces": [],
+                    "active": true
+                },
+                {
+                    "label": "43",
+                    "faces": [],
+                    "active": true
+                },
+                {
+                    "label": "45",
+                    "faces": [],
+                    "active": true
+                }
+            ],
+            "valorTotal": 240,
+            "habilitado": true
+        },
+        {
+            "id": 1,
+            "label": "Extração",
+            "value": 1,
+            "geral": 0,
+            "valor": 80,
+            "nomeTabela": "Convenio Amil",
+            "dentes": [
+                {
+                    "label": "12",
+                    "faces": [],
+                    "active": true
+                },
+                {
+                    "label": "43",
+                    "faces": [],
+                    "active": true
+                },
+                {
+                    "label": "45",
+                    "faces": [],
+                    "active": true
+                }
+            ],
+            "valorTotal": 240,
+            "habilitado": true
+        }
+    ],
+    "dentista": "1",
+    "paciente_id": "1",
+    "formaPagamento": {
+        "formaCobranca": "valor total",
+        "formaPagamento": "dinheiro",
+        "tipoPagamento": 0,
+        "valorEntrada": null,
+        "parcelas": null,
+        "salvo": true
+    }
+}
