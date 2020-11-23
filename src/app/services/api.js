@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const baseUrl = axios.create({
-  baseURL: 'http://serriu-back.herokuapp.com'
+  baseURL: 'https://api.serriu.com.br'
   // baseURL: 'http://127.0.0.1:3333'
 })
 
