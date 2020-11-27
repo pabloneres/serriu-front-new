@@ -4,7 +4,7 @@ import { CardHeader, CardBody } from "~/_metronic/_partials/controls";
 import { Card, Accordion, Container, Row, Col, Table, Button, Modal, Form } from "react-bootstrap";
 import Select from 'react-select';
 import { useHistory, Redirect, useRouteMatch } from "react-router-dom";
-import { indexAprovados, updateAprovado } from '~/app/controllers/orcamentoController';
+import { indexAprovados, updateAprovado, indexExecutados } from '~/app/controllers/orcamentoController';
 import { useSelector } from "react-redux";
 
 import { conversorMonetario, formatDate } from '~/app/modules/Util';
@@ -24,26 +24,49 @@ export function FichaClinica() {
 
   useEffect(() => {
     indexAprovados(authToken, params.id).then(({data}) => {
-      console.log(data)
-      // setOrcamentos(data)
-      let dados = data.map(item => {
+      let serialiazed = data.map(item => {
         return {
-          ...item, 
-          procedimento: JSON.parse(item.procedimento)
+          ...item,
+          dentes: item.dentes.map(item => {
+            return {
+              ...item,
+              faces: JSON.parse(item.faces)
+            }
+          })
         }
       })
 
+      let dados = []
+      serialiazed.forEach(item => {
+        if(item.dentes.length > 0) 
+        dados.push(item)
+      })
+      
       console.log(dados)
-     
-      const filteredAprovados = dados.filter(item => item.status === 0)
-      const filteredExecutados = dados.filter(item => item.status === 1)
+      setOrcamentos(dados)
 
-      console.log(filteredAprovados)
-      console.log(filteredExecutados)
+    })
 
-
-      setOrcamentos_executados(filteredExecutados)
-      setOrcamentos(filteredAprovados)
+    indexExecutados(authToken, params.id).then(({data}) => {
+      let serialiazed = data.map(item => {
+        return {
+          ...item,
+          dentes: item.dentes.map(item => {
+            return {
+              ...item,
+              faces: JSON.parse(item.faces)
+            }
+          })
+        }
+      })
+      
+      console.log(serialiazed)
+      let dados = []
+      serialiazed.forEach(item => {
+        if(item.dentes.length > 0) 
+        dados.push(item)
+      })
+      setOrcamentos_executados(serialiazed)
 
     })
 
@@ -75,16 +98,16 @@ export function FichaClinica() {
   }
 
 
-  function executarProcedimento(e, orcamento) {
-    setModalData(orcamento);
+  function executarProcedimento(e, orcamento, dente) {
+    setModalData([orcamento, dente]);
+    console.log([orcamento, dente])
 
     setModalExecutar(true)
   }
 
   function handlerFormExecutarProcedimento() {
-    console.log(modalData)
 
-    updateAprovado(authToken, modalData.procedimento_id, {...modalData})
+    updateAprovado(authToken, modalData[1].id, {...modalData})
       .then(() => {
         setReload(!reload)
         return
@@ -102,6 +125,7 @@ export function FichaClinica() {
 
   return (
     <div className="fichaClinica">
+      {console.log(orcamentos_executados)}
       <Modal show={modalExecutar}  >
         <Modal.Header closeButton>
           <Modal.Title>Executar procedimento</Modal.Title>
@@ -124,27 +148,27 @@ export function FichaClinica() {
                         />
                       </Form.Group>
                     </Form.Row>
-                    {/* <Form.Row>
+                    <Form.Row>
                       <Form.Group as={Col} controlId="formGridPassword">
                         <Form.Label>Tipo</Form.Label>
                         <Form.Control
                           disabled
                           type="text"
                           name="data"
-                          value={modalExecutar.procedimento.tipo}
+                          value={modalData[1].procedimento_nome}
 
                         />
                       </Form.Group>
                       <Form.Group as={Col} controlId="formGridPassword">
-                        <Form.Label>dente</Form.Label>
+                        <Form.Label>Dente</Form.Label>
                         <Form.Control
                           disabled
                           type="text"
                           name="data"
-                          value={modalExecutar.procedimento.dentes[0].label}
+                          value={modalData[1].label}
                         />
                       </Form.Group>
-                    </Form.Row> */}
+                    </Form.Row>
                     <Form.Row>
                       <Form.Group as={Col} controlId="formGridPassword">
                         <Form.Label>Profissional</Form.Label>
@@ -152,7 +176,7 @@ export function FichaClinica() {
                           disabled
                           type="text"
                           name="clinica"
-                          value={modalData.dentista_nome}
+                          value={modalData[0].dentistas.name}
                           onChange={(e)=>{setModalData({...modalData, dentista_nome: e.target.value })}}
                         >
 
@@ -211,7 +235,7 @@ export function FichaClinica() {
                     <Container>
                         <Row>
                         <Col xs={2}>{orcamento.criado_em}</Col>
-                        <Col>Profissional: {orcamento.dentista_nome}</Col>
+                        <Col>Profissional: {orcamento.dentistas.name}</Col>
                         <Col>Valor: {conversorMonetario(orcamento.total)}</Col>
                         <Col >Status: {orcamento.aprovado === 1 ? 'Aprovado' : 'Em aberto'}</Col>
                       </Row>
@@ -221,27 +245,24 @@ export function FichaClinica() {
                     <Card.Body className="statusProcedimento aberto">
                       <div className="statusProcedimento aberto"> {orcamento.aprovado === 1 ? 'Aprovado' : 'Em aberto'} </div>
 
-                      <Row style={{marginBottom: 10}}>
-                            <Col xs={1}>{orcamento.id}</Col>
-                            <Col>{orcamento.procedimento.procedimento}</Col>
-                            <Col>Status: {orcamento.aprovado === 1 ? 'Aprovado' : 'Em aberto'}</Col>
-                            <Col >
-                              Dentes:
-                                {' '} 
-                                {
-                                  orcamento.procedimento.dentes.map(dente => (
-                                  <span key={dente.id}>{dente.label}
-                                    {dente.faces.map( face => (
-                                      <span style={{color: 'red'}}>{face.label}</span>
-                                    ))}
-                                  {' '}
-                                  {' '}
-                                  </span>
-                                ))}
-                            </Col>
-                            <Col><Button onClick={(e) => executarProcedimento(e, orcamento)}>Executar</Button> </Col>
-                            <Col>Profissional: {orcamento.dentista_nome} </Col>
-                         </Row>
+                    {orcamento.dentes.map(dente => (
+                        <Row style={{marginBottom: 10}}>
+                        <Col>Dente {' '} {dente.label}</Col>
+                        <Col>{dente.procedimento_nome}</Col>
+                        <Col>{orcamento.aprovado === 1 ? <span style={{color: 'green'}}>Aprovado</span> : 'Em aberto'}</Col>
+                        <Col >
+                          Face:
+                            {' '} 
+                            {
+                              dente.faces ? dente.faces.map(face => (
+                                <span style={{color: 'red'}}>{face.label}</span>
+                            )): 'Geral'}
+                        </Col>
+                        <Col>Profissional: {orcamento.dentistas.name} </Col>
+                        <Col>Valor: {conversorMonetario(dente.valor)} </Col>
+                        <Col><Button onClick={(e) => executarProcedimento(e, orcamento, dente)}>Executar</Button> </Col>
+                        </Row>
+                    ))}
 
                     </Card.Body>
                   </Accordion.Collapse>
@@ -275,30 +296,29 @@ export function FichaClinica() {
                   </tr>
                 </thead>
                 <tbody>
-                  { orcamentos_executados ? 
+                  { 
                     orcamentos_executados.map(item => (
-                      <tr>
-                      <td>{item.criado_em}</td>
-                      <td>
-                        {
-                          item.procedimento.dentes.map(dente => (
-                          <span>{dente.label}
-                            {dente.faces.map( face => (
-                              <span style={{color: 'red'}}>{face.label}</span>
-                            ))}
+                      item.dentes.map(dente => (
+                        <tr>
+                          <td>{item.criado_em}</td>
+                          <td>{dente.label}
                           {' '}
-                          {' '}
-                          </span>
-                          ))
-                        }
-                      </td>
-                      <td>{item.procedimento.procedimento}</td>
-                      <td>{item.dentista_nome}</td>
-                      <td>{item.detalhes}</td>
-                      <td>{item.obs}</td>
-                      {console.log(item)}
-                      </tr>
-                    )) : ''
+                          { 
+                            dente.faces ? dente.faces.map(face => (
+                              <span style={{color: 'red'}}>{face.label}
+                              {' '}
+                              </span>
+                            )) : 'Geral'
+                          }</td>
+                          <td>{dente.procedimento_nome}</td>
+                          <td>{item.dentistas.name}</td>
+                          <td>{dente.detalhes}</td>
+                          <td>{dente.obs}</td>
+
+                          {console.log(item)}
+                        </tr>
+                      ))
+                    ))
                   }
                 </tbody>
               </Table>

@@ -5,7 +5,8 @@ const INDEX_CLINICS_URL = "/orcamentos";
 
 const GET_ORCAMENTOS_URL = "/list_orcamentos";
 
-const GET_ORCAMENTOS_APROVADOS = "/procedimentos_aprovados";
+const GET_ORCAMENTOS_APROVADOS = "/list_orcamentos_aprovados";
+const GET_ORCAMENTOS_EXECUTADOS = "/list_orcamentos_executados";
 
 const GET_PROCEDIMENTOS_URL = "/procedimento";
 
@@ -33,6 +34,13 @@ export function index(authToken) {
 
 export function indexAprovados(authToken, id) {
   return api.get(`${GET_ORCAMENTOS_APROVADOS}/${id}`, {
+    headers: {
+      Authorization: 'Bearer ' + authToken
+    }
+  })
+}
+export function indexExecutados(authToken, id) {
+  return api.get(`${GET_ORCAMENTOS_EXECUTADOS}/${id}`, {
     headers: {
       Authorization: 'Bearer ' + authToken
     }

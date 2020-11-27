@@ -10,7 +10,7 @@ function ProcedimentoGeral({onFinish, procedimento}) {
 
     procedimento.dentes = [];
     procedimento.valorTotal = procedimento.valor;
-
+    console.log('pablo', procedimento.valor)
 
 
   return (

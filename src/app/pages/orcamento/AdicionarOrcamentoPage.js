@@ -62,6 +62,7 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
   const [clinicas, setClinicas] = useState([])
   const [procedimentosFinalizados, setProcedimentosFinalizados] = useState([])
   const [dadosAPI, setDadosAPI] = useState([])
+  const [valorTotalProcedimentos, setValorTotalProcedimentos] = useState()
 
   const [modalFormaPagamento, setModalFormaPagamento] = useState(false)
 
@@ -198,69 +199,59 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
   const getDentistaName = value => {
     console.log(value)
     let dentistaName = dentistas.filter(row => row.dentista_id == value);
-
-
     return dentistaName[0] !== undefined ? dentistaName[0].name : ''
   }
 
 
   const getTabelaName = value => {
-
     let tabelaName = tabelas.filter(row => row.value == value);
     return tabelaName[0].label
-
   }
 
 
   const exibeModalFormaPagamento = () => {
-
-
     setModalFormaPagamento(true);
   }
 
 
   const handlerMudancaTabela = (e) => {
-
     setProcedimento(undefined);
     setTabela(e.target.value)
   }
+
 
   const handlerMudancaDentista = (e) => {
     setDentista(e.target.value)
   }
 
+
   const handlerMudancaProcedimentos = (procedimento, action) => {
-
-
-
     if (procedimento && procedimento.value)
       setProcedimento({ ...procedimento });
     else
       setProcedimento(undefined);
-
   }
 
   const addProcedimentoFinalizado = (e, proced) => {
-
-
-
+    console.log(proced)
     //let newProced = proced.assign({},proced)
-
     if (proced.acao === undefined) {
       proced.habilitado = true;
       setProcedimentosFinalizados([...procedimentosFinalizados, proced]);
     }
-
-
-
-
     setProcedimento(undefined);
   };
+
+
 
   const removerProcedimento = (key) => {
     procedimentosFinalizados.splice(key, 1);
     setProcedimentosFinalizados([...procedimentosFinalizados]);
   };
+
+
+
+
   const alternarProcedimento = (proced) => {
 
     proced.habilitado = !proced.habilitado;
@@ -269,24 +260,17 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
   }
 
   const alterarProcedimento = (procedimento) => {
-
     procedimento.acao = "alterar";
-
     setProcedimento(procedimento);
-
-
   };
 
   const getTotalProcedimentos = () => {
-
     let total = 0;
-
     procedimentosFinalizados.map((row) => {
       total += row.valorTotal;
     })
-
+    
     return total
-
   }
 
 
@@ -408,7 +392,7 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
     }
 
     if (type === 'aprovar') {
-      store(authToken, { procedimentos: procedimentosFinalizados, dentista, paciente_id: params.id, formaPagamento: formFormaPagamento, aprovado: 1 })
+      store(authToken, { procedimentos: procedimentosFinalizados, dentista, paciente_id: params.id, formaPagamento: formFormaPagamento, aprovado: 1, valorTotal: getTotalProcedimentos() })
         .then(() => history.push(`${url}`))
         .catch((err) => {
           return
@@ -418,7 +402,7 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
     }
 
     if (type === 'salvar') {
-      store(authToken, { procedimentos: procedimentosFinalizados, dentista, paciente_id: params.id, formaPagamento: formFormaPagamento })
+      store(authToken, { procedimentos: procedimentosFinalizados, dentista, paciente_id: params.id, formaPagamento: formFormaPagamento, valorTotal: getTotalProcedimentos() })
         .then(() => history.push(`${url}`))
         .catch((err) => {
           return

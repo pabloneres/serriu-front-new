@@ -54,16 +54,17 @@ function handleEdit(orcamento) {
   setShowForm(true);
 
 }
+
 function handleShow(id) {
   show(authToken, id).then(({data}) => {
     // setGetOrcamento(data)
-
+    console.log(data)
     setGetOrcamento({
-      ...data, 
+      ...data,
       dentes: data.dentes.map(item => {
         return {
-          ...item, 
-          procedimento: JSON.parse(item.procedimento)
+          ...item,
+          faces: JSON.parse(item.faces)
         }
       })
     })
@@ -141,7 +142,9 @@ function verifyAprovado(el) {
                   <td>{ orcamento.total ? orcamento.total.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) : '' }
                   </td>
                   <td><Link to={''} />
-                  <span onClick={() => { handleEdit(orcamento) } } style={{"cursor": "pointer"}} className="svg-icon menu-icon">
+                  <span onClick={() => { 
+                    // handleEdit(orcamento)
+                     } } style={{"cursor": "pointer"}} className="svg-icon menu-icon">
                     <SVG style={{"fill": "#3699FF", "color": "#3699FF"}} src={toAbsoluteUrl("/media/svg/icons/Design/create.svg")} />
                   </span>
                   <span onClick={() => handleDelete(orcamento.id) }  style={{"cursor": "pointer"}} className="svg-icon menu-icon">
@@ -211,8 +214,8 @@ function verifyAprovado(el) {
             <thead>
                 <tr>
                   <th>Procedimentos</th>
-                  <th>Qntd. dentes</th>
-                  <th>Detalhes</th>
+                  <th>Dente</th>
+                  <th>Faces</th>
                   <th>Valor</th>
                 </tr>
             </thead>
@@ -221,25 +224,19 @@ function verifyAprovado(el) {
                getOrcamento.dentes.map( orcamento => (
                 <tr key={orcamento.id}>
                 <td>
-                  {orcamento.procedimento.procedimento}
+                  {orcamento.procedimento_nome}
                 </td>
                 <td>
-                  {console.log(orcamento)}
-                  { orcamento.procedimento.dentes.length === 0 ? 'Geral' : orcamento.procedimento.dentes.length }
+                  { orcamento.label ? orcamento.label : 'Geral' }
                 </td>
                 <td>
-                  {orcamento.procedimento.dentes.map(dente => (
-                    <span key={dente.id}>{dente.label}
-                      {dente.faces.map( face => (
-                        <span style={{color: 'red'}}>{face.label}</span>
-                      ))}
-                    {' '}
-                    {' '}
-                    </span>
-                  ))}
+                  {orcamento.faces ? orcamento.faces.map(face => (
+                    <span style={{color: 'red'}}>{face.label}
+                    {' '}</span>
+                  )): 'Geral'}
                 </td>
                 <td>
-                  {orcamento.procedimento.valorTotal.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})}
+                  {orcamento.valor.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})}
                 </td>
               </tr>
                )) : ''
