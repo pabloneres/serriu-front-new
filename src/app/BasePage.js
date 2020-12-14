@@ -42,6 +42,11 @@ import { RelatorioPage } from '~/app/pages/configuracoes/relatorios/RelatorioPag
 import { Equipamentos } from '~/app/pages/configuracoes/equipamentos/Equipamentos'
 
 
+import { ProcedimentoPage } from '~/app/pages/procedimentos/ProcedimentoPage'
+
+
+
+
 
 const GoogleMaterialPage = lazy(() =>
   import("./modules/GoogleMaterialExamples/GoogleMaterialPage")
@@ -77,8 +82,7 @@ export default function BasePage() {
         <ContentRoute exact path="/usuarios" component={UsuariosPage} />
         <ContentRoute exact path="/configuracoes" component={ConfiguracoesPage} />
 
-       
-
+      
         
         {/* SUBMENU Rotas de Usuarios */}
         <ContentRoute exact path="/dentista" component={DentistaPage} />
@@ -107,6 +111,9 @@ export default function BasePage() {
 
 
         {/* Rotas de clinicas */}
+
+
+        <ContentRoute exact path="/procedimentos-abertos" component={ProcedimentoPage} />
 
 
         <ContentRoute path="/my-page" component={MyPage} />

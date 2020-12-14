@@ -123,6 +123,27 @@ export function FichaClinica() {
     setModalExecutar(false)
   }
 
+  function verifyAprovado(el) {
+    switch (el) {
+      case null:
+        return (
+          <strong style={{color: 'red'}}>Em aberto</strong>
+        )
+      case 1:
+        return (
+          <strong style={{color: 'green'}}>Aprovado</strong>
+        )
+      case 2:
+        return (
+          <strong style={{color: 'orange'}}>Em andamento</strong>
+        )
+      case 3:
+        return (
+          <strong style={{color: 'blue'}}>Executado</strong>
+        )
+    }
+  }
+
   return (
     <div className="fichaClinica">
       {console.log(orcamentos_executados)}
@@ -237,19 +258,19 @@ export function FichaClinica() {
                         <Col xs={2}>{orcamento.criado_em}</Col>
                         <Col>Profissional: {orcamento.dentistas.name}</Col>
                         <Col>Valor: {conversorMonetario(orcamento.total)}</Col>
-                        <Col >Status: {orcamento.aprovado === 1 ? 'Aprovado' : 'Em aberto'}</Col>
+                        <Col >Status: {orcamento.aprovado === 1 ? <span style={{color: 'green'}}>Aprovado</span> : orcamento.aprovado === 2 ? 'Em andamento' : orcamento.aprovado === 3 ? 'Executado' : 'Em aberto'}</Col>
                       </Row>
                     </Container>
                   </Accordion.Toggle>
                   <Accordion.Collapse eventKey={orcamento.id}>
                     <Card.Body className="statusProcedimento aberto">
-                      <div className="statusProcedimento aberto"> {orcamento.aprovado === 1 ? 'Aprovado' : 'Em aberto'} </div>
+                      <div className="statusProcedimento aberto"> {orcamento.aprovado === 1 ? <span style={{color: 'green'}}>Aprovado</span> : orcamento.aprovado === 2 ? 'Em andamento' : orcamento.aprovado === 3 ? 'Executado' : 'Em aberto'} </div>
 
                     {orcamento.dentes.map(dente => (
                         <Row style={{marginBottom: 10}}>
                         <Col>Dente {' '} {dente.label}</Col>
                         <Col>{dente.procedimento_nome}</Col>
-                        <Col>{orcamento.aprovado === 1 ? <span style={{color: 'green'}}>Aprovado</span> : 'Em aberto'}</Col>
+                        <Col>{orcamento.aprovado === 1 ? <span style={{color: 'green'}}>Aprovado</span> : orcamento.aprovado === 2 ? 'Em andamento' : orcamento.aprovado === 3 ? 'Executado' : 'Em aberto'}</Col>
                         <Col >
                           Face:
                             {' '} 

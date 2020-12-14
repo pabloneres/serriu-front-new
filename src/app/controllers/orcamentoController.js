@@ -7,6 +7,7 @@ const GET_ORCAMENTOS_URL = "/list_orcamentos";
 
 const GET_ORCAMENTOS_APROVADOS = "/list_orcamentos_aprovados";
 const GET_ORCAMENTOS_EXECUTADOS = "/list_orcamentos_executados";
+const GET_ORCAMENTOS_ABERTO = "/list_orcamentos_aberto";
 
 const GET_PROCEDIMENTOS_URL = "/procedimento";
 
@@ -41,6 +42,14 @@ export function indexAprovados(authToken, id) {
 }
 export function indexExecutados(authToken, id) {
   return api.get(`${GET_ORCAMENTOS_EXECUTADOS}/${id}`, {
+    headers: {
+      Authorization: 'Bearer ' + authToken
+    }
+  })
+}
+
+export function indexOrcamentosAbertos(authToken) {
+  return api.get(`${GET_ORCAMENTOS_ABERTO}`, {
     headers: {
       Authorization: 'Bearer ' + authToken
     }

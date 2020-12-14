@@ -115,6 +115,34 @@ export function AsideMenuListFilial({ layoutProps }) {
         >
           <NavLink className="menu-link menu-toggle" to="/configuracoes">
             <span className="svg-icon menu-icon">
+              <SVG style={{ "fill": "#3699FF" }} src={toAbsoluteUrl("/media/svg/icons/Design/Information.svg")} />
+            </span>
+            <span className="menu-text">Informações</span>
+            <i className="menu-arrow" ></i>
+          </NavLink>
+          <div className="menu-submenu ">
+            <i className="menu-arrow"></i>
+            <ul className="menu-subnav">
+              <li className="menu-item  menu-item-parent" aria-haspopup="true">
+                <span className="menu-link">
+                  <span className="menu-text">Informações</span>
+                </span>
+              </li>
+              <li className="menu-item menu-item-submenu " aria-haspopup="true" data-menu-toggle="hover">
+                <NavLink className="menu-link menu-toggle" to="/procedimentos-abertos">
+                  <span className="menu-text">Procedimentos Abertos</span>
+                </NavLink>
+              </li>
+            </ul>
+          </div>
+        </li>
+        <li
+          className={`menu-item menu-item-submenu ${getMenuItemActive("/configuracoes", false)}`}
+          aria-haspopup="true"
+          data-menu-toggle="hover"
+        >
+          <NavLink className="menu-link menu-toggle" to="/configuracoes">
+            <span className="svg-icon menu-icon">
               <SVG style={{ "fill": "#3699FF" }} src={toAbsoluteUrl("/media/svg/icons/Design/settings.svg")} />
             </span>
             <span className="menu-text">Configurações</span>

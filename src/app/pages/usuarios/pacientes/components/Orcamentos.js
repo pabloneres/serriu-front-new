@@ -81,22 +81,23 @@ function handleAprovar(id) {
 }
 
 function verifyAprovado(el) {
-  if (el === null) {
-    return (
-      <strong style={{color: 'blue'}}>Em aberto</strong>
-    )
-  }
-
-  if (el === 0) {
-    return (
-      <strong style={{color: 'red'}}>Rejeitado</strong>
-    )
-  }
-
-  if (el === 1) {
-    return (
-      <strong style={{color: 'green'}}>Aprovado</strong>
-    )
+  switch (el) {
+    case null:
+      return (
+        <strong style={{color: 'red'}}>Em aberto</strong>
+      )
+    case 1:
+      return (
+        <strong style={{color: 'green'}}>Aprovado</strong>
+      )
+    case 2:
+      return (
+        <strong style={{color: 'orange'}}>Em andamento</strong>
+      )
+    case 3:
+      return (
+        <strong style={{color: 'blue'}}>Executado</strong>
+      )
   }
 }
 
@@ -217,6 +218,7 @@ function verifyAprovado(el) {
                   <th>Dente</th>
                   <th>Faces</th>
                   <th>Valor</th>
+                  <th>Status</th>
                 </tr>
             </thead>
             <tbody>
@@ -237,6 +239,9 @@ function verifyAprovado(el) {
                 </td>
                 <td>
                   {orcamento.valor.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})}
+                </td>
+                <td>
+                  {orcamento.status === 1 ? <span style={{color: 'green'}}>Executado</span> : <span style={{color: 'red'}}>Pendente</span>}
                 </td>
               </tr>
                )) : ''
@@ -290,11 +295,11 @@ function verifyAprovado(el) {
           <div className="text-right" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
               <span>Total <strong>{getOrcamento.total ? getOrcamento.total.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) : ''}</strong></span>            
              <div>
-              {getOrcamento.aprovado === 1 ? '' : (
+              {getOrcamento.aprovado === 1 ? (
                 <Button onClick={() => {handleAprovar(getOrcamento.id)}} className="mr-2" variant="primary">
                   Aprovar
                 </Button>
-              ) }
+              ) : ''}
               <Button onClick={() => {setShowOrcamento(false)}} className="mr-2" variant="danger">
                 Fechar
               </Button>
