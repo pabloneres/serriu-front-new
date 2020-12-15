@@ -285,7 +285,7 @@ function verifyAprovado(el) {
           <div className="text-right" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
               <span>Total <strong>{getOrcamento.total ? getOrcamento.total.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) : ''}</strong></span>            
              <div>
-              {getOrcamento.aprovado === 1 ? (
+              {getOrcamento.aprovado === null ? (
                 <Button onClick={() => {handleAprovar(getOrcamento.id)}} className="mr-2" variant="primary">
                   Aprovar
                 </Button>
