@@ -38,7 +38,7 @@ export function Receber(props) {
 
 
   useEffect(() => {
-    index("payment_list").then(({ data }) => {
+    index("payment_list", authToken).then(({ data }) => {
       setOrcamento(data);
     });
   }, [reload]);
@@ -107,14 +107,14 @@ export function Receber(props) {
   };
   
   const payment = () => {
-    update('payment_update', paymentInfos.id, null).then(() => {
+    update('payment_update', paymentInfos.id, null, authToken).then(() => {
       setReload(!reload)
     })
     setModal(!modal)
   };
 
   const paymentAvista = () => {
-    update('payment_update_avista', paymentInfos.id, null).then(() => {
+    update('payment_update_avista', paymentInfos.id, null, authToken).then(() => {
       setReload(!reload)
     })
     setModal2(!modal2)
@@ -367,6 +367,7 @@ export function Receber(props) {
             </thead>
             <tbody>
               {
+                item.dentes.lenght > 0 ?
                 item.dentes.map(item => (
                   <tr key={item.id}>
                     <td>{item.procedimento_nome}</td>
@@ -394,7 +395,7 @@ export function Receber(props) {
                       )}
                     </td>
                   </tr>
-                ))
+                )) : <></>
               }
             </tbody>
           </Table>

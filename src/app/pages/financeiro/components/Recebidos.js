@@ -38,7 +38,7 @@ export function Recebidos(props) {
 
 
   useEffect(() => {
-    index("payment_paid").then(({ data }) => {
+    index("payment_paid", authToken).then(({ data }) => {
 
       let filtered = data.filter(item => item.pago === 1 || item.formaCobranca === 'por procedimento')
 
@@ -113,14 +113,14 @@ export function Recebidos(props) {
   };
   
   const payment = () => {
-    update('payment_update', paymentInfos.id, null).then(() => {
+    update('payment_update', paymentInfos.id, authToken).then(() => {
       setReload(!reload)
     })
     setModal(!modal)
   };
 
   const paymentAvista = () => {
-    update('payment_update_avista', paymentInfos.id, null).then(() => {
+    update('payment_update_avista', paymentInfos.id, authToken).then(() => {
       setReload(!reload)
     })
     setModal2(!modal2)

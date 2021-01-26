@@ -1,9 +1,7 @@
 import api from '../services/api'
 
-let {user} = JSON.parse(localStorage.getItem('persist:v706-demo1-auth'))
-let {authToken} = JSON.parse(user)
 
-export function index(params, id) {
+export function index(params, authToken ) {
   return api.get(`${params}`, {
     headers: {
       Authorization: 'Bearer ' + authToken
@@ -11,7 +9,7 @@ export function index(params, id) {
   })
 }
 
-export function show(params, id) {
+export function show(authToken, params, id ) {
   return api.get(`${params}/${id}`, {
     headers: {
       Authorization: 'Bearer ' + authToken
@@ -19,7 +17,7 @@ export function show(params, id) {
   })
 }
 
-export function store(params, data) {
+export function store(authToken, params, data) {
   return api.post(params, data, {
     headers: {
       Authorization: 'Bearer ' + authToken
@@ -27,7 +25,7 @@ export function store(params, data) {
   });
 }
 
-export function update(params, id, data) {
+export function update(params, id, data, authToken) {
   return api.put(`${params}/${id}`, data, {
     headers: {
       Authorization: 'Bearer ' + authToken
@@ -35,7 +33,7 @@ export function update(params, id, data) {
   });
 }
 
-export function destroy(params, id) {
+export function destroy(authToken, params, id) {
   // Authorization head should be fulfilled in interceptor.
   return api.delete(`${params}/${id}`, {
     headers: {
