@@ -49,19 +49,17 @@ function handleDelete(id) {
     setReload(!reload)
   }).catch((err)=> console.log(err))
 }
+
 function handleEdit(orcamento) {
   setOrcamentoSelecionado(orcamento)
   setShowForm(true);
-
 }
 
 function handleShow(id) {
   show(authToken, id).then(({data}) => {
-    // setGetOrcamento(data)
-    console.log(data)
     setGetOrcamento({
       ...data,
-      dentes: data.dentes.map(item => {
+      dentes: data.procedimentos_orcamentos.map(item => {
         return {
           ...item,
           faces: JSON.parse(item.faces)
@@ -80,11 +78,11 @@ function handleAprovar(id) {
   })
 }
 
-function verifyAprovado(el) {
-  switch (el) {
-    case null:
+function ReturnStatus(status) {
+  switch (status) {
+    case 0:
       return (
-        <strong style={{color: 'red'}}>Em aberto</strong>
+        <strong style={{color: 'red'}}>Salvo</strong>
       )
     case 1:
       return (
@@ -139,18 +137,17 @@ function verifyAprovado(el) {
                 <tr key={orcamento.id} >
                   <td>{orcamento.criado_em}</td>
                   <td>{orcamento.dentistas.name}</td>
-                  <td>{verifyAprovado(orcamento.aprovado)}</td>
+                  <td>{ReturnStatus(orcamento.status)}</td>
                   <td>{ orcamento.total ? orcamento.total.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) : '' }
                   </td>
                   <td><Link to={''} />
-                  <span onClick={() => { 
-                    // handleEdit(orcamento)
-                     } } style={{"cursor": "pointer"}} className="svg-icon menu-icon">
-                    <SVG style={{"fill": "#3699FF", "color": "#3699FF"}} src={toAbsoluteUrl("/media/svg/icons/Design/create.svg")} />
-                  </span>
-                  <span onClick={() => handleDelete(orcamento.id) }  style={{"cursor": "pointer"}} className="svg-icon menu-icon">
-                    <SVG style={{"fill": "#3699FF", "color": "#3699FF", "marginLeft": 8}} src={toAbsoluteUrl("/media/svg/icons/Design/delete.svg")} />
-                  </span>
+                  {
+                    orcamento.status !== 3 ? 
+                    <span onClick={() => handleDelete(orcamento.id) }  style={{"cursor": "pointer"}} className="svg-icon menu-icon">
+                      <SVG style={{"fill": "#3699FF", "color": "#3699FF", "marginLeft": 8}} src={toAbsoluteUrl("/media/svg/icons/Design/delete.svg")} />
+                    </span>
+                    : ''
+                  }
                   <span onClick={() => handleShow(orcamento.id) }  style={{"cursor": "pointer"}} className="svg-icon menu-icon">
                     <SVG style={{"fill": "#3699FF", "color": "#3699FF", "marginLeft": 8}} src={toAbsoluteUrl("/media/svg/icons/Design/view.svg")} />
                   </span>
@@ -206,7 +203,7 @@ function verifyAprovado(el) {
                   Status
                 </td>
                 <td>
-                  {verifyAprovado(getOrcamento.aprovado)}
+                  {ReturnStatus(getOrcamento.status)}
                 </td>
               </tr>
             </tbody>
@@ -259,43 +256,49 @@ function verifyAprovado(el) {
             <tbody>
               <tr>
                 <td>
-                  Total / Parcelado
+                  Forma Cobrança
                 </td>
                 <td>
-                  {getOrcamento.formaCobranca === 'valor total' ? 'Total' : 'Parcelado'}
+                  {getOrcamento.cobranca === 'total' ? 'Total' : 'Procedimento'}
                 </td>
               </tr>
               <tr>
                 <td>
-                  Forma de pagamento
+                  Forma de Pagamento
                 </td>
                 <td>
-                  {getOrcamento.formaPagamento === 'dinheiro' ? 'Dinheiro' : 'Boleto'}
+                  {getOrcamento.pagamento === 'dinheiro' ? 'Dinheiro' : 'Boleto'}
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  Condição de Pagamento
+                </td>
+                <td>
+                  {getOrcamento.condicao === 'vista' ? 'À vista' : 'Parcelado'}
                 </td>
               </tr>
               
-                {getOrcamento.tipoPagamento === 0 ? 
-                  ''
-                : (
+                {getOrcamento.condicao === 'parcelado' ?
                   <tr>
                     <td>
                       Parcelamento
                     </td>
                     <td>
-                      {getOrcamento.total ? `Entrada de ${(getOrcamento.total*getOrcamento.valorEntrada).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})} + ` : ''}
+                      {getOrcamento.total ? `Entrada de ${getOrcamento.entrada.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})} + ` : ''}
                       <span style={{color: 'red'}}>
-                      {`${getOrcamento.parcelas} X ${((getOrcamento.total - (getOrcamento.total*getOrcamento.valorEntrada)) / getOrcamento.parcelas).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})}`}
+                      {`${getOrcamento.parcelas} X ${((getOrcamento.total - getOrcamento.entrada) / getOrcamento.parcelas).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})}`}
                       </span>
                     </td>
                   </tr>
-                )}
+                : ''}
               
             </tbody>
           </Table>
           <div className="text-right" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
               <span>Total <strong>{getOrcamento.total ? getOrcamento.total.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) : ''}</strong></span>            
              <div>
-              {getOrcamento.aprovado === null ? (
+              {getOrcamento.status === 0 ? (
                 <Button onClick={() => {handleAprovar(getOrcamento.id)}} className="mr-2" variant="primary">
                   Aprovar
                 </Button>

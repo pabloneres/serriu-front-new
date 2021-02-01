@@ -2,14 +2,14 @@ import React, { useState, useEffect } from "react";
 import { Card, CardHeader, CardBody } from "~/_metronic/_partials/controls";
 import { Link } from "react-router-dom";
 
-import { Table, Modal, Button, Form, Col, InputGroup } from 'react-bootstrap'
+import { Table, Modal, Button, Form, Col, InputGroup } from "react-bootstrap";
 
 import { FormattedMessage, injectIntl } from "react-intl";
 import { useHistory, useRouteMatch } from "react-router-dom";
 import { useSelector, connect } from "react-redux";
 import SVG from "react-inlinesvg";
 import { toAbsoluteUrl, checkIsActive } from "~/_metronic/_helpers";
-import { index, update } from "~/app/controllers/controller";
+import { index, update, show } from "~/app/controllers/controller";
 
 export function Recebidos(props) {
   const { params, url } = useRouteMatch();
@@ -22,34 +22,26 @@ export function Recebidos(props) {
   const [reload, setReload] = useState(false);
 
   const [modal, setModal] = useState(false);
-  const [modal2, setModal2] = useState(false);
-  
-  const [paymentInfos, setPaymentInfos] = useState();
-  
-  const [orcamento, setOrcamento] = useState();
+  const [modalInfo, setModalInfo] = useState(false);
 
-  const [dataModal, setDataModal] = useState();
-  const [dataModalAvista, setDataModalAvista] = useState();
+  const [paymentInfos, setPaymentInfos] = useState();
+
+  const [pagamentos, setPagamentos] = useState();
+
+  const [ordem, setOrdem] = useState(undefined);
+  const [orcamento, setOrcamento] = useState(undefined);
 
   const [showModal, setShowModal] = useState(false);
-  const [showModal2, setShowModal2] = useState(false);
-  
-
-
 
   useEffect(() => {
-    index("payment_paid", authToken).then(({ data }) => {
-
-      let filtered = data.filter(item => item.pago === 1 || item.formaCobranca === 'por procedimento')
-
-
-      console.log(filtered)
-
-      setOrcamento(filtered)
-    });
+    index(`/financeiro/user?status_id=${3}&pago=${1}`, authToken).then(
+      ({ data }) => {
+        setPagamentos(data);
+      }
+    );
   }, [reload]);
 
-  if (!orcamento) {
+  if (!pagamentos) {
     return <></>;
   }
 
@@ -59,7 +51,9 @@ export function Recebidos(props) {
         <Modal.Header closeButton>
           <Modal.Title>Confirmar pagamento ?</Modal.Title>
         </Modal.Header>
-        <Modal.Body>Deseja confirmar pagamento de {paymentInfos.name} ?</Modal.Body>
+        <Modal.Body>
+          Deseja confirmar pagamento de {paymentInfos.pacientes.name} ?
+        </Modal.Body>
         <Modal.Footer>
           <Button
             variant="secondary"
@@ -77,89 +71,64 @@ export function Recebidos(props) {
     );
   };
 
-  const ModalPaymentAvista = (props) => {
-    return (
-      <Modal show={modal2} onHide={() => {}} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>Confirmar pagamento ?</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>Deseja confirmar pagamento de {paymentInfos.name} ?</Modal.Body>
-        <Modal.Footer>
-          <Button
-            variant="secondary"
-            onClick={() => {
-              setModal2(false);
-            }}
-          >
-            Cancelar
-          </Button>
-          <Button variant="primary" onClick={() => paymentAvista()}>
-            Sim
-          </Button>
-        </Modal.Footer>
-      </Modal>
-    );
-  };
-
   const handlePayment = (data) => {
-    setPaymentInfos(data)
-    setModal(true)
-  };
-
-  const handlePaymentAvista = (data) => {
     console.log(data)
-    setPaymentInfos(data)
-    setModal2(true)
+    setPaymentInfos(data);
+    setModal(true);
   };
-  
+
   const payment = () => {
-    update('payment_update', paymentInfos.id, authToken).then(() => {
-      setReload(!reload)
-    })
-    setModal(!modal)
+    update(`/financeiro/pagamento?ordem_id=${paymentInfos.id}
+    &procedimento_id=${paymentInfos.procedimentos_orcamentos_id}
+    &is_entrada=${paymentInfos.is_entrada}`, null, null, authToken)
+    .then(() => {
+      setReload(!reload);
+    });
+    setModal(!modal);
   };
 
-  const paymentAvista = () => {
-    update('payment_update_avista', paymentInfos.id, authToken).then(() => {
-      setReload(!reload)
-    })
-    setModal2(!modal2)
-  };
-
-
-  
-
-  function verifyAprovado(el) {
-    switch (el) {
-      case null:
-        return (
-          <strong style={{color: 'red'}}>Em aberto</strong>
-        )
+  function ReturnStatus(status) {
+    switch (status) {
+      case 0:
+        return <strong style={{ color: "red" }}>Salvo</strong>;
       case 1:
-        return (
-          <strong style={{color: 'green'}}>Aprovado</strong>
-        )
+        return <strong style={{ color: "green" }}>Aprovado</strong>;
       case 2:
-        return (
-          <strong style={{color: 'orange'}}>Em andamento</strong>
-        )
+        return <strong style={{ color: "orange" }}>Em andamento</strong>;
       case 3:
-        return (
-          <strong style={{color: 'blue'}}>Executado</strong>
-        )
+        return <strong style={{ color: "blue" }}>Executado</strong>;
     }
   }
 
+  function returnReferencia(params) {
+    console.log(params);
 
-  const ShowModal = ({data, show}) => {
-    if (!data || !show) {
-      return <></>
+    if (params.is_entrada === 1) {
+      return "Entrada do Orçamento";
     }
 
-    let {procedimento, item} = data
+    if (params.cobranca === "total") {
+      return "Total do Orçamento";
+    }
+
+    return "Procedimento Executado";
+  }
+
+  const viewDetails = (ordem) => {
+    show("/orcamento", ordem.orcamento_id, authToken).then(({ data }) => {
+      setOrcamento(data);
+      setOrdem(ordem);
+      setModalInfo(!modalInfo);
+    });
+  };
+
+  const ShowModal = () => {
+    if (!ordem || !orcamento) {
+      return <></>;
+    }
 
     return (
-      <Modal show={show} size="lg">
+      <Modal show={modalInfo} size="lg">
         <Modal.Header>Orçamento</Modal.Header>
         <Modal.Body>
           <Table striped bordered hover>
@@ -170,18 +139,20 @@ export function Recebidos(props) {
             </thead>
             <tbody>
               <tr>
+                <td>Referência</td>
+                <td>{returnReferencia(ordem)}</td>
+              </tr>
+              <tr>
                 <td>Dentista</td>
-                <td>
-                  {item.dentistas.name}
-                </td>
+                <td>{orcamento.dentistas.name}</td>
               </tr>
               <tr>
                 <td>Data</td>
-                <td>{item.criado_em}</td>
+                <td>{orcamento.criado_em}</td>
               </tr>
               <tr>
-                <td>Status</td>
-                <td>{verifyAprovado(item.aprovado)}</td>
+                <td>Status do Orçamento</td>
+                <td>{ReturnStatus(orcamento.status)}</td>
               </tr>
             </tbody>
           </Table>
@@ -196,32 +167,38 @@ export function Recebidos(props) {
               </tr>
             </thead>
             <tbody>
-              <tr key={procedimento.id}>
-                <td>{procedimento.procedimento_nome}</td>
-                <td>{procedimento.label ? procedimento.label : "Geral"}</td>
-                <td>
-                  {
-                    procedimento.faces === '[]' 
-                    ? 'Geral'
-                    : JSON.parse(procedimento.faces).map((face, index) => (
-                        <span key={index} style={{ color: "red" }}>{face.label} </span>
-                      ))
-                  }
-                </td>
-                <td>
-                  {procedimento.valor.toLocaleString("pt-br", {
-                    style: "currency",
-                    currency: "BRL",
-                  })}
-                </td>
-                <td>
-                  {procedimento.status === 1 ? (
-                    <span style={{ color: "green" }}>Executado</span>
-                  ) : (
-                    <span style={{ color: "red" }}>Pendente</span>
-                  )}
-                </td>
-              </tr>
+              {orcamento.procedimentos_orcamentos
+                ? orcamento.procedimentos_orcamentos.map((procedimento) => (
+                    <tr key={procedimento.id}>
+                      <td>{procedimento.procedimento_nome}</td>
+                      <td>
+                        {procedimento.label ? procedimento.label : "Geral"}
+                      </td>
+                      <td>
+                        {procedimento.faces.lenght > 0
+                          ? procedimento.faces.map((face) => (
+                              <span style={{ color: "red" }}>
+                                {face.label}{" "}
+                              </span>
+                            ))
+                          : "Geral"}
+                      </td>
+                      <td>
+                        {procedimento.valor.toLocaleString("pt-br", {
+                          style: "currency",
+                          currency: "BRL",
+                        })}
+                      </td>
+                      <td>
+                        {procedimento.status === 1 ? (
+                          <span style={{ color: "green" }}>Executado</span>
+                        ) : (
+                          <span style={{ color: "red" }}>Pendente</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))
+                : ""}
             </tbody>
           </Table>
           <Table striped bordered hover>
@@ -232,41 +209,40 @@ export function Recebidos(props) {
             </thead>
             <tbody>
               <tr>
-                <td>Total / Parcelado</td>
+                <td>Forma Cobrança</td>
                 <td>
-                  {item.valorEntrada === null
-                    ? "Total"
-                    : "Parcelado"}
+                  {ordem.cobranca === "total" ? "Total" : "Procedimento"}
                 </td>
               </tr>
               <tr>
-                <td>Forma de pagamento</td>
+                <td>Forma de Pagamento</td>
                 <td>
-                  {item.formaPagamento === "dinheiro"
+                  {ordem.pagamento === "dinheiro"
                     ? "Dinheiro"
                     : "Boleto"}
                 </td>
               </tr>
-  
-              {item.tipoPagamento === 0 ? (
-                ""
-              ) : (
+              <tr>
+                <td>Condição de Pagamento</td>
+                <td>
+                  {ordem.condicao === "vista" ? "À vista" : "Parcelado"}
+                </td>
+              </tr>
+
+              {ordem.condicao === "parcelado" ? (
                 <tr>
                   <td>Parcelamento</td>
                   <td>
-                    {item.total
-                      ? `Entrada de ${(
-                        item.total * item.valorEntrada
-                        ).toLocaleString("pt-br", {
-                          style: "currency",
-                          currency: "BRL",
-                        })} + `
+                    {ordem.valor
+                      ? `Entrada de ${ordem.valor.toLocaleString(
+                          "pt-br",
+                          { style: "currency", currency: "BRL" }
+                        )} + `
                       : ""}
                     <span style={{ color: "red" }}>
-                      {`${item.parcelas} X ${(
-                        (item.total -
-                          item.total * item.valorEntrada) /
-                        item.parcelas
+                      {`${orcamento.parcelas} X ${(
+                        (orcamento.total - orcamento.entrada) /
+                        orcamento.parcelas
                       ).toLocaleString("pt-br", {
                         style: "currency",
                         currency: "BRL",
@@ -274,6 +250,8 @@ export function Recebidos(props) {
                     </span>
                   </td>
                 </tr>
+              ) : (
+                ""
               )}
             </tbody>
           </Table>
@@ -288,33 +266,33 @@ export function Recebidos(props) {
             <span>
               Total{" "}
               <strong>
-                {
-                  procedimento.valor.toLocaleString("pt-br", {
-                    style: "currency",
-                    currency: "BRL",
-                  })
-                }
+                {ordem.valor.toLocaleString("pt-br", {
+                  style: "currency",
+                  currency: "BRL",
+                })}
               </strong>
             </span>
             <div>
-              {procedimento.pago === 0 ? (
-                // <Button
-                //   onClick={() => {
-                //     setShowModal(!showModal)
-                //     handlePayment({id: procedimento.id, name: item.paciente.name})
-                //   }}
-                //   className="mr-2"
-                //   variant="primary"
-                // >
-                //   Receber
-                // </Button>
-                <></>
+              {ordem.pago === 0 ? (
+                <Button
+                  onClick={() => {
+                    setShowModal(!showModal);
+                    handlePayment({
+                      id: ordem.id,
+                      name: ordem.pacientes.name,
+                    });
+                  }}
+                  className="mr-2"
+                  variant="primary"
+                >
+                  Receber
+                </Button>
               ) : (
                 ""
               )}
               <Button
                 onClick={() => {
-                  setShowModal(!showModal)
+                  setModalInfo(!modalInfo);
                 }}
                 className="mr-2"
                 variant="danger"
@@ -327,202 +305,11 @@ export function Recebidos(props) {
       </Modal>
     );
   };
-
-  const ShowModalAvista = ({data, show}) => {
-    if (!data) {
-      return <></>
-    }
-
-    let item = data
-
-    return (
-      <Modal show={show} size="lg">
-        <Modal.Header>Orçamento</Modal.Header>
-        <Modal.Body>
-          <Table striped bordered hover>
-            <thead>
-              <tr>
-                <th>Informações</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Dentista</td>
-                <td>
-                  {item.dentistas.name}
-                </td>
-              </tr>
-              <tr>
-                <td>Data</td>
-                <td>{item.criado_em}</td>
-              </tr>
-              <tr>
-                <td>Status</td>
-                <td>{verifyAprovado(item.aprovado)}</td>
-              </tr>
-            </tbody>
-          </Table>
-          <Table striped bordered hover>
-            <thead>
-              <tr>
-                <th>Procedimentos</th>
-                <th>Dente</th>
-                <th>Faces</th>
-                <th>Valor</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {
-                item.dentes.map(item => (
-                  <tr key={item.id}>
-                    <td>{item.procedimento_nome}</td>
-                    <td>{item.label ? item.label : "Geral"}</td>
-                    <td>
-                      {
-                        item.faces === '[]' 
-                        ? 'Geral'
-                        : JSON.parse(item.faces).map((face, index) => (
-                            <span key={index} style={{ color: "red" }}>{face.label} </span>
-                          ))
-                      }
-                    </td>
-                    <td>
-                      {item.valor.toLocaleString("pt-br", {
-                        style: "currency",
-                        currency: "BRL",
-                      })}
-                    </td>
-                    <td>
-                      {item.status === 1 ? (
-                        <span style={{ color: "green" }}>Executado</span>
-                      ) : (
-                        <span style={{ color: "red" }}>Pendente</span>
-                      )}
-                    </td>
-                  </tr>
-                ))
-              }
-            </tbody>
-          </Table>
-          <Table striped bordered hover>
-            <thead>
-              <tr>
-                <th>Forma de pagamento</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Total / Parcelado</td>
-                <td>
-                  {item.formaCobranca === "valor total"
-                    ? "Total"
-                    : "Parcelado"}
-                </td>
-              </tr>
-              <tr>
-                <td>Forma de pagamento</td>
-                <td>
-                  {item.formaPagamento === "dinheiro"
-                    ? "Dinheiro"
-                    : "Boleto"}
-                </td>
-              </tr>
-  
-              {item.tipoPagamento === 0 ? (
-                ""
-              ) : (
-                <tr>
-                  <td>Parcelamento</td>
-                  <td>
-                    {item.total
-                      ? `Entrada de ${(
-                        item.total * item.valorEntrada
-                        ).toLocaleString("pt-br", {
-                          style: "currency",
-                          currency: "BRL",
-                        })} + `
-                      : ""}
-                    <span style={{ color: "red" }}>
-                      {`${item.parcelas} X ${(
-                        (item.total -
-                          item.total * item.valorEntrada) /
-                        item.parcelas
-                      ).toLocaleString("pt-br", {
-                        style: "currency",
-                        currency: "BRL",
-                      })}`}
-                    </span>
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </Table>
-          <div
-            className="text-right"
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <span>
-              Total{" "}
-              <strong>
-                {
-                  item.total.toLocaleString("pt-br", {
-                    style: "currency",
-                    currency: "BRL",
-                  })
-                }
-              </strong>
-            </span>
-            <div>
-              {/* <Button
-                onClick={() => {
-                  setShowModal2(!showModal2)
-                  handlePaymentAvista(item)
-                }}
-                className="mr-2"
-                variant="primary"
-              >
-                Receber
-              </Button> */}
-              <Button
-                onClick={() => {
-                  setShowModal2(!showModal2)
-                }}
-                className="mr-2"
-                variant="danger"
-              >
-                Fechar
-              </Button>
-            </div>
-          </div>
-        </Modal.Body>
-      </Modal>
-    );
-  };
-  
-
-  const viewDetails = (params) => {
-    console.log(params)
-    setDataModal(params)
-    setShowModal(!showModal)
-  }
-
-  const viewDetailsAvista = (params) => {
-    console.log(params)
-    setDataModalAvista(params)
-    setShowModal2(!showModal2)
-  }
 
   return (
     <Card>
       {modal ? <ModalPayment /> : ""}
-      {modal2 ? <ModalPaymentAvista /> : ""}
-      <ShowModal data={dataModal} show={showModal}/>
-      <ShowModalAvista data={dataModalAvista} show={showModal2}/>
+      <ShowModal />
       <CardHeader title="A Receber"></CardHeader>
       <CardBody>
         <Table striped bordered hover>
@@ -536,105 +323,49 @@ export function Recebidos(props) {
             </tr>
           </thead>
           <tbody>
-            {orcamento.map((item) => {
-              if (item.formaCobranca === 'valor total') {
-                return (
-                  <tr key={item.id}>
-                    <td>{item.criado_em}</td>
-                    <td>{item.paciente.name}</td>
-                    <td>{item.dentistas.name}</td>
-                    <td>
-                      {item.total.toLocaleString("pt-br", {
-                        style: "currency",
-                        currency: "BRL",
-                      })}
-                    </td>
-                    <td
-                      style={{ display: "flex", justifyContent: "space-around" }}
-                    >
-                      <span
-                        onClick={() => viewDetailsAvista(item)}
-                        style={{ cursor: "pointer" }}
-                        className="svg-icon menu-icon"
-                      >
-                        <SVG
-                          style={{
-                            fill: "#3699FF",
-                            color: "#3699FF",
-                            marginLeft: 8,
-                          }}
-                          src={toAbsoluteUrl("/media/svg/icons/Design/view.svg")}
-                        />
-                      </span>
-                      {/* <span
-                          onClick={() => handlePaymentAvista({id: item.id, name: item.paciente.name})}
-                        style={{ cursor: "pointer" }}
-                        className="svg-icon menu-icon"
-                      >
-                        <SVG
-                          style={{
-                            fill: "#3699FF",
-                            color: "#3699FF",
-                            marginLeft: 8,
-                          }}
-                          src={toAbsoluteUrl("/media/svg/icons/Design/Money.svg")}
-                        />
-                      </span> */}
-                    </td>
-                  </tr>
-                )
-              }
-              if (item.formaCobranca === 'por procedimento') {
-                return (
-                  item.dentes.map((procedimento, index) => (
-                    <tr key={procedimento.id}>
-                      <td>{item.criado_em}</td>
-                      <td>{item.paciente.name}</td>
-                      <td>{item.dentistas.name}</td>
-                      <td>
-                        {procedimento.valor.toLocaleString("pt-br", {
-                          style: "currency",
-                          currency: "BRL",
-                        })}
-                      </td>
-                      <td
-                        style={{ display: "flex", justifyContent: "space-around" }}
-                      >
-                        <span
-                          onClick={() => viewDetails({procedimento, item})}
-                          style={{ cursor: "pointer" }}
-                          className="svg-icon menu-icon"
-                        >
-                          <SVG
-                            style={{
-                              fill: "#3699FF",
-                              color: "#3699FF",
-                              marginLeft: 8,
-                            }}
-                            src={toAbsoluteUrl("/media/svg/icons/Design/view.svg")}
-                          />
-                        </span>
-                        {/* <span
-                          onClick={() => handlePayment({id: procedimento.id, name: item.paciente.name})}
-                          style={{ cursor: "pointer" }}
-                          className="svg-icon menu-icon"
-                        >
-                          <SVG
-                            style={{
-                              fill: "#3699FF",
-                              color: "#3699FF",
-                              marginLeft: 8,
-                            }}
-                            src={toAbsoluteUrl("/media/svg/icons/Design/Money.svg")}
-                          />
-                        </span> */}
-                      </td>
-                    </tr>
-                  ))
-                )
-              }
-            }
-            )}
+            {pagamentos.map((item) => (
+              <tr key={item.id}>
+                <td>{item.criado_em}</td>
+                <td>{item.pacientes.name}</td>
+                <td>{item.dentistas.name}</td>
+                <td>
+                  {item.valor.toLocaleString("pt-br", {
+                    style: "currency",
+                    currency: "BRL",
+                  })}
+                </td>
+                <td style={{ display: "flex", justifyContent: "space-around" }}>
+                  <span
+                    onClick={() => viewDetails(item)}
+                    style={{ cursor: "pointer" }}
+                    className="svg-icon menu-icon"
+                  >
+                    <SVG
+                      style={{
+                        fill: "#3699FF",
+                        color: "#3699FF",
+                        marginLeft: 8,
+                      }}
+                      src={toAbsoluteUrl("/media/svg/icons/Design/view.svg")}
+                    />
+                  </span>
+                  {/* <span
+                    onClick={() => handlePayment(item)}
+                    style={{ cursor: "pointer" }}
+                    className="svg-icon menu-icon"
+                  >
+                    <SVG
+                      style={{
+                        fill: "#3699FF",
+                        color: "#3699FF",
+                        marginLeft: 8,
+                      }}
+                      src={toAbsoluteUrl("/media/svg/icons/Design/Money.svg")}
+                    />
+                  </span> */}
+                </td>
+              </tr>
+            ))}
           </tbody>
         </Table>
       </CardBody>

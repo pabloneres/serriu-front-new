@@ -9,7 +9,7 @@ export function index(params, authToken ) {
   })
 }
 
-export function show(authToken, params, id ) {
+export function show(params, id, authToken) {
   return api.get(`${params}/${id}`, {
     headers: {
       Authorization: 'Bearer ' + authToken

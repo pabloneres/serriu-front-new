@@ -1,7 +1,9 @@
 import React from "react";
 
+import Agenda from './components/Agenda'
+
 export function AgendaPage() {
   return (
-    <h1>AGENDA</h1>
+    <Agenda/>
   );
 }

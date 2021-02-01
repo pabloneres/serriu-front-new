@@ -80,11 +80,11 @@ function handleAprovar(id) {
   })
 }
 
-function verifyAprovado(el) {
-  switch (el) {
-    case null:
+function ReturnStatus(status) {
+  switch (status) {
+    case 0:
       return (
-        <strong style={{color: 'red'}}>Em aberto</strong>
+        <strong style={{color: 'red'}}>Salvo</strong>
       )
     case 1:
       return (
@@ -139,7 +139,7 @@ function verifyAprovado(el) {
                 <tr key={orcamento.id} >
                   <td>{orcamento.criado_em}</td>
                   <td>{orcamento.dentistas.name}</td>
-                  <td>{verifyAprovado(orcamento.aprovado)}</td>
+                  <td>{ReturnStatus(orcamento.status)}</td>
                   <td>{ orcamento.total ? orcamento.total.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) : '' }
                   </td>
                   <td><Link to={''} />
@@ -206,7 +206,7 @@ function verifyAprovado(el) {
                   Status
                 </td>
                 <td>
-                  {verifyAprovado(getOrcamento.aprovado)}
+                  {ReturnStatus(getOrcamento.status)}
                 </td>
               </tr>
             </tbody>

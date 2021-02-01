@@ -9,9 +9,14 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useSelector } from "react-redux";
 import { update, show } from '~/app/controllers/pacienteController'
+
+
 import { Dados } from './components/Dados'
 import { Orcamentos } from './components/Orcamentos'
 import { FichaClinica } from './components/FichaClinica'
+import { Financeiro } from './components/Financeiro'
+
+
 import { AdicionarOrcamentoPage } from "~/app/pages/orcamento/AdicionarOrcamentoPage";
 
 export function EditarPacientePage(props) {
@@ -88,7 +93,8 @@ export function EditarPacientePage(props) {
     const itensMenu = {
       'dados': () => <Dados/>,
       'orcamentos': () => <Orcamentos/>,
-      'fichaClinica': () => <FichaClinica/>
+      'fichaClinica': () => <FichaClinica/>,
+      'financeiro': () => <Financeiro/>
     }
    
   
@@ -109,6 +115,9 @@ export function EditarPacientePage(props) {
           </Nav.Item>
           <Nav.Item>
             <Nav.Link onClick={()=> { setMenu('orcamentos') }}className={menu == 'orcamentos' ? 'active' : ''}  >Orçamentos</Nav.Link>
+          </Nav.Item>
+          <Nav.Item>
+            <Nav.Link onClick={()=> { setMenu('financeiro') }}  className={menu == 'financeiro' ? 'active' : ''} >Financeiro</Nav.Link>
           </Nav.Item>
           <Nav.Item>
             <Nav.Link onClick={()=> { setMenu('fichaClinica') }}  className={menu == 'fichaClinica' ? 'active' : ''} >Ficha Clinica</Nav.Link>
