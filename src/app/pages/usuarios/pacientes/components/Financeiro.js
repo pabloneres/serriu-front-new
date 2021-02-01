@@ -41,6 +41,7 @@ export function Financeiro(props) {
     );
   }, [reload]);
 
+  
   if (!pagamentos) {
     return <></>;
   }
