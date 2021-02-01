@@ -34,7 +34,7 @@ export function Financeiro(props) {
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
-    index(`/financeiro/user?status_id=${2}&usuario_id=${params.id}`, authToken).then(
+    index(`/financeiro/user?status_id=${3}&usuario_id=${params.id}&pago=${1}`, authToken).then(
       ({ data }) => {
         setPagamentos(data);
       }
