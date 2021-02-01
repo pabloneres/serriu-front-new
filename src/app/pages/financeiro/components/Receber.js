@@ -176,7 +176,7 @@ export function Receber(props) {
                         {procedimento.label ? procedimento.label : "Geral"}
                       </td>
                       <td>
-                        {procedimento.faces.lenght > 0
+                        {procedimento.faces && procedimento.faces.lenght > 0
                           ? procedimento.faces.map((face) => (
                               <span style={{ color: "red" }}>
                                 {face.label}{" "}
