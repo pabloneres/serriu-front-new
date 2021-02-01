@@ -34,7 +34,7 @@ export function Financeiro(props) {
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
-    index(`/financeiro/user?status_id=${3}&usuario_id=${params.id}&pago=${1}`, authToken).then(
+    index(`/financeiro/user?status_id=1,2,3&usuario_id=${params.id}&pago=0,1`, authToken).then(
       ({ data }) => {
         setPagamentos(data);
       }
@@ -110,6 +110,7 @@ export function Financeiro(props) {
     }
   }
 
+
   function returnReferencia(params) {
     console.log(params);
 
@@ -151,7 +152,10 @@ export function Financeiro(props) {
             <tbody>
               <tr>
                 <td>Referência</td>
-                <td>{returnReferencia(ordem)}</td>
+                <td> {
+                    ordem.is_parcela === 1 ? 'Parcela N°' + ordem.num_parcela : 
+                    ordem.is_entrada === 1 ? 'Entrada' : ordem.condicao === 'vista' ? 'Pagamento À Vista' : ''
+                  }</td>
               </tr>
               <tr>
                 <td>Dentista</td>
@@ -327,6 +331,7 @@ export function Financeiro(props) {
               <th>Dentista</th>
               <th>Valor</th>
               <th>Pagamento</th>
+              <th>Informações</th>
               <th style={{ width: 100 }}></th>
             </tr>
           </thead>
@@ -345,6 +350,12 @@ export function Financeiro(props) {
                 <td>
                   {
                     returnPago(item.pago)
+                  }
+                </td>
+                <td>
+                  {
+                    item.is_parcela === 1 ? 'Parcela N°' + item.num_parcela : 
+                    item.is_entrada === 1 ? 'Entrada' : item.condicao === 'vista' ? 'Pagamento À Vista' : ''
                   }
                 </td>
                 <td style={{ display: "flex", justifyContent: "space-around" }}>
