@@ -1,11 +1,11 @@
-import moment from 'moment';
-import { appointments } from './appointaments';
+import moment from "moment";
+import { appointments } from "./appointaments";
 
 const currentDate = moment();
 let date = currentDate.date();
 
 const makeTodayAppointment = (startDate, endDate) => {
-  const days = moment(startDate).diff(endDate, 'days');
+  const days = moment(startDate).diff(endDate, "days");
   const nextStartDate = moment(startDate)
     .year(currentDate.year())
     .month(currentDate.month())
@@ -17,14 +17,14 @@ const makeTodayAppointment = (startDate, endDate) => {
 
   return {
     startDate: nextStartDate.toDate(),
-    endDate: nextEndDate.toDate(),
+    endDate: nextEndDate.toDate()
   };
 };
 
 export default appointments.map(({ startDate, endDate, ...restArgs }) => {
   const result = {
     ...makeTodayAppointment(startDate, endDate),
-    ...restArgs,
+    ...restArgs
   };
   date += 1;
   if (date > 31) date = 1;

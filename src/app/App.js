@@ -6,8 +6,7 @@ import { Routes } from "../app/Routes";
 import { I18nProvider } from "../_metronic/i18n";
 import { LayoutSplashScreen, MaterialThemeProvider } from "../_metronic/layout";
 
-
-import  '~/css/site.css';
+import "~/css/site.css";
 
 export default function App({ store, persistor, basename }) {
   return (

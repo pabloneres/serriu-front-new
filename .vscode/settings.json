@@ -2,5 +2,10 @@
     "liveServer.settings.port": 5501,
     "emmet.includeLanguages": {
         "javascript": "javascriptreact"
-    }
+    },
+    "i18n-ally.localesPaths": [
+        "src/_metronic/i18n",
+        "public/scheduler_trial/codebase/locale",
+        "src/_metronic/i18n/messages"
+    ]
 }
