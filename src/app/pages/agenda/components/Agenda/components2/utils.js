@@ -35,13 +35,13 @@ export default class Utils {
     const paciente_id = appointmentData.paciente_id;
     const cellDuration = component.option("cellDuration");
     console.log(startDate);
-    return Utils.isValidAppointmentInterval(
+    return {
       startDate,
       endDate,
       cellDuration,
       dentista_id,
       paciente_id
-    );
+    };
   }
 
   static isValidAppointmentInterval(startDate, endDate, cellDuration) {

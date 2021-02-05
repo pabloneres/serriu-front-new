@@ -889,7 +889,7 @@ const App = () => {
     }
     console.log(e.appointmentData);
 
-    store("agendamentos", e.appointmentData).then(data => {
+    store("agendamentos", isValidAppointment).then(data => {
       console.log(data);
       setReload(!reload);
     });
