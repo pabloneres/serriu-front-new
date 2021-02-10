@@ -1,0 +1,26 @@
+.dx-scheduler-date-table .dx-scheduler-date-table-row {
+  max-width: 10px impo !important;
+}
+
+.dx-scheduler-date-table-cell,
+.dx-scheduler-time-panel-cell {
+  height: 30px;
+}
+
+.button-select {
+  padding: 20px 25px;
+  border: 1px rgba(0, 0, 0, 0.493) solid;
+  border-radius: 5px;
+  margin: 3px 0;
+  font-weight: bold;
+}
+
+.button-select:hover {
+  background-color: rgb(181, 202, 241);
+  cursor: pointer;
+}
+
+.active {
+  background-color: rgb(181, 202, 241);
+  color: white;
+}

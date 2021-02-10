@@ -1,101 +1,76 @@
-export const employees = [
-  {
-    text: "John Heart",
-    id: 1,
-    color: "#56ca85",
-    avatar:
-      "https://js.devexpress.com/Demos/WidgetsGallery/JSDemos/images/gym/coach-man.png",
-    age: 27,
-    discipline: "ABS, Fitball, StepFit"
-  },
-  {
-    text: "Sandra Johnson",
-    id: 2,
-    color: "#ff9747",
-    avatar:
-      "https://js.devexpress.com/Demos/WidgetsGallery/JSDemos/images/gym/coach-woman.png",
-    age: 25,
-    discipline: "ABS, Fitball, StepFit"
-  }
-];
+export const dinnerTime = { from: 12, to: 13 };
+
+export const holidays = [new Date(2021, 4, 27), new Date(2021, 6, 4)];
 
 export const data = [
   {
-    text: "Helen",
-    employeeID: 2,
-    startDate: new Date("2021-07-27T16:30:00.000Z"),
-    endDate: new Date("2021-07-27T18:30:00.000Z")
+    text: "Website Re-Design Plan",
+    startDate: new Date(2021, 4, 24, 9, 30),
+    endDate: new Date(2021, 4, 24, 11, 30)
   },
   {
-    text: "Helen",
-    employeeID: 2,
-    startDate: new Date("2021-08-05T16:30:00.000Z"),
-    endDate: new Date("2021-08-06T18:30:00.000Z")
+    text: "Install New Router in Dev Room",
+    startDate: new Date(2021, 4, 24, 13),
+    endDate: new Date(2021, 4, 24, 14)
   },
   {
-    text: "Alex",
-    employeeID: 1,
-    startDate: new Date("2021-07-28T16:30:00.000Z"),
-    endDate: new Date("2021-07-28T18:30:00.000Z")
+    text: "Approve Personal Computer Upgrade Plan",
+    startDate: new Date(2021, 4, 25, 10),
+    endDate: new Date(2021, 4, 25, 11)
   },
   {
-    text: "Alex",
-    employeeID: 1,
-    startDate: new Date("2021-08-06T19:00:00.000Z"),
-    endDate: new Date("2021-08-06T20:00:00.000Z")
+    text: "Final Budget Review",
+    startDate: new Date(2021, 4, 25, 13, 30),
+    endDate: new Date(2021, 4, 25, 15)
   },
   {
-    text: "Alex",
-    employeeID: 2,
-    startDate: new Date("2021-08-11T16:30:00.000Z"),
-    endDate: new Date("2021-08-11T18:30:00.000Z")
+    text: "New Brochures",
+    startDate: new Date(2021, 4, 24, 15),
+    endDate: new Date(2021, 4, 24, 16, 15)
   },
   {
-    text: "Stan",
-    employeeID: 1,
-    startDate: new Date("2021-08-02T16:30:00.000Z"),
-    endDate: new Date("2021-08-02T18:30:00.000Z")
+    text: "Install New Database",
+    startDate: new Date(2021, 4, 26, 9, 45),
+    endDate: new Date(2021, 4, 26, 12)
   },
   {
-    text: "Stan",
-    employeeID: 1,
-    startDate: new Date("2021-08-23T16:30:00.000Z"),
-    endDate: new Date("2021-08-23T18:30:00.000Z")
+    text: "Approve New Online Marketing Strategy",
+    startDate: new Date(2021, 4, 26, 14, 30),
+    endDate: new Date(2021, 4, 26, 16, 30)
   },
   {
-    text: "Stan",
-    employeeID: 1,
-    startDate: new Date("2021-08-25T16:30:00.000Z"),
-    endDate: new Date("2021-08-25T18:30:00.000Z")
+    text: "Upgrade Personal Computers",
+    startDate: new Date(2021, 4, 25, 15, 30),
+    endDate: new Date(2021, 4, 25, 16, 45)
   },
   {
-    text: "Rachel",
-    employeeID: 2,
-    startDate: new Date("2021-07-30T16:30:00.000Z"),
-    endDate: new Date("2021-07-30T18:30:00.000Z")
+    text: "Prepare 2021 Marketing Plan",
+    startDate: new Date(2021, 4, 31, 13),
+    endDate: new Date(2021, 4, 31, 15)
   },
   {
-    text: "Rachel",
-    employeeID: 2,
-    startDate: new Date("2021-08-02T16:30:00.000Z"),
-    endDate: new Date("2021-08-02T18:30:00.000Z")
+    text: "Brochure Design Review",
+    startDate: new Date(2021, 5, 1, 15, 30),
+    endDate: new Date(2021, 5, 2)
   },
   {
-    text: "Rachel",
-    employeeID: 1,
-    startDate: new Date("2021-08-16T16:30:00.000Z"),
-    endDate: new Date("2021-08-16T18:30:00.000Z")
+    text: "Create Icons for Website",
+    startDate: new Date(2021, 4, 28, 10),
+    endDate: new Date(2021, 4, 28, 12)
   },
   {
-    text: "Kelly",
-    employeeID: 2,
-    startDate: new Date("2021-08-10T16:30:00.000Z"),
-    endDate: new Date("2021-08-10T18:30:00.000Z")
+    text: "Upgrade Server Hardware",
+    startDate: new Date(2021, 4, 28, 16, 30),
+    endDate: new Date(2021, 4, 28, 18)
   },
   {
-    text: "Kelly",
-    employeeID: 2,
-    startDate: new Date("2021-08-24T16:30:00.000Z"),
-    endDate: new Date("2021-08-24T18:30:00.000Z")
+    text: "Submit New Website Design",
+    startDate: new Date(2021, 5, 2, 10),
+    endDate: new Date(2021, 5, 2, 11, 30)
+  },
+  {
+    text: "Launch New Website",
+    startDate: new Date(2021, 4, 28, 14, 30),
+    endDate: new Date(2021, 4, 28, 16, 10)
   }
 ];

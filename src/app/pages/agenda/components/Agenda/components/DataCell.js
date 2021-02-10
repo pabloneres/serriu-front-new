@@ -1,42 +1,18 @@
 import React from "react";
+import Utils from "./utils.js";
 
-function isWeekEnd(date) {
-  const day = date.getDay();
-  return day === 0 || day === 6;
-}
+export default function DataCell(props) {
+  const { startDate, text } = props.itemData;
+  const isDisableDate =
+    Utils.isHoliday(startDate) || Utils.isWeekend(startDate);
+  const isDinner = Utils.isDinner(startDate);
+  const cssClasses = [];
 
-function getCurrentTraining(date, employeeID) {
-  const result = (date + employeeID) % 3;
-  const currentTraining = `training-background-${result}`;
-
-  return currentTraining;
-}
-
-class DataCell extends React.PureComponent {
-  render() {
-    const {
-      data: {
-        startDate,
-        groups: { employeeID },
-        text
-      }
-    } = this.props;
-    const dayClasses = [
-      "day-cell",
-      getCurrentTraining(startDate.getDate(), employeeID)
-    ];
-
-    const employeeClasses = [`employee-${employeeID}`, "dx-template-wrapper"];
-    if (isWeekEnd(startDate)) {
-      employeeClasses.push(`employee-weekend-${employeeID}`);
-    }
-
-    return (
-      <div className={employeeClasses.join(" ")}>
-        <div className={dayClasses.join(" ")}>{text}</div>
-      </div>
-    );
+  if (isDisableDate) {
+    cssClasses.push("disable-date");
+  } else if (isDinner) {
+    cssClasses.push("dinner");
   }
-}
 
-export default DataCell;
+  return <div className={cssClasses}>{text}</div>;
+}
