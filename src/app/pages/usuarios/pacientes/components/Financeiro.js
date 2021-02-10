@@ -15,8 +15,8 @@ export function Financeiro(props) {
   const { params, url } = useRouteMatch();
   const { intl } = props;
   const {
-    user: { authToken },
-  } = useSelector((state) => state.auth);
+    user: { authToken }
+  } = useSelector(state => state.auth);
   const history = useHistory();
 
   const [reload, setReload] = useState(false);
@@ -34,19 +34,19 @@ export function Financeiro(props) {
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
-    index(`/financeiro/user?status_id=1,2,3&usuario_id=${params.id}&pago=0,1`, authToken).then(
-      ({ data }) => {
-        setPagamentos(data);
-      }
-    );
-  }, [reload]);
+    index(
+      authToken,
+      `/financeiro/user?status_id=1,2,3&usuario_id=${params.id}&pago=0,1`
+    ).then(({ data }) => {
+      setPagamentos(data);
+    });
+  }, [authToken, params.id, reload]);
 
-  
   if (!pagamentos) {
     return <></>;
   }
 
-  const ModalPayment = (props) => {
+  const ModalPayment = props => {
     return (
       <Modal show={modal} onHide={() => {}} centered>
         <Modal.Header closeButton>
@@ -72,17 +72,21 @@ export function Financeiro(props) {
     );
   };
 
-  const handlePayment = (data) => {
+  const handlePayment = data => {
     setPaymentInfos(data);
     setModal(true);
-    setModalInfo(false)
+    setModalInfo(false);
   };
 
   const payment = () => {
-    update(`/financeiro/pagamento?ordem_id=${paymentInfos.id}
+    update(
+      authToken,
+      `/financeiro/pagamento?ordem_id=${paymentInfos.id}
     &procedimento_id=${paymentInfos.procedimentos_orcamentos_id}
-    &is_entrada=${paymentInfos.is_entrada}`, null, null, authToken)
-    .then(() => {
+    &is_entrada=${paymentInfos.is_entrada}`,
+      null,
+      null
+    ).then(() => {
       setReload(!reload);
     });
     setModal(!modal);
@@ -110,7 +114,6 @@ export function Financeiro(props) {
     }
   }
 
-
   function returnReferencia(params) {
     console.log(params);
 
@@ -125,9 +128,9 @@ export function Financeiro(props) {
     return "Procedimento Executado";
   }
 
-  const viewDetails = (ordem) => {
-    setPaymentInfos(ordem)
-    show("/orcamento", ordem.orcamento_id, authToken).then(({ data }) => {
+  const viewDetails = ordem => {
+    setPaymentInfos(ordem);
+    show(authToken, "/orcamento", ordem.orcamento_id).then(({ data }) => {
       setOrcamento(data);
       setOrdem(ordem);
       setModalInfo(!modalInfo);
@@ -152,10 +155,16 @@ export function Financeiro(props) {
             <tbody>
               <tr>
                 <td>Referência</td>
-                <td> {
-                    ordem.is_parcela === 1 ? 'Parcela N°' + ordem.num_parcela : 
-                    ordem.is_entrada === 1 ? 'Entrada' : ordem.condicao === 'vista' ? 'Pagamento À Vista' : ''
-                  }</td>
+                <td>
+                  {" "}
+                  {ordem.is_parcela === 1
+                    ? "Parcela N°" + ordem.num_parcela
+                    : ordem.is_entrada === 1
+                    ? "Entrada"
+                    : ordem.condicao === "vista"
+                    ? "Pagamento À Vista"
+                    : ""}
+                </td>
               </tr>
               <tr>
                 <td>Dentista</td>
@@ -183,7 +192,7 @@ export function Financeiro(props) {
             </thead>
             <tbody>
               {orcamento.procedimentos_orcamentos
-                ? orcamento.procedimentos_orcamentos.map((procedimento) => (
+                ? orcamento.procedimentos_orcamentos.map(procedimento => (
                     <tr key={procedimento.id}>
                       <td>{procedimento.procedimento_nome}</td>
                       <td>
@@ -191,7 +200,7 @@ export function Financeiro(props) {
                       </td>
                       <td>
                         {procedimento.faces && procedimento.faces.lenght > 0
-                          ? procedimento.faces.map((face) => (
+                          ? procedimento.faces.map(face => (
                               <span style={{ color: "red" }}>
                                 {face.label}{" "}
                               </span>
@@ -201,7 +210,7 @@ export function Financeiro(props) {
                       <td>
                         {procedimento.valor.toLocaleString("pt-br", {
                           style: "currency",
-                          currency: "BRL",
+                          currency: "BRL"
                         })}
                       </td>
                       <td>
@@ -225,23 +234,17 @@ export function Financeiro(props) {
             <tbody>
               <tr>
                 <td>Forma Cobrança</td>
-                <td>
-                  {ordem.cobranca === "total" ? "Total" : "Procedimento"}
-                </td>
+                <td>{ordem.cobranca === "total" ? "Total" : "Procedimento"}</td>
               </tr>
               <tr>
                 <td>Forma de Pagamento</td>
                 <td>
-                  {ordem.pagamento === "dinheiro"
-                    ? "Dinheiro"
-                    : "Boleto"}
+                  {ordem.pagamento === "dinheiro" ? "Dinheiro" : "Boleto"}
                 </td>
               </tr>
               <tr>
                 <td>Condição de Pagamento</td>
-                <td>
-                  {ordem.condicao === "vista" ? "À vista" : "Parcelado"}
-                </td>
+                <td>{ordem.condicao === "vista" ? "À vista" : "Parcelado"}</td>
               </tr>
 
               {ordem.condicao === "parcelado" ? (
@@ -249,10 +252,10 @@ export function Financeiro(props) {
                   <td>Parcelamento</td>
                   <td>
                     {ordem.valor
-                      ? `Entrada de ${ordem.valor.toLocaleString(
-                          "pt-br",
-                          { style: "currency", currency: "BRL" }
-                        )} + `
+                      ? `Entrada de ${ordem.valor.toLocaleString("pt-br", {
+                          style: "currency",
+                          currency: "BRL"
+                        })} + `
                       : ""}
                     <span style={{ color: "red" }}>
                       {`${orcamento.parcelas} X ${(
@@ -260,7 +263,7 @@ export function Financeiro(props) {
                         orcamento.parcelas
                       ).toLocaleString("pt-br", {
                         style: "currency",
-                        currency: "BRL",
+                        currency: "BRL"
                       })}`}
                     </span>
                   </td>
@@ -275,7 +278,7 @@ export function Financeiro(props) {
             style={{
               display: "flex",
               justifyContent: "space-between",
-              alignItems: "center",
+              alignItems: "center"
             }}
           >
             <span>
@@ -283,7 +286,7 @@ export function Financeiro(props) {
               <strong>
                 {ordem.valor.toLocaleString("pt-br", {
                   style: "currency",
-                  currency: "BRL",
+                  currency: "BRL"
                 })}
               </strong>
             </span>
@@ -336,7 +339,7 @@ export function Financeiro(props) {
             </tr>
           </thead>
           <tbody>
-            {pagamentos.map((item) => (
+            {pagamentos.map(item => (
               <tr key={item.id}>
                 <td>{item.criado_em}</td>
                 <td>{item.pacientes.name}</td>
@@ -344,19 +347,18 @@ export function Financeiro(props) {
                 <td>
                   {item.valor.toLocaleString("pt-br", {
                     style: "currency",
-                    currency: "BRL",
+                    currency: "BRL"
                   })}
                 </td>
+                <td>{returnPago(item.pago)}</td>
                 <td>
-                  {
-                    returnPago(item.pago)
-                  }
-                </td>
-                <td>
-                  {
-                    item.is_parcela === 1 ? 'Parcela N°' + item.num_parcela : 
-                    item.is_entrada === 1 ? 'Entrada' : item.condicao === 'vista' ? 'Pagamento À Vista' : ''
-                  }
+                  {item.is_parcela === 1
+                    ? "Parcela N°" + item.num_parcela
+                    : item.is_entrada === 1
+                    ? "Entrada"
+                    : item.condicao === "vista"
+                    ? "Pagamento À Vista"
+                    : ""}
                 </td>
                 <td style={{ display: "flex", justifyContent: "space-around" }}>
                   <span
@@ -368,7 +370,7 @@ export function Financeiro(props) {
                       style={{
                         fill: "#3699FF",
                         color: "#3699FF",
-                        marginLeft: 8,
+                        marginLeft: 8
                       }}
                       src={toAbsoluteUrl("/media/svg/icons/Design/view.svg")}
                     />

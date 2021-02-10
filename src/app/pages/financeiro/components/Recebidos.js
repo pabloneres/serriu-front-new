@@ -15,8 +15,8 @@ export function Recebidos(props) {
   const { params, url } = useRouteMatch();
   const { intl } = props;
   const {
-    user: { authToken },
-  } = useSelector((state) => state.auth);
+    user: { authToken }
+  } = useSelector(state => state.auth);
   const history = useHistory();
 
   const [reload, setReload] = useState(false);
@@ -34,7 +34,7 @@ export function Recebidos(props) {
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
-    index(`/financeiro/user?status_id=${3}&pago=${1}`, authToken).then(
+    index(authToken, `/financeiro/user?status_id=${3}&pago=${1}`).then(
       ({ data }) => {
         setPagamentos(data);
       }
@@ -45,7 +45,7 @@ export function Recebidos(props) {
     return <></>;
   }
 
-  const ModalPayment = (props) => {
+  const ModalPayment = props => {
     return (
       <Modal show={modal} onHide={() => {}} centered>
         <Modal.Header closeButton>
@@ -71,17 +71,21 @@ export function Recebidos(props) {
     );
   };
 
-  const handlePayment = (data) => {
-    console.log(data)
+  const handlePayment = data => {
+    console.log(data);
     setPaymentInfos(data);
     setModal(true);
   };
 
   const payment = () => {
-    update(`/financeiro/pagamento?ordem_id=${paymentInfos.id}
+    update(
+      `/financeiro/pagamento?ordem_id=${paymentInfos.id}
     &procedimento_id=${paymentInfos.procedimentos_orcamentos_id}
-    &is_entrada=${paymentInfos.is_entrada}`, null, null, authToken)
-    .then(() => {
+    &is_entrada=${paymentInfos.is_entrada}`,
+      null,
+      null,
+      authToken
+    ).then(() => {
       setReload(!reload);
     });
     setModal(!modal);
@@ -114,8 +118,8 @@ export function Recebidos(props) {
     return "Procedimento Executado";
   }
 
-  const viewDetails = (ordem) => {
-    show("/orcamento", ordem.orcamento_id, authToken).then(({ data }) => {
+  const viewDetails = ordem => {
+    show(authToken, "/orcamento", ordem.orcamento_id).then(({ data }) => {
       setOrcamento(data);
       setOrdem(ordem);
       setModalInfo(!modalInfo);
@@ -168,7 +172,7 @@ export function Recebidos(props) {
             </thead>
             <tbody>
               {orcamento.procedimentos_orcamentos
-                ? orcamento.procedimentos_orcamentos.map((procedimento) => (
+                ? orcamento.procedimentos_orcamentos.map(procedimento => (
                     <tr key={procedimento.id}>
                       <td>{procedimento.procedimento_nome}</td>
                       <td>
@@ -176,7 +180,7 @@ export function Recebidos(props) {
                       </td>
                       <td>
                         {procedimento.faces.lenght > 0
-                          ? procedimento.faces.map((face) => (
+                          ? procedimento.faces.map(face => (
                               <span style={{ color: "red" }}>
                                 {face.label}{" "}
                               </span>
@@ -186,7 +190,7 @@ export function Recebidos(props) {
                       <td>
                         {procedimento.valor.toLocaleString("pt-br", {
                           style: "currency",
-                          currency: "BRL",
+                          currency: "BRL"
                         })}
                       </td>
                       <td>
@@ -210,23 +214,17 @@ export function Recebidos(props) {
             <tbody>
               <tr>
                 <td>Forma Cobrança</td>
-                <td>
-                  {ordem.cobranca === "total" ? "Total" : "Procedimento"}
-                </td>
+                <td>{ordem.cobranca === "total" ? "Total" : "Procedimento"}</td>
               </tr>
               <tr>
                 <td>Forma de Pagamento</td>
                 <td>
-                  {ordem.pagamento === "dinheiro"
-                    ? "Dinheiro"
-                    : "Boleto"}
+                  {ordem.pagamento === "dinheiro" ? "Dinheiro" : "Boleto"}
                 </td>
               </tr>
               <tr>
                 <td>Condição de Pagamento</td>
-                <td>
-                  {ordem.condicao === "vista" ? "À vista" : "Parcelado"}
-                </td>
+                <td>{ordem.condicao === "vista" ? "À vista" : "Parcelado"}</td>
               </tr>
 
               {ordem.condicao === "parcelado" ? (
@@ -234,10 +232,10 @@ export function Recebidos(props) {
                   <td>Parcelamento</td>
                   <td>
                     {ordem.valor
-                      ? `Entrada de ${ordem.valor.toLocaleString(
-                          "pt-br",
-                          { style: "currency", currency: "BRL" }
-                        )} + `
+                      ? `Entrada de ${ordem.valor.toLocaleString("pt-br", {
+                          style: "currency",
+                          currency: "BRL"
+                        })} + `
                       : ""}
                     <span style={{ color: "red" }}>
                       {`${orcamento.parcelas} X ${(
@@ -245,7 +243,7 @@ export function Recebidos(props) {
                         orcamento.parcelas
                       ).toLocaleString("pt-br", {
                         style: "currency",
-                        currency: "BRL",
+                        currency: "BRL"
                       })}`}
                     </span>
                   </td>
@@ -260,7 +258,7 @@ export function Recebidos(props) {
             style={{
               display: "flex",
               justifyContent: "space-between",
-              alignItems: "center",
+              alignItems: "center"
             }}
           >
             <span>
@@ -268,7 +266,7 @@ export function Recebidos(props) {
               <strong>
                 {ordem.valor.toLocaleString("pt-br", {
                   style: "currency",
-                  currency: "BRL",
+                  currency: "BRL"
                 })}
               </strong>
             </span>
@@ -279,7 +277,7 @@ export function Recebidos(props) {
                     setShowModal(!showModal);
                     handlePayment({
                       id: ordem.id,
-                      name: ordem.pacientes.name,
+                      name: ordem.pacientes.name
                     });
                   }}
                   className="mr-2"
@@ -323,7 +321,7 @@ export function Recebidos(props) {
             </tr>
           </thead>
           <tbody>
-            {pagamentos.map((item) => (
+            {pagamentos.map(item => (
               <tr key={item.id}>
                 <td>{item.criado_em}</td>
                 <td>{item.pacientes.name}</td>
@@ -331,7 +329,7 @@ export function Recebidos(props) {
                 <td>
                   {item.valor.toLocaleString("pt-br", {
                     style: "currency",
-                    currency: "BRL",
+                    currency: "BRL"
                   })}
                 </td>
                 <td style={{ display: "flex", justifyContent: "space-around" }}>
@@ -344,7 +342,7 @@ export function Recebidos(props) {
                       style={{
                         fill: "#3699FF",
                         color: "#3699FF",
-                        marginLeft: 8,
+                        marginLeft: 8
                       }}
                       src={toAbsoluteUrl("/media/svg/icons/Design/view.svg")}
                     />

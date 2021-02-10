@@ -73,7 +73,7 @@ function ProcedimentoSelecaoDente({ onFinish, procedimento, dentista }) {
       <SelecaoDentes
         numeroListaDentes={denticao}
         procedimento={procedimento}
-        callback={(value) => handlerMudancaDentes(value)}
+        callback={(value) => setDentes(value)}
       />
 
       <div className="text-right">

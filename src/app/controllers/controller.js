@@ -1,60 +1,57 @@
 import api from "../services/api";
 
-let { user } = JSON.parse(localStorage.getItem("persist:v706-demo1-auth"));
-let { authToken } = JSON.parse(user);
-
-export function index(params) {
-  if (!authToken) {
+export function index(auth, params) {
+  if (!auth) {
     return;
   }
   return api.get(`${params}`, {
     headers: {
-      Authorization: "Bearer " + authToken
+      Authorization: "Bearer " + auth
     }
   });
 }
 
-export function show(params, id) {
-  if (!authToken) {
+export function show(auth, params, id) {
+  if (!auth) {
     return;
   }
   return api.get(`${params}/${id}`, {
     headers: {
-      Authorization: "Bearer " + authToken
+      Authorization: "Bearer " + auth
     }
   });
 }
 
-export function store(params, data) {
-  if (!authToken) {
+export function store(auth, params, data) {
+  if (!auth) {
     return;
   }
   return api.post(params, data, {
     headers: {
-      Authorization: "Bearer " + authToken
+      Authorization: "Bearer " + auth
     }
   });
 }
 
-export function update(params, id, data) {
-  if (!authToken) {
+export function update(auth, params, id, data) {
+  if (!auth) {
     return;
   }
   return api.put(`${params}/${id}`, data, {
     headers: {
-      Authorization: "Bearer " + authToken
+      Authorization: "Bearer " + auth
     }
   });
 }
 
-export function destroy(params, id) {
-  if (!authToken) {
+export function destroy(auth, params, id) {
+  if (!auth) {
     return;
   }
   // Authorization head should be fulfilled in interceptor.
   return api.delete(`${params}/${id}`, {
     headers: {
-      Authorization: "Bearer " + authToken
+      Authorization: "Bearer " + auth
     }
   });
 }

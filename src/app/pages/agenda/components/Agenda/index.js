@@ -40,6 +40,10 @@ loadMessages(ptMessages);
 locale(navigator.language);
 
 const App = () => {
+  const {
+    user: { authToken }
+  } = useSelector(state => state.auth);
+  const history = useHistory();
   const [dentistas, setDentistas] = useState([]);
   const [pacientes, setPacientes] = useState([]);
   const [dentistasSelecionado, setDentistasSelecionado] = useState();
@@ -79,10 +83,8 @@ const App = () => {
   const [pacienteData, setPacienteData] = useState(undefined);
   const [obs, setObs] = useState("");
 
-  const history = useHistory();
-
   useEffect(() => {
-    index("/dentists").then(({ data }) => {
+    index(authToken, "/dentists").then(({ data }) => {
       data = data.map(item => ({
         label: item.name,
         value: item.id
@@ -91,7 +93,7 @@ const App = () => {
       setDentistas(data);
     });
 
-    index("/patients").then(({ data }) => {
+    index(authToken, "/patients").then(({ data }) => {
       data = data.map(item => ({
         label: item.name,
         value: item.id
@@ -99,7 +101,7 @@ const App = () => {
       setPacientes(data);
     });
 
-    index("/agendamentos").then(({ data }) => {
+    index(authToken, "/agendamentos").then(({ data }) => {
       setAgendamentos(data);
     });
   }, [reload]);
@@ -234,7 +236,7 @@ const App = () => {
     };
     console.log(agendamento);
 
-    store("agendamentos", agendamento).then(data => {
+    store(authToken, "agendamentos", agendamento).then(data => {
       clearFields();
       setShowModal(false);
       setReload(!reload);
