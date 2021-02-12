@@ -8,10 +8,12 @@ import DateCell from "./components/DateCell.js";
 import TimeCell from "./components/TimeCell.js";
 import { loadMessages, locale } from "devextreme/localization";
 import ptMessages from "devextreme/localization/messages/pt.json";
-import { index, update, show, store } from "~/app/controllers/controller";
+import { index, update, show, store, destroy } from "~/app/controllers/controller";
 import { useSelector, connect } from "react-redux";
 import { ThemeProvider } from "styled-components";
 import { useHistory, Redirect } from "react-router-dom";
+import { toAbsoluteUrl, checkIsActive } from "~/_metronic/_helpers";
+import moment from 'moment'
 import {
   Form,
   Table,
@@ -20,7 +22,8 @@ import {
   CardGroup,
   Modal,
   ButtonToolbar,
-  ButtonGroup
+  ButtonGroup,
+  Tooltip
 } from "react-bootstrap";
 import {
   Card,
@@ -30,6 +33,7 @@ import {
 } from "~/_metronic/_partials/controls";
 import Select from "react-select";
 import CreatableSelect, { makeCreatableSelect } from "react-select/creatable";
+import SVG from 'react-inlinesvg'
 
 import "./styles.css";
 
@@ -45,13 +49,15 @@ const App = () => {
   } = useSelector(state => state.auth);
   const history = useHistory();
   const [dentistas, setDentistas] = useState([]);
+  const [dentistasModal, setDentistasModal] = useState([]);
   const [pacientes, setPacientes] = useState([]);
   const [dentistasSelecionado, setDentistasSelecionado] = useState();
   const [pacientesSelecionado, setPacientesSelecionado] = useState();
   const [agendamentos, setAgendamentos] = useState([]);
   const [showModal, setShowModal] = useState(false);
+  const [showModalDetalhes, setShowModalDetalhes] = useState(false);
   const [novoPaciente, setNovoPaciente] = useState(false);
-  const [horariosManha, setHorariosManha] = useState([
+  const [horarios, setHorarios] = useState([
     "08:00",
     "08:30",
     "09:00",
@@ -62,9 +68,7 @@ const App = () => {
     "11:30",
     "12:00",
     "12:30",
-    "13:00"
-  ]);
-  const [horariosTarde, setHorariosTarde] = useState([
+    "13:00",
     "13:30",
     "14:00",
     "14:30",
@@ -76,12 +80,14 @@ const App = () => {
     "17:30",
     "18:00"
   ]);
-  const [horarioSelecionado, setHorarioSelecionado] = useState(undefined);
+  const [horariosSelecionado, setHorariosSelecionado] = useState([]);
   const [reload, setReload] = useState(false);
   const [currentDate, setCurrentDate] = useState(dataAtual());
 
   const [pacienteData, setPacienteData] = useState(undefined);
+  const [agendamentoData, setAgendamentoData] = useState(undefined);
   const [obs, setObs] = useState("");
+  const [clickHorario, setClickHorario] = useState(undefined)
 
   useEffect(() => {
     index(authToken, "/dentists").then(({ data }) => {
@@ -90,7 +96,14 @@ const App = () => {
         value: item.id
       }));
 
-      setDentistas(data);
+      setDentistas([
+        {
+          label: "Todos",
+          value: 0,
+        },
+        ...data
+      ]);
+      setDentistasModal(data);
     });
 
     index(authToken, "/patients").then(({ data }) => {
@@ -159,16 +172,17 @@ const App = () => {
     return <TimeCell itemData={itemData} />;
   }
 
-  function toopltipComponent({ data }) {
+  function toopltipComponent(props) {
+    console.log(props)
     return (
       <div>
         <p>
           <strong>Dentista:</strong>
-          {data.appointmentData.dentista_id}
+          {props.data.appointmentData.dentista.name}
         </p>
         <p>
           <strong>Paciente:</strong>
-          {data.appointmentData.paciente_id}
+          {props.data.appointmentData.paciente.name}
         </p>
       </div>
     );
@@ -187,11 +201,16 @@ const App = () => {
     setPacienteData({ ...pacienteData, nome: e });
   }
 
-  function handleSetHorario(index) {
-    document.querySelector(`.${horarioSelecionado}`).classList.remove("active");
+  function handleSetHorario(e, item, index) {
+    if (e.target.classList.contains('active') === true) {
+      e.target.classList.remove('active')
+      horariosSelecionado.splice(horariosSelecionado.indexOf(item), 1)
+      setHorariosSelecionado([...horariosSelecionado])
+      return 
+    }
+    setHorariosSelecionado([...horariosSelecionado, item]);
 
-    setHorarioSelecionado(index);
-    document.querySelector(`.${index}`).classList.add("active");
+    e.target.classList.add("active");
   }
 
   function dataAtual() {
@@ -207,34 +226,55 @@ const App = () => {
   }
 
   function returnHorario(add = 0) {
-    if (!horarioSelecionado) {
+    if (!horariosSelecionado) {
       return;
     }
 
-    const horario = horarioSelecionado.split("_");
-    if (horario[0] === "manha") {
-      return horariosManha[Number(horario[1]) + add];
+    if (horariosSelecionado.length === 1) {
+      let horario = horariosSelecionado[0]
+
+      horario = horarios[horarios.indexOf(horario) + 1]
+      return horario
     }
 
-    return horariosTarde[Number(horario[1]) + add];
+    const lastHorario = horariosSelecionado[horariosSelecionado.length - 1]
+    return lastHorario
   }
 
   function createAgendamento(e) {
     e.preventDefault();
 
-    const agendamento = {
-      paciente_id: pacientesSelecionado
-        ? pacientesSelecionado.value
-        : undefined,
-      dentista_id: dentistasSelecionado
-        ? dentistasSelecionado.value
-        : undefined,
-      startDate: currentDate + " " + returnHorario(),
-      endDate: currentDate + " " + returnHorario(1),
-      obs: obs,
-      pacienteData: pacienteData
-    };
-    console.log(agendamento);
+    let agendamento
+
+    if (!clickHorario) {
+      agendamento = {
+        paciente_id: pacientesSelecionado
+          ? pacientesSelecionado.value
+          : undefined,
+        dentista_id: dentistasSelecionado
+          ? dentistasSelecionado.value
+          : undefined,
+        startDate: currentDate + " " + horariosSelecionado[0],
+        endDate: currentDate + " " + returnHorario(),
+        obs: obs,
+        pacienteData: pacienteData
+      };
+    }
+
+    if (clickHorario) {
+      agendamento = {
+        paciente_id: pacientesSelecionado
+          ? pacientesSelecionado.value
+          : undefined,
+        dentista_id: dentistasSelecionado
+          ? dentistasSelecionado.value
+          : undefined,
+        startDate: clickHorario.dia + " " + clickHorario.startDate ,
+        endDate: clickHorario.dia + " " + clickHorario.endDate,
+        obs: obs,
+        pacienteData: pacienteData
+      };
+    }
 
     store(authToken, "agendamentos", agendamento).then(data => {
       clearFields();
@@ -247,14 +287,163 @@ const App = () => {
     setDentistasSelecionado("");
     setPacientesSelecionado("");
     setNovoPaciente(false);
-    setHorarioSelecionado(undefined);
+    setHorariosSelecionado([]);
     setCurrentDate(dataAtual());
     setPacienteData(undefined);
     setObs("");
   }
 
+  const ReturnAppointament = (props) => {
+    setAgendamentoData(props.appointmentData)
+    const {appointmentData} = props
+    return (
+      <div className="appointament_render" style={{backgroundColor: appointmentData.dentista.color_schedule}}>
+        {appointmentData.paciente.name.split(' ')[0]}
+      </div>
+    )
+  }
+
+  const handleDelete = () => {
+    destroy(authToken, 'agendamentos', agendamentoData.id).then(() => {
+      setShowModalDetalhes(false)
+      setReload(!reload)
+    })
+  }
+
+  const clicarAgendar = async (props) => {
+    const { cellData } = props
+    console.log(cellData)
+    
+    const startDate = moment(cellData.startDate).format('hh:mm:ss').split(':')
+    const endDate = moment(cellData.endDate).format('hh:mm:ss').split(':')
+
+    console.log(startDate[0] + ':' + startDate[1])
+    console.log(endDate[0] + ':' + endDate[1])
+
+    setClickHorario({
+      dia: moment(cellData.startDate).format('YYYY-MM-DD'),
+      startDate: startDate[0] + ':' + startDate[1],
+      endDate: endDate[0] + ':' + endDate[1]
+    })
+
+    setShowModal(true)
+  }
+
+
+  const ReturnStatus = (status) => {
+       //status 
+      //Agendado - 0
+      //Confirmado - 1
+      //Cancelado - 2
+      //Atendido - 3
+    switch (status) {
+      case 0:
+        return (
+          <strong style={{color: 'yellow'}}>Agendado</strong>
+        )
+      case 1:
+        return (
+          <strong style={{color: 'green'}}>Confirmado</strong>
+        )
+      case 2:
+        return (
+          <strong style={{color: 'orange'}}>Cancelado</strong>
+        )
+      case 3:
+        return (
+          <strong style={{color: 'blue'}}>Atendido</strong>
+        )
+    }
+  }
+
   return (
     <Card>
+      <Modal
+        show={showModalDetalhes && agendamentoData}
+        size="lg"
+      >
+        <Modal.Header>
+          Detalhes do Agendamento
+
+          <div className="actions">
+          <span  style={{"cursor": "pointer"}} className="svg-icon menu-icon">
+            <SVG style={{"fill": "#3699FF", "color": "#3699FF"}} src={toAbsoluteUrl("/media/svg/icons/Design/create.svg")} />
+          </span>
+          <span onClick={() => handleDelete()} style={{"cursor": "pointer"}} className="svg-icon menu-icon">
+            <SVG style={{"fill": "#3699FF", "color": "#3699FF", "marginLeft": 8}} src={toAbsoluteUrl("/media/svg/icons/Design/delete.svg")} />
+          </span>
+          </div>
+        </Modal.Header>
+        {
+          agendamentoData ? 
+          (
+            <Modal.Body>
+              <Table striped bordered hover>
+                  <thead>
+                      <tr>
+                        <th>
+                        Informações
+                        </th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        Paciente
+                      </td>
+                      <td>
+                        {agendamentoData.paciente.name}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        Dentista
+                      </td>
+                      <td>
+                        {agendamentoData.dentista.name}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        Status
+                      </td>
+                      <td>
+                        {ReturnStatus(agendamentoData.status)}
+                      </td>
+                    </tr>
+                  </tbody>
+                </Table>
+                <div className="card_data">
+                  <h3>Data e Hora</h3>
+                  <div className="container_horas">
+                    <div className="hora">
+                    <span>Dia</span>
+                    <h2>{moment(agendamentoData.startDate).format('DD/MM/YYYY')}</h2>
+                    </div>
+                    <div className="hora">
+                    <span>Início</span>
+                    <h2>{moment(agendamentoData.startDate).format('hh:mm')}</h2>
+                    </div>
+                    <div className="hora">
+                    <span>Término</span>
+                    <h2>{moment(agendamentoData.endDate).format('hh:mm')}</h2>
+                    </div>
+                  </div>
+                </div>
+                <div className="container_obs">
+                  <h3>Obs</h3>
+                    <p>{agendamentoData.obs}</p>
+                </div>
+              </Modal.Body>
+          ) : 
+          <></>
+        }
+        <Modal.Footer>
+          <Button onClick={() => setShowModalDetalhes(false)}>
+            Fechar
+          </Button>
+        </Modal.Footer>
+      </Modal>
       <Modal show={showModal} size="xl">
         <Modal.Header closeButton>
           <Modal.Title>Agendamento</Modal.Title>
@@ -335,7 +524,7 @@ const App = () => {
                 <Select
                   required
                   placeholder="Selecione o dentista..."
-                  options={dentistas}
+                  options={dentistasModal}
                   onChange={value => {
                     setDentistasSelecionado(value);
                   }}
@@ -362,7 +551,7 @@ const App = () => {
                 <Form.Label>Dia</Form.Label>
                 <Form.Control
                   type="date"
-                  value={currentDate}
+                  value={clickHorario ? clickHorario.dia : currentDate}
                   onChange={e => {
                     setCurrentDate(e.target.value);
                   }}
@@ -378,7 +567,7 @@ const App = () => {
                   // placeholder="Username"
                   aria-describedby="inputGroupPrepend"
                   // disabled
-                  value={returnHorario()}
+                  value={clickHorario ? clickHorario.startDate : horariosSelecionado[0]}
                   onChange={e => console.log(e.target.value)}
                   disabled
                 />
@@ -387,7 +576,7 @@ const App = () => {
                 <Form.Label>Término</Form.Label>
                 <Form.Control
                   type="time"
-                  value={returnHorario(1)}
+                  value={clickHorario ? clickHorario.endDate : returnHorario()}
                   // placeholder="Username"
                   aria-describedby="inputGroupPrepend"
                   disabled
@@ -395,42 +584,34 @@ const App = () => {
               </Form.Group>
             </Form.Row>
 
-            <Form.Row className="justify-content-md-center">
-              <Form.Label>Horário</Form.Label>
-              <ButtonToolbar
-                aria-label="Toolbar with button groups"
-                style={{ justifyContent: "center" }}
-              >
-                <ButtonGroup className="mr-2" aria-label="First group">
-                  {horariosManha.map((item, index) => (
+            {
+              !clickHorario ? 
+              (
+                <Form.Row className="justify-content-md-center">
+                <Form.Label>Horário</Form.Label>
+                  
+                <Form.Row className="justify-content-md-center">
+                  {horarios.map((item, index) => (
                     <div
                       key={index}
-                      className={`button-select manha_${index}`}
-                      onClick={e => handleSetHorario(`manha_${index}`)}
+                      className={`button-select`}
+                      onClick={e => handleSetHorario(e, item, index)}
                     >
                       {item}
                     </div>
                   ))}
-                </ButtonGroup>
-                <ButtonGroup className="mr-2" aria-label="First group">
-                  {horariosTarde.map((item, index) => (
-                    <div
-                      key={index}
-                      className={`button-select tarde_${index}`}
-                      onClick={e => handleSetHorario(`tarde_${index}`)}
-                    >
-                      {item}
-                    </div>
-                  ))}
-                </ButtonGroup>
-              </ButtonToolbar>
-            </Form.Row>
+                </Form.Row>
+                
+              </Form.Row>
+              ): <></>
+            }
 
             <Modal.Footer>
               <Button
                 variant="secondary"
                 onClick={() => {
                   setShowModal(false);
+                  setClickHorario(undefined)
                 }}
               >
                 Fechar
@@ -443,6 +624,19 @@ const App = () => {
         </Modal.Body>
       </Modal>
       <CardHeader title="Agenda">
+        <CardHeaderToolbar>
+        <Select
+          className="select_agenda"
+          onCreateOption={e => {
+            handleCreate(e);
+          }}
+          placeholder="Visualizar agenda de..."
+          options={dentistas}
+          onChange={value => {
+            console.log(value)
+          }}
+        />
+        </CardHeaderToolbar>
         <CardHeaderToolbar>
           <button
             type="button"
@@ -467,11 +661,25 @@ const App = () => {
         dataCellRender={renderDataCell}
         dateCellRender={renderDateCell}
         timeCellRender={renderTimeCell}
-        editing={{ allowAdding: false }}
+        appointmentRender={ReturnAppointament}
+        editing={{ allowAdding: false, allowUpdating: false }}
+        onCellClick={(e) => clicarAgendar(e)}
+        onAppointmentDblClick={(e) => {
+          e.cancel = true
+          console.log(e)
+          setShowModalDetalhes(true)
+        }}
+        // onAppointmentAdded={false}
         appointmentTooltipComponent={toopltipComponent}
-        onAppointmentFormOpening={onAppointmentFormOpeningFunc}
-        onAppointmentAdding={onAppointmentAddingFunc}
-        onAppointmentUpdating={onAppointmentUpdatingFunc}
+        onAppointmentClick={e => {
+          console.log(e)
+          e.cancel = true
+          setShowModalDetalhes(true)
+        }}
+        onAppointment
+        // onAppointmentFormOpening={false}
+        // onAppointmentAdding={onAppointmentAddingFunc}
+        // onAppointmentUpdating={onAppointmentUpdatingFunc}
       ></Scheduler>
     </Card>
   );
