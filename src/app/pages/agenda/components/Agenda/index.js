@@ -314,8 +314,8 @@ const App = () => {
     const { cellData } = props
     console.log(cellData)
     
-    const startDate = moment(cellData.startDate).format('hh:mm:ss').split(':')
-    const endDate = moment(cellData.endDate).format('hh:mm:ss').split(':')
+    const startDate = moment(cellData.startDate).format('HH:mm:ss').split(':')
+    const endDate = moment(cellData.endDate).format('HH:mm:ss').split(':')
 
     console.log(startDate[0] + ':' + startDate[1])
     console.log(endDate[0] + ':' + endDate[1])
@@ -648,7 +648,7 @@ const App = () => {
         </CardHeaderToolbar>
       </CardHeader>
       <Scheduler
-        // timeZone="America/Sao_Paulo"
+        timeZone="America/Sao_Paulo"
         dataSource={agendamentos}
         views={views}
         defaultCurrentView={currentView}
