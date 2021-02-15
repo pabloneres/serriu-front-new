@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Scheduler, { Resource } from "devextreme-react/scheduler";
 import notify from "devextreme/ui/notify";
 import { data, holidays } from "./components/data.js";
@@ -23,7 +23,10 @@ import {
   Modal,
   ButtonToolbar,
   ButtonGroup,
-  Tooltip
+  Tooltip,
+  OverlayTrigger,
+  Overlay,
+  Popover
 } from "react-bootstrap";
 import {
   Card,
@@ -88,6 +91,8 @@ const App = () => {
   const [agendamentoData, setAgendamentoData] = useState(undefined);
   const [obs, setObs] = useState("");
   const [clickHorario, setClickHorario] = useState(undefined)
+  const [startOrEnd, setStartOrEnd] = useState(undefined)
+  const [agendaView, setAgendaView] = useState(0)
 
   useEffect(() => {
     index(authToken, "/dentists").then(({ data }) => {
@@ -114,10 +119,15 @@ const App = () => {
       setPacientes(data);
     });
 
-    index(authToken, "/agendamentos").then(({ data }) => {
+  
+  }, [reload]);
+  
+
+  useEffect(() => {
+    index(authToken, `/agendamentos?dentista_id=${agendaView}`).then(({ data }) => {
       setAgendamentos(data);
     });
-  }, [reload]);
+  }, [reload, agendaView])
 
   function onAppointmentAddingFunc(e) {
     const isValidAppointment = Utils.isValidAppointment(
@@ -202,12 +212,33 @@ const App = () => {
   }
 
   function handleSetHorario(e, item, index) {
-    if (e.target.classList.contains('active') === true) {
-      e.target.classList.remove('active')
-      horariosSelecionado.splice(horariosSelecionado.indexOf(item), 1)
-      setHorariosSelecionado([...horariosSelecionado])
-      return 
+    if (!startOrEnd) {
+      alert('Selecione Início ou Término')
+      return
     }
+
+    if (startOrEnd === 'start') {
+      setClickHorario({
+        ...clickHorario,
+        dia: clickHorario.dia ? clickHorario.dia : currentDate,
+        startDate: item,
+      })
+    }
+
+    if (startOrEnd === 'end') {
+      setClickHorario({
+        ...clickHorario,
+        dia: clickHorario.dia ? clickHorario.dia : currentDate,
+        endDate: item,
+      })
+    }
+
+    // if (e.target.classList.contains('active') === true) {
+    //   e.target.classList.remove('active')
+    //   horariosSelecionado.splice(horariosSelecionado.indexOf(item), 1)
+    //   setHorariosSelecionado([...horariosSelecionado])
+    //   return 
+    // }
     setHorariosSelecionado([...horariosSelecionado, item]);
 
     e.target.classList.add("active");
@@ -243,6 +274,18 @@ const App = () => {
 
   function createAgendamento(e) {
     e.preventDefault();
+
+    if (
+      !pacientesSelecionado && !pacienteData
+    ) {
+      alert('Preencha todos os campos!')
+      return
+    }
+
+    if ( !dentistasSelecionado  ) {
+      alert('Preencha todos os campos!')
+      return
+    }
 
     let agendamento
 
@@ -289,7 +332,9 @@ const App = () => {
     setNovoPaciente(false);
     setHorariosSelecionado([]);
     setCurrentDate(dataAtual());
+    setClickHorario(undefined)
     setPacienteData(undefined);
+    setStartOrEnd(undefined)
     setObs("");
   }
 
@@ -297,9 +342,76 @@ const App = () => {
     setAgendamentoData(props.appointmentData)
     const {appointmentData} = props
     return (
-      <div className="appointament_render" style={{backgroundColor: appointmentData.dentista.color_schedule}}>
-        {appointmentData.paciente.name.split(' ')[0]}
+      <div className="appointament_render" style={{borderLeftColor: appointmentData.dentista.color_schedule}}>
+        <span>{appointmentData.paciente.name.split(' ')[0]}</span>
+        <div className="status_circle"></div>
       </div>
+    )
+  }
+
+    const ReturnAppointamentClick = (props) => {
+    const {appointmentData} = props
+
+    const popover = (
+      <Popover id="popover-basic">
+        <Popover.Title as="h3">
+          <div className="header-popover">
+            <span>Agendamento</span>
+            <div className="actions">
+              {/* <span  style={{"cursor": "pointer"}} className="svg-icon menu-icon">
+                <SVG style={{"fill": "#3699FF", "color": "#3699FF"}} src={toAbsoluteUrl("/media/svg/icons/Design/create.svg")} />
+              </span> */}
+              <span onClick={() => handleDelete()} style={{"cursor": "pointer"}} className="svg-icon menu-icon">
+                <SVG style={{"fill": "#3699FF", "color": "#3699FF", "marginLeft": 8}} src={toAbsoluteUrl("/media/svg/icons/Design/delete.svg")} />
+              </span>
+              </div>
+          </div>
+        </Popover.Title>
+        <Popover.Content>
+          <div className="row-popover" style={{backgroundColor: '#EBEDF3'}}>
+            <span>Paciente</span>
+            <span>{appointmentData.paciente.name}</span>
+          </div>
+          <div className="row-popover">
+            <span>Dentista</span>
+            <span>{appointmentData.dentista.name}</span>
+          </div>
+          <div className="row-popover" style={{backgroundColor: '#EBEDF3'}}>
+            <span>Status</span>
+            <span>{ReturnStatus(appointmentData.status)}</span>
+          </div>
+            <div className="row-wrapper">
+              <span className="title">Data e Hora</span>
+              <div className="container_row">
+              <div className="row-popover" style={{backgroundColor: '#EBEDF3'}}>
+                <span>Dia</span>
+                <span>{moment(appointmentData.startDate).format('DD/MM/YYYY')}</span>
+              </div>
+              <div className="row-popover">
+                <span>Início</span>
+                <span>{moment(appointmentData.startDate).format('hh:mm')}</span>
+              </div>
+              <div className="row-popover" style={{backgroundColor: '#EBEDF3'}}>
+                <span>Término</span>
+                <span>{moment(appointmentData.endDate).format('hh:mm')}</span>
+              </div>
+              </div>
+            </div>
+            <div className="row-wrapper">
+              <span className="title">Obs</span>
+                <p>{appointmentData.obs}</p>
+            </div>
+        </Popover.Content>
+      </Popover>
+    );
+
+    return (
+      <OverlayTrigger trigger="click" placement="auto" overlay={popover}>
+        <div className="appointament_render" style={{borderLeftColor: appointmentData.dentista.color_schedule}}>
+          <span>{appointmentData.paciente.name.split(' ')[0]}</span>
+          <div className="status_circle"style={{backgroundColor: ReturnStatusColor(appointmentData.status)}} ></div>
+        </div>
+      </OverlayTrigger>
     )
   }
 
@@ -329,7 +441,6 @@ const App = () => {
     setShowModal(true)
   }
 
-
   const ReturnStatus = (status) => {
        //status 
       //Agendado - 0
@@ -339,7 +450,7 @@ const App = () => {
     switch (status) {
       case 0:
         return (
-          <strong style={{color: 'yellow'}}>Agendado</strong>
+          <strong style={{color: 'rgb(196, 196, 28)'}}>Agendado</strong>
         )
       case 1:
         return (
@@ -353,6 +464,23 @@ const App = () => {
         return (
           <strong style={{color: 'blue'}}>Atendido</strong>
         )
+    }
+  }
+  const ReturnStatusColor = (status) => {
+       //status 
+      //Agendado - 0
+      //Confirmado - 1
+      //Cancelado - 2
+      //Atendido - 3
+    switch (status) {
+      case 0:
+        return 'rgb(196, 196, 28)'
+      case 1:
+        return 'green'
+      case 2:
+        return 'orange'
+      case 3:
+        return 'blue'
     }
   }
 
@@ -486,20 +614,7 @@ const App = () => {
                       }
                     />
                   </Form.Group>
-                  <Form.Group as={Col} controlId="formGridAddress1">
-                    <Form.Label>Email</Form.Label>
-                    <Form.Control
-                      type="text"
-                      name="emailPaciente"
-                      value={pacienteData.email}
-                      onChange={e =>
-                        setPacienteData({
-                          ...pacienteData,
-                          email: e.target.value
-                        })
-                      }
-                    />
-                  </Form.Group>
+
                   <Form.Group as={Col} controlId="formGridAddress1">
                     <Form.Label>Telefone</Form.Label>
                     <Form.Control
@@ -566,27 +681,27 @@ const App = () => {
                   type="time"
                   // placeholder="Username"
                   aria-describedby="inputGroupPrepend"
-                  // disabled
+                  onClick={() => setStartOrEnd('start')}
+                  style={{backgroundColor: startOrEnd === 'start' ? '#3699FF' : ''}}
                   value={clickHorario ? clickHorario.startDate : horariosSelecionado[0]}
                   onChange={e => console.log(e.target.value)}
-                  disabled
+                  // disabled
                 />
               </Form.Group>
               <Form.Group as={Col} controlId="formGridAddress1">
                 <Form.Label>Término</Form.Label>
                 <Form.Control
                   type="time"
+                  onClick={() => setStartOrEnd('end')}
+                  style={{backgroundColor: startOrEnd === 'end' ? '#3699FF' : ''}}
                   value={clickHorario ? clickHorario.endDate : returnHorario()}
                   // placeholder="Username"
                   aria-describedby="inputGroupPrepend"
-                  disabled
+                  // disabled
                 />
               </Form.Group>
             </Form.Row>
 
-            {
-              !clickHorario ? 
-              (
                 <Form.Row className="justify-content-md-center">
                 <Form.Label>Horário</Form.Label>
                   
@@ -603,8 +718,7 @@ const App = () => {
                 </Form.Row>
                 
               </Form.Row>
-              ): <></>
-            }
+
 
             <Modal.Footer>
               <Button
@@ -634,6 +748,7 @@ const App = () => {
           options={dentistas}
           onChange={value => {
             console.log(value)
+            setAgendaView(value.value)
           }}
         />
         </CardHeaderToolbar>
@@ -661,100 +776,19 @@ const App = () => {
         dataCellRender={renderDataCell}
         dateCellRender={renderDateCell}
         timeCellRender={renderTimeCell}
-        appointmentRender={ReturnAppointament}
+        appointmentRender={ReturnAppointamentClick}
         editing={{ allowAdding: false, allowUpdating: false }}
         onCellClick={(e) => clicarAgendar(e)}
         onAppointmentDblClick={(e) => {
           e.cancel = true
-          console.log(e)
-          setShowModalDetalhes(true)
         }}
-        // onAppointmentAdded={false}
         appointmentTooltipComponent={toopltipComponent}
         onAppointmentClick={e => {
-          console.log(e)
           e.cancel = true
-          setShowModalDetalhes(true)
         }}
         onAppointment
-        // onAppointmentFormOpening={false}
-        // onAppointmentAdding={onAppointmentAddingFunc}
-        // onAppointmentUpdating={onAppointmentUpdatingFunc}
       ></Scheduler>
     </Card>
   );
-
-  function onAppointmentFormOpeningFunc(data) {
-    let form = data.form;
-
-    let date = new Date();
-
-    form.option("items", [
-      {
-        label: {
-          text: "Dentista"
-        },
-        editorType: "dxSelectBox",
-        dataField: "dentista_id",
-        editorOptions: {
-          searchEnabled: true,
-          width: "100%",
-          flex: 1,
-          items: dentistas,
-          displayExpr: "name",
-          valueExpr: "id",
-          onValueChanged: function(args) {
-            // movieInfo = getMovieById(args.value);
-            // form.updateData("director", movieInfo.director);
-            // form.updateData(
-            //   "endDate",
-            //   new Date(startDate.getTime() + 60 * 1000 * movieInfo.duration)
-            // );
-          }
-        }
-      },
-      {
-        label: {
-          text: "Paciente"
-        },
-        editorType: "dxSelectBox",
-        dataField: "paciente_id",
-        editorOptions: {
-          searchEnabled: true,
-          width: "100%",
-          items: pacientes,
-          displayExpr: "name",
-          valueExpr: "id",
-          onValueChanged: function(args) {}
-        }
-      },
-      {
-        label: {
-          text: "Início"
-        },
-        dataField: "startDate",
-        editorType: "dxDateBox",
-        editorOptions: {
-          width: "100%",
-          type: "datetime",
-          // value: date,
-          onValueChanged: function(args) {}
-        }
-      },
-      {
-        label: {
-          text: "Término"
-        },
-        dataField: "endDate",
-        editorType: "dxDateBox",
-        editorOptions: {
-          width: "100%",
-          type: "datetime",
-          // value: date,
-          onValueChanged: function(args) {}
-        }
-      }
-    ]);
-  }
 };
 export default App;

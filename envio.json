@@ -1,68 +1,14 @@
 {
-    "procedimentos": [
-        {
-            "id": 1,
-            "label": "Extração",
-            "value": 1,
-            "geral": 0,
-            "valor": 80,
-            "nomeTabela": "Convenio Amil",
-            "dentes": [
-                {
-                    "label": "12",
-                    "faces": [],
-                    "active": true
-                },
-                {
-                    "label": "43",
-                    "faces": [],
-                    "active": true
-                },
-                {
-                    "label": "45",
-                    "faces": [],
-                    "active": true
-                }
-            ],
-            "valorTotal": 240,
-            "habilitado": true
-        },
-        {
-            "id": 1,
-            "label": "Extração",
-            "value": 1,
-            "geral": 0,
-            "valor": 80,
-            "nomeTabela": "Convenio Amil",
-            "dentes": [
-                {
-                    "label": "12",
-                    "faces": [],
-                    "active": true
-                },
-                {
-                    "label": "43",
-                    "faces": [],
-                    "active": true
-                },
-                {
-                    "label": "45",
-                    "faces": [],
-                    "active": true
-                }
-            ],
-            "valorTotal": 240,
-            "habilitado": true
-        }
-    ],
-    "dentista": "1",
-    "paciente_id": "1",
-    "formaPagamento": {
-        "formaCobranca": "valor total",
-        "formaPagamento": "dinheiro",
-        "tipoPagamento": 0,
-        "valorEntrada": null,
-        "parcelas": null,
-        "salvo": true
-    }
+  "name": "Dentista 01",
+  "cpf": "266246265462",
+  "gender": "masculino",
+  "nasc": "1999-06-16",
+  "tel": "11958522252",
+  "status": "solteiro",
+  "cro": "SP",
+  "cro_number": "1531215",
+  "schedule": "propria",
+  "color_schedule": "#a33333",
+  "email": "dentista01@hotmail.com",
+  "password": "master123"
 }

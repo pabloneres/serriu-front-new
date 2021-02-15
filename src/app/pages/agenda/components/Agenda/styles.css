@@ -17,6 +17,54 @@
   height: 100%;
   flex: 1; 
   white-space: normal;
+  border: 1px solid black;
+  border-left: 10px solid;
+  background-color: white;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  color: black;
+}
+
+.status_circle {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+}
+
+.header-popover {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.row-popover {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  padding: 8px;
+}
+
+.row-popover span + span {
+  margin-left: 50px;
+}
+
+.row-wrapper {
+  margin-top: 15px;
+}
+
+.row-wrapper span.title{
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.container_row {
+  display: flex;
+  flex-direction: column;
 }
 
 .select_agenda {
