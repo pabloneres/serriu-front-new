@@ -45,6 +45,8 @@ import { Equipamentos } from '~/app/pages/configuracoes/equipamentos/Equipamento
 import { ProcedimentoPage } from '~/app/pages/procedimentos/ProcedimentoPage'
 
 
+import ConfigurarAgenda from '~/app/pages/configuracoes/agenda'
+
 
 
 
@@ -73,7 +75,7 @@ export default function BasePage() {
 
 
         {/* Rotas de clinicas */}
-        <ContentRoute exact path="/agenda" component={AgendaPage} />
+        <ContentRoute exact path="/agenda" component={AgendaPage}/>
         <ContentRoute exact path="/orcamento" component={OrcamentoPage} />
         <ContentRoute exact path="/orcamento/:id/adicionar" component={AdicionarOrcamentoPage} />
         <ContentRoute exact path="/orcamento/editar/:id" component={EditarOrcamentoPage} />
@@ -115,6 +117,13 @@ export default function BasePage() {
 
         <ContentRoute exact path="/procedimentos-abertos" component={ProcedimentoPage} />
 
+
+        {/* configuracoes */}
+
+        <ContentRoute exact path="/configurar-agenda" component={ConfigurarAgenda} />
+
+
+        
 
         <ContentRoute path="/my-page" component={MyPage} />
         <Route path="/google-material" component={GoogleMaterialPage} />

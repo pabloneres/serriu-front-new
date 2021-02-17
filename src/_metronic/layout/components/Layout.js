@@ -46,20 +46,20 @@ export function Layout({ children }) {
             id="kt_wrapper"
           >
             <Header />
-            {/*begin::Content*/}
+           
             <div
               id="kt_content"
               className={`content ${layoutProps.contentCssClasses} d-flex flex-column flex-column-fluid`}
             >
               {layoutProps.subheaderDisplay && <SubHeader />}
-              {/*begin::Entry*/}
+           
               {!layoutProps.contentExtended && (
                 <div className="d-flex flex-column-fluid">
-                  {/*begin::Container*/}
+              
                   <div className={layoutProps.contentContainerClasses}>
                     {children}
                   </div>
-                  {/*end::Container*/}
+              
                 </div>
               )}
 

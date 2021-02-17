@@ -18,6 +18,7 @@ export function Builder() {
     const [key, setKey] = useState(activeTab ? +activeTab : 0);
     const [isLoading, setIsLoading] = useState(false);
     const htmlClassService = useHtmlClassService();
+
     const initialValues = useMemo(
         () =>
             merge(

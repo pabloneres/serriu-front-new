@@ -1,14 +1,19 @@
 .dx-scheduler-date-table .dx-scheduler-date-table-row {
-  max-width: 10px impo !important;
+  max-width: 10px !important;
 }
 
 .dx-scheduler-date-table-cell,
 .dx-scheduler-time-panel-cell {
-  height: 30px;
+  height: 20px;
 }
 
 .dx-scheduler-appointment-content {
   padding: 0;
+}
+
+
+.dx-scheduler-time-panel-cell > div {
+  font-size: 11px;
 }
 
 .appointament_render {
@@ -28,9 +33,16 @@
 }
 
 .status_circle {
-  width: 20px;
-  height: 20px;
+  padding: 5%;
   border-radius: 50%;
+}
+
+.teste ::after {
+    height: 10px;
+    width: 10px;
+    border-radius: 10px;
+    background-color: blueviolet;
+    content: " ";
 }
 
 .header-popover {
@@ -46,7 +58,17 @@
   justify-content: space-between;
   align-items: center;
   font-size: 13px;
+  padding: 10px 8px;
+}
+
+.row-popover-title {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
   padding: 8px;
+  padding-bottom: 15px;
 }
 
 .row-popover span + span {
@@ -70,6 +92,12 @@
 .select_agenda {
   width: 250px;
   z-index: 10;
+}
+
+.select_status {
+  width: 190px;
+  z-index: 10;
+  padding: 5px;
 }
 
 .container_horas {
@@ -102,4 +130,8 @@
 .active {
   background-color: rgb(181, 202, 241);
   color: white;
+}
+
+.dx-scheduler-date-table-scrollable .dx-scrollable-content {
+  cursor: default;
 }

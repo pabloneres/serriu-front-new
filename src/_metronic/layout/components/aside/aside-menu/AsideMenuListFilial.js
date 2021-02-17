@@ -219,6 +219,11 @@ export function AsideMenuListFilial({ layoutProps }) {
                   <span className="menu-text">Relatórios</span>
                 </NavLink>
               </li>
+              <li className="menu-item menu-item-submenu " aria-haspopup="true" data-menu-toggle="hover">
+                <NavLink className="menu-link menu-toggle" to="/configurar-agenda">
+                  <span className="menu-text">Agenda</span>
+                </NavLink>
+              </li>
             </ul>
           </div>
         </li>

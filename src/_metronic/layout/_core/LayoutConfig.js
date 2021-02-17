@@ -1,4 +1,5 @@
 import {toAbsoluteUrl} from "../../_helpers";
+
 export function getInitLayoutConfig() {
   return {
     demo: "demo1",
@@ -104,7 +105,7 @@ export function getInitLayoutConfig() {
       }
     },
     subheader: {
-      display: true,
+      display: false,
       displayDesc: false,
       displayDaterangepicker: true,
       layout: "subheader-v1",
