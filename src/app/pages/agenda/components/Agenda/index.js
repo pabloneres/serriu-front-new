@@ -64,6 +64,7 @@ const App = () => {
   const [dentistasModal, setDentistasModal] = useState([]);
   const [pacientes, setPacientes] = useState([]);
   const [dentistasSelecionado, setDentistasSelecionado] = useState();
+  const [statusSelecionado, setStatusSelecionado] = useState(0);
   const [pacientesSelecionado, setPacientesSelecionado] = useState();
   const [agendamentos, setAgendamentos] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -185,6 +186,7 @@ const App = () => {
   const [agendamentoData, setAgendamentoData] = useState(undefined);
   const [obs, setObs] = useState("");
   const [clickHorario, setClickHorario] = useState(undefined);
+  const [clickHorario2, setClickHorario2] = useState(undefined);
   const [startOrEnd, setStartOrEnd] = useState(undefined);
   const [agendaView, setAgendaView] = useState(0);
   const [dadosAgendamento, setDadosAgendamento] = useState({ undefined });
@@ -314,22 +316,35 @@ const App = () => {
   }
 
   function handleSetHorario(e, item, index) {
-    if (e.target.classList.contains('active') === true) {
+    if (horariosSelecionado.indexOf(item) != -1) {
+      if (horariosSelecionado[0] === item) {
+        for (let index = horariosSelecionado[0].id; index <= horariosSelecionado[horariosSelecionado.length - 1].id; index++) {
+          document.querySelector(`.button-select-${index}`).classList.remove('active')
+        }
+        let elements = document.querySelectorAll(`.button-select`)
+        elements.forEach((item) => {
+          item.classList.remove('disabled')
+        })
+        setHorariosSelecionado([])
+        setClickHorario(clickHorario2)
+      }
+
       e.target.classList.remove('active')
 
-      let selected = horarios.indexOf(item)
+      let arr = horariosSelecionado
 
-      console.log(selected)
+      let selected = arr.indexOf(item)
 
-      horariosSelecionado.splice(selected, 1)
+      arr.splice(selected, 1)
 
-      let ordenedArr = horariosSelecionado.sort((a, b) => {
+      let ordenedArr = arr.sort((a, b) => {
         return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
       })
 
-      setHorariosSelecionado([...ordenedArr])
+      setHorariosSelecionado(ordenedArr)
+      console.log(ordenedArr)
+      setClickHorario({...clickHorario, endDate: ordenedArr[ordenedArr.length - 1].hora})
 
-      console.log(horariosSelecionado)
       return
     }
 
@@ -437,6 +452,7 @@ const App = () => {
         endDate: clickHorario.dia + " " + returnHorario(),
         obs: obs,
         pacienteData: pacienteData,
+        status: statusSelecionado
       };
     }
 
@@ -458,7 +474,7 @@ const App = () => {
     store(authToken, "agendamentos", agendamento).then((data) => {
       clearFields();
       setShowModal(false);
-      setReloadAgendamentos(!reloadAgendamentos);
+      setReload(!reload);
     });
   }
 
@@ -469,8 +485,10 @@ const App = () => {
     setHorariosSelecionado([]);
     setCurrentDate(dataAtual());
     setClickHorario(undefined);
+    setClickHorario2(undefined);
     setPacienteData(undefined);
     setStartOrEnd(undefined);
+    setStatusSelecionado(0)
     setObs("");
   }
 
@@ -495,7 +513,7 @@ const App = () => {
       <Popover id="popover-basic" style={{minWidth: 350}}>
         <Popover.Content>
           <div className="row-popover-title">
-            <span>Codigo: {appointmentData.paciente.id_acesso}</span>
+            <span>Codigo: <span className="paciente-code">{appointmentData.paciente.id_acesso}</span></span>
             <div className="actions">
               <span onClick={() => alert('Em manutenção')} style={{"cursor": "pointer"}} className="svg-icon menu-icon">
                 <SVG style={{"fill": "#545454", "color": "#3699FF"}} src={toAbsoluteUrl("/assets/icons/email.svg")} />
@@ -563,8 +581,8 @@ const App = () => {
                   })
                 }}
               >
-                <option value={0} style={{color: ReturnStatusColor(0)}} >Agendado</option>
-                <option value={1} style={{color: ReturnStatusColor(1)}} >Confirmado</option>
+                <option className="teste-option" value={0} style={{color: ReturnStatusColor(0)}} >Agendado</option>
+                <option value={1} style={{color: ReturnStatusColor(1)}} >Trabalhando</option>
                 <option value={2} style={{color: ReturnStatusColor(2)}} >Cancelado</option>
                 <option value={3} style={{color: ReturnStatusColor(3)}} >Atendido</option>
               </Form.Control>
@@ -656,6 +674,11 @@ const App = () => {
       startDate: startDate[0] + ":" + startDate[1],
       endDate: endDate[0] + ":" + endDate[1],
     });
+    setClickHorario2({
+      dia: moment(cellData.startDate).format("YYYY-MM-DD"),
+      startDate: startDate[0] + ":" + startDate[1],
+      endDate: endDate[0] + ":" + endDate[1],
+    });
 
     setShowModal(true);
   };
@@ -680,19 +703,19 @@ const App = () => {
 
   const ReturnStatusColor = (status) => {
     //status
-    //Agendado - 0
-    //Confirmado - 1
+    //Agendado - todo - 0
+    //Confirmado - working - 1
     //Cancelado - 2
-    //Atendido - 3
+    //Atendido  - done - 3
     switch (status) {
       case 0:
-        return "rgb(196, 196, 28)";
-      case 1:
-        return "green";
-      case 2:
-        return "orange";
-      case 3:
         return "blue";
+      case 1:
+        return "orange";
+      case 2:
+        return "red";
+      case 3:
+        return "green";
     }
   };
 
@@ -709,7 +732,7 @@ const App = () => {
 
   return (
     <Card>
-      <Modal show={showModal} size="xl">
+      <Modal show={showModal} size="lg">
         <Modal.Header closeButton>
           <Modal.Title>Agendamento</Modal.Title>
         </Modal.Header>
@@ -768,9 +791,7 @@ const App = () => {
                   </Form.Group>
                 </>
               )}
-            </Form.Row>
 
-            <Form.Row className="justify-content-md-center">
               <Form.Group as={Col} controlId="formGridAddress1">
                 <Form.Label>Dentista</Form.Label>
                 <Select
@@ -782,7 +803,9 @@ const App = () => {
                   }}
                 />
               </Form.Group>
+
             </Form.Row>
+
 
             <Form.Row className="justify-content-md-center">
               <Form.Group as={Col} controlId="formGridAddress1">
@@ -795,6 +818,52 @@ const App = () => {
                   value={obs}
                   onChange={(e) => setObs(e.target.value)}
                 />
+              </Form.Group>
+              <Form.Group as={Col} controlId="formGridAddress1">
+                 
+                <Form.Label style={{display: 'flex', alignItems: 'center' }}>
+                  Status {'  '} <div className="render_status" style={{backgroundColor: ReturnStatusColor(statusSelecionado)}} ></div>
+                </Form.Label>
+                <Select
+                  isSearchable={false}
+                  required
+                  placeholder="Selecione o status..."
+                  options={[
+                    {
+                      label: 'Agendado',
+                      value: 0
+                    },
+                    {
+                      label: 'Trabalhando',
+                      value: 1
+                    },
+                    {
+                      label: 'Cancelado',
+                      value: 2
+                    },
+                    {
+                      label: 'Atendido',
+                      value: 3
+                    }
+                  ]}
+                  onChange={(value) => {
+                    setStatusSelecionado(value.value);
+                  }}
+                />
+               
+                {/* <Form.Label>Status</Form.Label>
+                <Form.Control
+                  as="select"
+                  defaultValue={0}
+                  onChange={(e) => {
+                  
+                  }}
+                >
+                  <option className="teste-option" value={0} style={{color: ReturnStatusColor(0)}} >Agendado</option>
+                  <option value={1} style={{color: ReturnStatusColor(1)}} >Trabalhando</option>
+                  <option value={2} style={{color: ReturnStatusColor(2)}} >Cancelado</option>
+                  <option value={3} style={{color: ReturnStatusColor(3)}} >Atendido</option>
+                </Form.Control> */}
               </Form.Group>
             </Form.Row>
 
@@ -836,7 +905,10 @@ const App = () => {
                     backgroundColor: startOrEnd === "end" ? "#3699FF" : "",
                   }}
                   defaultValue={clickHorario ? clickHorario.endDate : undefined}
-                  value={returnHorario()}
+                  value={horariosSelecionado.length > 0 ? 
+                    horariosSelecionado[horariosSelecionado.length - 1].hora : 
+                    undefined
+                  }
                   // placeholder="Username"
                   aria-describedby="inputGroupPrepend"
                   // disabled

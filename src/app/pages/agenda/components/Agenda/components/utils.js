@@ -76,7 +76,7 @@ export default class Utils {
 
     const returnFalse = days[startWeek].enable
     const returnFalse2 = startHours >= days[startWeek].start 
-    const returnFalse3 = startHours <= days[startWeek].end 
+    const returnFalse3 = startHours < days[startWeek].end 
 
 
     // console.log(startHours)
