@@ -1,0 +1,44 @@
+[
+  {
+    "day": 0,
+    "start": "08:00",
+    "end": "18:00",
+    "enable": true
+  },
+  {
+    "day": 1,
+    "start": "08:00",
+    "end": "18:00",
+    "enable": true
+  },
+  {
+    "day": 2,
+    "start": "08:00",
+    "end": "18:00",
+    "enable": true
+  },
+  {
+    "day": 3,
+    "start": "08:00",
+    "end": "18:00",
+    "enable": true
+  },
+  {
+    "day": 4,
+    "start": "08:00",
+    "end": "18:00",
+    "enable": true
+  },
+  {
+    "day": 5,
+    "start": "08:00",
+    "end": "18:00",
+    "enable": true
+  },
+  {
+    "day": 6,
+    "start": "08:00",
+    "end": "18:00",
+    "enable": true
+  }
+]

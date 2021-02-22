@@ -42,6 +42,7 @@ import {
 import Select from "react-select";
 import CreatableSelect, { makeCreatableSelect } from "react-select/creatable";
 import SVG from "react-inlinesvg";
+import daysJson from './components/days.json'
 
 import "./styles.css";
 import moment from "moment";
@@ -69,30 +70,115 @@ const App = () => {
   const [showModalDetalhes, setShowModalDetalhes] = useState(false);
   const [novoPaciente, setNovoPaciente] = useState(false);
   const [horarios, setHorarios] = useState([
-    "08:00",
-    "08:30",
-    "09:00",
-    "09:30",
-    "10:00",
-    "10:30",
-    "11:00",
-    "11:30",
-    "12:00",
-    "12:30",
-    "13:00",
-    "13:30",
-    "14:00",
-    "14:30",
-    "15:00",
-    "15:30",
-    "16:00",
-    "16:30",
-    "17:00",
-    "17:30",
-    "18:00",
+    {
+      id: 0,
+      hora: "08:00",
+      disabled: false,
+    },
+    {
+      id: 1,
+      hora: "08:30",
+      disabled: false,
+    },
+    {
+      id: 2,
+      hora: "09:00",
+      disabled: false,
+    },
+    {
+      id: 3,
+      hora: "09:30",
+      disabled: false,
+    },
+    {
+      id: 4,
+      hora: "10:00",
+      disabled: false,
+    },
+    {
+      id: 5,
+      hora: "10:30",
+      disabled: false,
+    },
+    {
+      id: 6,
+      hora: "11:00",
+      disabled: false,
+    },
+    {
+      id: 7,
+      hora: "11:30",
+      disabled: false,
+    },
+    {
+      id: 8,
+      hora: "12:00",
+      disabled: false,
+    },
+    {
+      id: 9,
+      hora: "12:30",
+      disabled: false,
+    },
+    {
+      id: 10,
+      hora: "13:00",
+      disabled: false,
+    },
+    {
+      id: 11,
+      hora: "13:30",
+      disabled: false,
+    },
+    {
+      id: 12,
+      hora: "14:00",
+      disabled: false,
+    },
+    {
+      id: 13,
+      hora: "14:30",
+      disabled: false,
+    },
+    {
+      id: 14,
+      hora: "15:00",
+      disabled: false,
+    },
+    {
+      id: 15,
+      hora: "15:30",
+      disabled: false,
+    },
+    {
+      id: 16,
+      hora: "16:00",
+      disabled: false,
+    },
+    {
+      id: 17,
+      hora: "16:30",
+      disabled: false,
+    },
+    {
+      id: 18,
+      hora: "17:00",
+      disabled: false,
+    },
+    {
+      id: 19,
+      hora: "17:30",
+      disabled: false,
+    },
+    {
+      id: 20,
+      hora: "18:00",
+      disabled: false,
+    },
   ]);
   const [horariosSelecionado, setHorariosSelecionado] = useState([]);
   const [reload, setReload] = useState(false);
+  const [reloadAgendamentos, setReloadAgendamentos] = useState(false);
   const [currentDate, setCurrentDate] = useState(dataAtual());
 
   const [pacienteData, setPacienteData] = useState(undefined);
@@ -102,6 +188,7 @@ const App = () => {
   const [startOrEnd, setStartOrEnd] = useState(undefined);
   const [agendaView, setAgendaView] = useState(0);
   const [dadosAgendamento, setDadosAgendamento] = useState({ undefined });
+  const [days, setDays] = useState([])
 
   useEffect(() => {
     index(authToken, "/dentists").then(({ data }) => {
@@ -127,6 +214,16 @@ const App = () => {
       }));
       setPacientes(data);
     });
+
+    index(authToken, '/agenda').then(({data}) => {
+
+      if (data.length === 0) {
+        setDays(daysJson)
+        return
+      }
+
+      setDays(JSON.parse(data[0].days))
+    })
   }, [reload]);
 
   useEffect(() => {
@@ -135,7 +232,7 @@ const App = () => {
         setAgendamentos(data);
       }
     );
-  }, [reload, agendaView]);
+  }, [reload, reloadAgendamentos, agendaView]);
 
   function onAppointmentAddingFunc(e) {
     const isValidAppointment = Utils.isValidAppointment(
@@ -146,10 +243,8 @@ const App = () => {
       e.cancel = true;
       notifyDisableDate();
     }
-    console.log(e.appointmentData);
 
     store("agendamentos", isValidAppointment).then((data) => {
-      console.log(data);
       setReload(!reload);
     });
   }
@@ -163,7 +258,7 @@ const App = () => {
   }
 
   function notifyDisableDate() {
-    notify("Problemas para criar o agendamento", "warning", 1000);
+    notify("Data não permitida", "warning", 1000);
   }
 
   function notifyOK() {
@@ -179,7 +274,7 @@ const App = () => {
   }
 
   function renderDataCell(itemData) {
-    return <DataCell itemData={itemData} />;
+    return <DataCell itemData={itemData} days={days} />;
   }
 
   function renderDateCell(itemData) {
@@ -191,7 +286,6 @@ const App = () => {
   }
 
   function toopltipComponent(props) {
-    console.log(props);
     return (
       <div>
         <p>
@@ -220,34 +314,56 @@ const App = () => {
   }
 
   function handleSetHorario(e, item, index) {
-    if (!startOrEnd) {
-      alert("Selecione Início ou Término");
-      return;
+    if (e.target.classList.contains('active') === true) {
+      e.target.classList.remove('active')
+
+      let selected = horarios.indexOf(item)
+
+      console.log(selected)
+
+      horariosSelecionado.splice(selected, 1)
+
+      let ordenedArr = horariosSelecionado.sort((a, b) => {
+        return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
+      })
+
+      setHorariosSelecionado([...ordenedArr])
+
+      console.log(horariosSelecionado)
+      return
     }
 
-    if (startOrEnd === "start") {
-      setClickHorario({
-        ...clickHorario,
-        dia: clickHorario.dia ? clickHorario.dia : currentDate,
-        startDate: item,
-      });
+    let arr = [...horariosSelecionado, item]
+    
+    let ordenedArr = arr.sort((a, b) => {
+      return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
+    })
+
+    for (let index = 0; index < ordenedArr[0].id; index++) {
+      document.querySelector(`.button-select-${index}`).classList.add('disabled')
     }
 
-    if (startOrEnd === "end") {
-      setClickHorario({
-        ...clickHorario,
-        dia: clickHorario.dia ? clickHorario.dia : currentDate,
-        endDate: item,
-      });
+    
+    if (ordenedArr.length > 1) {
+      let newArr = []
+      for (let index = ordenedArr[0].id; index <= ordenedArr[ordenedArr.length - 1].id; index++) {
+        newArr.push(horarios[index])
+        document.querySelector(`.button-select-${index}`).classList.add('active')
+      }
+  
+      
+      ordenedArr = [...newArr]
     }
+    
+    ordenedArr = ordenedArr.sort((a, b) => {
+      return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
+    })
 
-    // if (e.target.classList.contains('active') === true) {
-    //   e.target.classList.remove('active')
-    //   horariosSelecionado.splice(horariosSelecionado.indexOf(item), 1)
-    //   setHorariosSelecionado([...horariosSelecionado])
-    //   return
-    // }
-    setHorariosSelecionado([...horariosSelecionado, item]);
+    console.log(ordenedArr)
+
+    setHorariosSelecionado(ordenedArr);
+
+    setClickHorario({...clickHorario, startDate: ordenedArr[0].hora})
 
     e.target.classList.add("active");
   }
@@ -259,14 +375,12 @@ const App = () => {
       data.getMonth() <= 9 ? `0${data.getMonth() + 1}` : data.getMonth() + 1;
     var ano = data.getFullYear();
 
-    console.log(`${ano}-${mes}-${dia}`);
-
     return `${ano}-${mes}-${dia}`;
   }
 
   function returnHorario(add = 0) {
     if (!horariosSelecionado) {
-      return;
+      return undefined;
     }
 
     if (horariosSelecionado.length === 1) {
@@ -277,7 +391,8 @@ const App = () => {
     }
 
     const lastHorario = horariosSelecionado[horariosSelecionado.length - 1];
-    return lastHorario;
+
+    return lastHorario ? lastHorario.hora : undefined;
   }
 
   function createAgendamento(e) {
@@ -319,16 +434,31 @@ const App = () => {
           ? dentistasSelecionado.value
           : undefined,
         startDate: clickHorario.dia + " " + clickHorario.startDate,
-        endDate: clickHorario.dia + " " + clickHorario.endDate,
+        endDate: clickHorario.dia + " " + returnHorario(),
         obs: obs,
         pacienteData: pacienteData,
       };
     }
 
+    // if (clickHorario && horariosSelecionado.length > 0) {
+    //   agendamento = {
+    //     paciente_id: pacientesSelecionado
+    //       ? pacientesSelecionado.value
+    //       : undefined,
+    //     dentista_id: dentistasSelecionado
+    //       ? dentistasSelecionado.value
+    //       : undefined,
+    //     startDate: clickHorario.dia + " " + horariosSelecionado[0],
+    //     endDate: clickHorario.dia + " " + returnHorario(),
+    //     obs: obs,
+    //     pacienteData: pacienteData,
+    //   };
+    // }
+
     store(authToken, "agendamentos", agendamento).then((data) => {
       clearFields();
       setShowModal(false);
-      setReload(!reload);
+      setReloadAgendamentos(!reloadAgendamentos);
     });
   }
 
@@ -461,7 +591,6 @@ const App = () => {
                 ]}
 
                 onChange={(e) => {
-                  console.log(e)
                   appointmentData.status = e
                 }}
               /> */}
@@ -493,7 +622,7 @@ const App = () => {
   const handleDelete = (id) => {
     destroy(authToken, "agendamentos", id).then(() => {
       setShowModalDetalhes(false);
-      setReload(!reload);
+      setReloadAgendamentos(!reloadAgendamentos);
     });
   };
 
@@ -505,7 +634,14 @@ const App = () => {
 
   const clicarAgendar = async (props) => {
     const { cellData } = props;
-    console.log(cellData);
+
+    const isValidAppointment = Utils.isValidAppointmentRender(cellData.startDate, days)
+
+    if (!isValidAppointment) {
+      props.cancel = true
+      notifyDisableDate();
+      return
+    }
 
     const startDate = moment(cellData.startDate)
       .format("HH:mm:ss")
@@ -514,8 +650,6 @@ const App = () => {
       .format("HH:mm:ss")
       .split(":");
 
-    console.log(startDate[0] + ":" + startDate[1]);
-    console.log(endDate[0] + ":" + endDate[1]);
 
     setClickHorario({
       dia: moment(cellData.startDate).format("YYYY-MM-DD"),
@@ -563,11 +697,9 @@ const App = () => {
   };
 
   const updateAgendamento = (data) => {
-    console.log(data)
-
     update(authToken, 'agendamentos', data.id, data)
     .then(() => {
-      setReload(!reload)
+      setReloadAgendamentos(!reloadAgendamentos)
     })
     .catch(() => {})
   }
@@ -577,82 +709,6 @@ const App = () => {
 
   return (
     <Card>
-      <Modal show={showModalDetalhes && agendamentoData} size="lg">
-        <Modal.Header>
-          Detalhes do Agendamento
-          <div className="actions">
-            <span style={{ cursor: "pointer" }} className="svg-icon menu-icon">
-              <SVG
-                style={{ fill: "#3699FF", color: "#3699FF" }}
-                src={toAbsoluteUrl("/media/svg/icons/Design/create.svg")}
-              />
-            </span>
-            <span
-              onClick={() => handleDelete()}
-              style={{ cursor: "pointer" }}
-              className="svg-icon menu-icon"
-            >
-              <SVG
-                style={{ fill: "#3699FF", color: "#3699FF", marginLeft: 8 }}
-                src={toAbsoluteUrl("/media/svg/icons/Design/delete.svg")}
-              />
-            </span>
-          </div>
-        </Modal.Header>
-        {agendamentoData ? (
-          <Modal.Body>
-            <Table striped bordered hover>
-              <thead>
-                <tr>
-                  <th>Informações</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Paciente</td>
-                  <td>{agendamentoData.paciente.name}</td>
-                </tr>
-                <tr>
-                  <td>Dentista</td>
-                  <td>{agendamentoData.dentista.name}</td>
-                </tr>
-                <tr>
-                  <td>Status</td>
-                  <td>{ReturnStatus(agendamentoData.status)}</td>
-                </tr>
-              </tbody>
-            </Table>
-            <div className="card_data">
-              <h3>Data e Hora</h3>
-              <div className="container_horas">
-                <div className="hora">
-                  <span>Dia</span>
-                  <h2>
-                    {moment(agendamentoData.startDate).format("DD/MM/YYYY")}
-                  </h2>
-                </div>
-                <div className="hora">
-                  <span>Início</span>
-                  <h2>{moment(agendamentoData.startDate).format("hh:mm")}</h2>
-                </div>
-                <div className="hora">
-                  <span>Término</span>
-                  <h2>{moment(agendamentoData.endDate).format("hh:mm")}</h2>
-                </div>
-              </div>
-            </div>
-            <div className="container_obs">
-              <h3>Obs</h3>
-              <p>{agendamentoData.obs}</p>
-            </div>
-          </Modal.Body>
-        ) : (
-          <></>
-        )}
-        <Modal.Footer>
-          <Button onClick={() => setShowModalDetalhes(false)}>Fechar</Button>
-        </Modal.Footer>
-      </Modal>
       <Modal show={showModal} size="xl">
         <Modal.Header closeButton>
           <Modal.Title>Agendamento</Modal.Title>
@@ -762,16 +818,12 @@ const App = () => {
                   type="time"
                   // placeholder="Username"
                   aria-describedby="inputGroupPrepend"
-                  onClick={() => setStartOrEnd("start")}
                   style={{
                     backgroundColor: startOrEnd === "start" ? "#3699FF" : "",
                   }}
-                  defaultValue={
-                    clickHorario
-                      ? clickHorario.startDate
-                      : horariosSelecionado[0]
-                  }
-                  onChange={(e) => console.log(e.target.value)}
+                  defaultValue={clickHorario ? clickHorario.startDate : undefined}
+                  onChange={(e) => {}}
+                  value={horariosSelecionado[0] ? horariosSelecionado[0].hora : undefined}
                   // disabled
                 />
               </Form.Group>
@@ -783,7 +835,8 @@ const App = () => {
                   style={{
                     backgroundColor: startOrEnd === "end" ? "#3699FF" : "",
                   }}
-                  defaultValue={clickHorario ? clickHorario.endDate : returnHorario()}
+                  defaultValue={clickHorario ? clickHorario.endDate : undefined}
+                  value={returnHorario()}
                   // placeholder="Username"
                   aria-describedby="inputGroupPrepend"
                   // disabled
@@ -797,11 +850,17 @@ const App = () => {
               <Form.Row className="justify-content-md-center">
                 {horarios.map((item, index) => (
                   <div
-                    key={index}
-                    className={`button-select`}
-                    onClick={(e) => handleSetHorario(e, item, index)}
+                    key={item.id}
+                    className={`button-select button-select-${item.id} `}
+                    onClick={(e) => {
+                      if (item.disabled) {
+                        return
+                      }
+
+                      handleSetHorario(e, item, index)
+                    }}
                   >
-                    {item}
+                    {item.hora}
                   </div>
                 ))}
               </Form.Row>
@@ -824,36 +883,6 @@ const App = () => {
           </Form>
         </Modal.Body>
       </Modal>
-      {/* <ModalConfirmUpdate
-        show={modalConfirm}
-        onHide={() => setModalConfirm(false)}
-        change={(e) => setChangeAgendamento(e)}
-      /> */}
-      {/* <CardHeader title="Agenda">
-        <CardHeaderToolbar>
-        <Select
-          className="select_agenda"
-          onCreateOption={e => {
-            handleCreate(e);
-          }}
-          placeholder="Visualizar agenda de..."
-          options={dentistas}
-          onChange={value => {
-            console.log(value)
-            setAgendaView(value.value)
-          }}
-        />
-        </CardHeaderToolbar>
-        <CardHeaderToolbar>
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={() => setShowModal(true)}
-          >
-            Agendar
-          </button>
-        </CardHeaderToolbar>
-      </CardHeader> */}
       <Scheduler
         timeZone="America/Sao_Paulo"
         dataSource={agendamentos}
@@ -881,6 +910,17 @@ const App = () => {
           e.cancel = true;
         }}
         onAppointmentUpdating={e => {
+
+          const isValidAppointment = Utils.isValidAppointment(e.component, e.newData, days);
+
+          console.log(isValidAppointment)
+
+          if (!isValidAppointment) {
+            e.cancel = true;
+            notifyDisableDate();
+
+            return
+          }
           
           var change = window.confirm('Deseja alterar agendamento ?', 'Sim', 'Cancelar')
           
@@ -902,8 +942,6 @@ const App = () => {
             startDate: startDate[0] + ":" + startDate[1],
             endDate: endDate[0] + ":" + endDate[1],
           }
-          
-          console.log(current)
 
           updateAgendamento({
             id: e.newData.id,

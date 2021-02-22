@@ -11,6 +11,7 @@ import { DropdownTopbarItemToggler } from "../../../../_partials/dropdowns";
 
 export function UserProfileDropdown() {
   const { user } = useSelector((state) => state.auth);
+  console.log(user)
 
   const uiService = useHtmlClassService();
   const layoutProps = useMemo(() => {

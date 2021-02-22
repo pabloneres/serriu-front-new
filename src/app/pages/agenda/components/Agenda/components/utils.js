@@ -1,4 +1,7 @@
 import { dinnerTime, holidays } from "./data.js";
+import moment from "moment";
+import "moment/locale/pt-br";
+moment.locale("pt-br");
 
 export default class Utils {
   static isHoliday(date) {
@@ -27,21 +30,60 @@ export default class Utils {
     return hours === dinnerTime.from && minutes === 0;
   }
 
-  static isValidAppointment(component, appointmentData) {
-    console.log(appointmentData);
-    const startDate = new Date(appointmentData.startDate);
-    const endDate = new Date(appointmentData.endDate);
-    const dentista_id = appointmentData.dentista_id;
-    const paciente_id = appointmentData.paciente_id;
-    const cellDuration = component.option("cellDuration");
-    console.log(startDate);
-    return {
-      startDate,
-      endDate,
-      cellDuration,
-      dentista_id,
-      paciente_id
-    };
+  static isValidAppointment(component, appointmentData, days) {
+    let startDate = new Date(appointmentData.startDate)
+    let startWeek = startDate.getDay()
+    let startHours = moment(startDate).format('HH:mm:ss').split(':')
+    
+    let endDate = new Date(appointmentData.endDate)
+    let endtHours = moment(endDate).format('HH:mm:ss').split(':')
+
+    startHours = `${startHours[0]}:${startHours[1]}`
+    endtHours = `${endtHours[0]}:${endtHours[1]}`
+    // const endDate = new Date(appointmentData.endDate).getDay()
+   
+
+    const returnFalse = days[startWeek].enable //true
+    const returnFalse2 = startHours >= days[startWeek].start //true 
+    const returnFalse3 = endtHours <= days[startWeek].end  //true
+
+
+    // console.log(startHours)
+    // console.log(returnFalse)
+    // console.log(returnFalse2)
+    // console.log(returnFalse3)
+    // console.log(returnFalse && returnFalse2 && returnFalse3)
+
+    return returnFalse && returnFalse2 && returnFalse3
+  }
+
+  static isValidAppointmentRender(start, days) {
+    let startDate = new Date(start)
+    let startWeek = startDate.getDay()
+    let startHours = moment(startDate).format('HH:mm:ss').split(':')
+    startHours = `${startHours[0]}:${startHours[1]}`
+    
+    if (!days || days.length === 0) {
+      return
+    }
+
+    // let endDate = new Date(appointmentData.endDate)
+    // let endtHours = moment(endDate).format('HH:mm:ss').split(':')
+
+    // endtHours = `${endtHours[0]}:${endtHours[1]}`
+    // const endDate = new Date(appointmentData.endDate).getDay()
+   
+
+    const returnFalse = days[startWeek].enable
+    const returnFalse2 = startHours >= days[startWeek].start 
+    const returnFalse3 = startHours <= days[startWeek].end 
+
+
+    // console.log(startHours)
+    // console.log(returnFalse3)
+    // console.log(returnFalse && returnFalse2 && returnFalse3)
+
+    return returnFalse && returnFalse2 && returnFalse3
   }
 
   static isValidAppointmentInterval(startDate, endDate, cellDuration) {

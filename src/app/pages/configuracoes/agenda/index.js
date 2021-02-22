@@ -4,7 +4,7 @@ import { useHistory, Redirect } from "react-router-dom";
 import { useSelector } from "react-redux";
 import SVG from 'react-inlinesvg'
 import { Link } from 'react-router-dom'
-import { index, destroy, store } from '~/app/controllers/machineController'
+import { index, destroy, store, update } from "~/app/controllers/controller";
 import { toAbsoluteUrl, checkIsActive } from "~/_metronic/_helpers";
 import { Modal, Button, Form, Col, InputGroup } from 'react-bootstrap'
 import { useFormik } from "formik";
@@ -19,56 +19,82 @@ import {
 } from "~/_metronic/_partials/controls";
 
 import './styles.css'
+import daysJson from './days.json'
+
+const labelsDay = [
+  'Domingo',
+  'Segunda',
+  'Terça',
+  'Quarta',
+  'Quinta',
+  'Sexta',
+  'Sabádo',
+]
 
 export default function ConfigurarAgenda() {
   const { user: { authToken } } = useSelector((state) => state.auth);
   const history = useHistory();
+  const [days, setDays] = useState([])
+  const [reload, setReload] = useState(false)
+  const [needCreate, setNeedCreate] = useState(undefined)
+  const [showCreate, setShowCreate] = useState(undefined)
+  
+  useEffect(() => {
+    index(authToken, '/agenda').then(({data}) => {
 
-  const daysWeek = [
-    {
-      label: 'Segunda',
-      start: '08:00',
-      end: '18:00'
-    },
-    {
-      label: 'Terça',
-      start: '08:00',
-      end: '18:00'
-    },
-    {
-      label: 'Quarta',
-      start: '08:00',
-      end: '18:00'
-    },
-    {
-      label: 'Quinta',
-      start: '08:00',
-      end: '18:00'
-    },
-    {
-      label: 'Sexta',
-      start: '08:00',
-      end: '18:00'
-    },
-    {
-      label: 'Sabado',
-      start: '08:00',
-      end: '18:00'
-    },
-    {
-      label: 'Domingo',
-      start: '08:00',
-      end: '18:00'
-    },
-  ]
+      if (data.length === 0) {
+        setNeedCreate(true)
+        setShowCreate(true)
+        setDays([])
+        return
+      }
+
+      setNeedCreate(false)
+      setShowCreate(false)
+      setDays(JSON.parse(data[0].days))
+    })
+  }, [reload])
+  
+  const changeDay = (element, e, item) => {
+    let daysNew = days
+    let data
+    let teste = daysNew.indexOf(item)
+
+    if (teste === -1) {
+      console.log('error')
+      return
+    }
+    
+    if (element === 'check') {
+      data = e.target.checked
+      daysNew[teste] = {...daysNew[teste], enable: data}
+      console.log(daysNew[teste])
+    }
+    if (element === 'start') {
+      data = e.target.value
+      daysNew[teste] = {...daysNew[teste], start: data}
+      console.log(daysNew[teste])
+    }
+    if (element === 'end') {
+      data = e.target.value
+      daysNew[teste] = {...daysNew[teste], end: data}
+      console.log(daysNew[teste])
+    }
+
+    update(authToken, 'agenda', null, {days: daysNew}).then(() => {
+      console.log('OK')
+    })
+  }
+
+  const createAgenda = () => {
+    setShowCreate(false)
+    store(authToken, '/agenda', {days: daysJson}).then(() => {
+      setReload(!reload)
+    })
+  }
 
   return (
     <Card>
-      <CardHeader title="Configurar Agenda">
-        <CardHeaderToolbar>
-
-        </CardHeaderToolbar>
-      </CardHeader>
       <CardBody className="card-body-agenda">
         <div className="container-all">
           <div className="container">
@@ -78,9 +104,16 @@ export default function ConfigurarAgenda() {
 
                 </CardHeaderToolbar>
               </CardHeader>
-              <CardBody>
+              {
+                needCreate && showCreate ? 
+                <CardBody>
+                <h6>Você ainda não tem uma configuração de agenda!</h6>
 
-              </CardBody>
+                <div>
+                    <Button onClick={() => createAgenda()}>Criar</Button>
+                  </div>
+              </CardBody> : <></>
+              }
             </Card>
           </div>
           <div className="container">
@@ -91,48 +124,61 @@ export default function ConfigurarAgenda() {
                 </CardHeaderToolbar>
               </CardHeader>
               <CardBody>
-                <div className="container-select-days">
-         
                 {
-                  daysWeek.map(item => (
-                    <div className="select-day">
-                      <div className="day-of-week">
-                      <Form.Check
-                        type="checkbox"
-                        className="select-day-check"
-                        checked
-                      />
-                      <span>{item.label}</span>
-                      </div>
+                  !needCreate ? 
+                  <div className="container-select-days">
 
-                      <div className="hours-of-day">
-                        <div className="startHour">
-                          <div className="containerHour">
-                            <span>Abertura</span>
-                            <Form.Control
-                              type="time"
-                              className="form-control-hour-agenda"
-                              defaultValue={item.start}
-                            />
+                  {
+                    days.map(item => (
+                      <div className="select-day" key={item.day}>
+                        <div className="day-of-week">
+                        <Form.Check
+                          type="checkbox"
+                          className="select-day-check"
+                          defaultChecked={item.enable}
+                          onChange={(e) => {
+                            changeDay('check', e, item)
+                          }}
+                        />
+                        <span>{labelsDay[item.day]}</span>
+                        </div>
+
+                        <div className="hours-of-day">
+                          <div className="startHour">
+                            <div className="containerHour">
+                    
+                              <Form.Control
+                                type="time"
+                                className="form-control-hour-agenda"
+                                defaultValue={item.start}
+                                onChange={(e) => {
+                                  changeDay('start', e, item)
+                                }}
+                              />
+                            </div>
+                          </div>
+                          <span className="separator-hours">  {' '}  ás {' '} </span>
+                          <div className="endHour">
+                            <div className="containerHour">
+                      
+                              <Form.Control
+                                className="form-control-hour-agenda"
+                                type="time"
+                                defaultValue={item.end}
+                                onChange={(e) => {
+                                  changeDay('end', e, item)
+                                }}
+                              />
+                            </div>
                           </div>
                         </div>
-                        <span className="separator-hours">-</span>
-                        <div className="endHour">
-                          <div className="containerHour">
-                            <span>Fechamento</span>
-                            <Form.Control
-                              className="form-control-hour-agenda"
-                              type="time"
-                              defaultValue={item.end}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                  </div>
-                  ))
+                    </div>
+                    ))
+                  }
+            
+                  </div> : <></>
+                 
                 }
-         
-                </div>
               </CardBody>
             </Card>
           </div>
