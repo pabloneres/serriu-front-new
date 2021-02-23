@@ -70,3 +70,14 @@ span.separator-hours {
   border: none !important;
   padding: 0 5px !important;
 }
+
+.active_button {
+  font-weight: bold;
+}
+
+.ul_button_config li{
+  list-style: none;
+  padding: 10px;
+  font-size: 15px;
+  cursor: pointer;
+}

@@ -4,11 +4,12 @@
 
 .dx-scheduler-date-table-cell,
 .dx-scheduler-time-panel-cell {
-  height: 20px;
+  height: 30px;
 }
 
 .dx-scheduler-appointment-content {
   padding: 0;
+  border-radius: 10px;
 }
 
 
@@ -17,12 +18,13 @@
 }
 
 .appointament_render {
+  border-radius: 10px;
   padding: 5px; 
   width: 100%;
   height: 100%;
   flex: 1; 
   white-space: normal;
-  border: 1px solid rgb(187, 187, 187);
+  border: 2px solid rgb(187, 187, 187);
   border-left: 10px solid;
   background-color: white;
   display: flex;
@@ -146,16 +148,31 @@
 }
 
 .disable-date {
-  background-color: rgba(185, 184, 184, 0.61);
+  background-color: rgba(216, 216, 216, 0.253);
   width: 100%;
   height: 100%;
 }
 
+/* .dx-scheduler-header-panel {
+  margin-bottom: 10px !important;
+} */
+
 .circle-today {
-  padding: 5px;
+  width: 35px;
+  height: 35px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   border-radius: 50%;
   background-color: rgb(0, 109, 252);
   color: white;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.date_render_header {
+  font-size: 16px;
+  font-weight: bold;
 }
 
 .date-render-edit {
@@ -169,12 +186,56 @@ span.paciente-code {
   font-size: 16px;
 }
 
-.teste-option::before {
-  content: "FYTFTY";
-}
-
 .render_status {
   width: 10px;
   height: 10px;
   border-radius: 50%;
+}
+
+.dx-scheduler-appointment-vertical {
+  border-radius: 10px !important;
+  background-color: transparent !important;
+}
+
+.dx-scheduler-header-panel-cell.dx-scheduler-header-panel-current-time-cell::before {
+  display: none !important;
+}
+
+.dx-scheduler-header-panel-cell {
+  padding: 5px 0;
+}
+
+.dx-scheduler-work-space:not(.dx-scheduler-work-space-all-day) .dx-scheduler-all-day-title-hidden {
+  border: 0;
+}
+
+.modal_button_save {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  padding: 10px;
+}
+
+.drawer_container {
+  padding: 0 20px;
+  max-width: 600px;
+  min-width: 600px;
+}
+
+.drawer_container_details {
+  padding: 20px;
+  max-width: 400px;
+  min-width: 400px;
+}
+
+.drawer_header {
+  display: flex;
+  flex-direction: row;
+  margin: 20px 0;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.drawer_title {
+  font-size: 16px;
 }
