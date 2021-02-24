@@ -36,7 +36,10 @@ const labelsDay = [
 
 export default function ConfigurarAgenda() {
   const {
-    user: { authToken },
+    user: { authToken,  },
+  } = useSelector((state) => state.auth);
+  const {
+    user
   } = useSelector((state) => state.auth);
   const history = useHistory();
   const [days, setDays] = useState([]);
@@ -68,6 +71,11 @@ export default function ConfigurarAgenda() {
     let data;
     let teste = daysNew.indexOf(item);
 
+    console.log(daysNew)
+    console.log(scale)
+    console.log(data)
+    console.log(teste)
+
     if (teste === -1 && element !== 'scale') {
       console.log("error");
       return;
@@ -91,7 +99,7 @@ export default function ConfigurarAgenda() {
       scale = data
     }
 
-    update(authToken, "agenda", null, { days: daysNew, scale }).then(() => {
+    update(authToken, "agenda", user[0].user_id, { days: daysNew, scale }).then(() => {
       notify("Agenda alterada", "success", 1000);
       setReload(!reload);
     });
