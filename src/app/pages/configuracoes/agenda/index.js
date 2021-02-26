@@ -134,24 +134,28 @@ export default function ConfigurarAgenda() {
                 <></>
               )}
 
-              <ul className="ul_button_config">
-                <li
-                  className={`button_config ${
-                    selectMenu === "horarios" ? "active_button" : ""
-                  }`}
-                  onClick={() => setSelectMenu("horarios")}
-                >
-                  Horarios
-                </li>
-                <li
-                  className={`button_config ${
-                    selectMenu === "escala" ? "active_button" : ""
-                  }`}
-                  onClick={() => setSelectMenu("escala")}
-                >
-                  Escala
-                </li>
-              </ul>
+              {
+                !needCreate ? (
+                  <ul className="ul_button_config">
+                    <li
+                      className={`button_config ${
+                        selectMenu === "horarios" ? "active_button" : ""
+                      }`}
+                      onClick={() => setSelectMenu("horarios")}
+                    >
+                      Horarios
+                    </li>
+                    <li
+                      className={`button_config ${
+                        selectMenu === "escala" ? "active_button" : ""
+                      }`}
+                      onClick={() => setSelectMenu("escala")}
+                    >
+                      Escala
+                    </li>
+                  </ul>
+                ) : <></>
+              }
             </Card>
           </div>
           <div className="container">

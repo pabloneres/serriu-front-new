@@ -223,14 +223,25 @@ const App = () => {
 
     index(authToken, "/agenda").then(({ data }) => {
       if (data.length === 0) {
-        setAgendaConfig(agendaConfigJson);
+        setAgendaConfig({
+          start: 8,
+          end: 18,
+          options: selectionEnd(),
+          scale: 30
+        });
         setDays(daysJson);
         return;
       }
-      setAgendaConfig(data[0]);
+      setAgendaConfig({
+        ...data[0],
+        start: Number(data[0].start.split(':')[0]),
+        end: Number(data[0].end.split(':')[0]),
+        startTime: data[0].start,
+        endTime: data[0].end,
+        options: selectionEnd(data[0].start, data[0].end, data[0].scale)
+      });
       setDays(JSON.parse(data[0].days));
-    });
-
+    })
 
   }, [reload]);
 
@@ -241,6 +252,21 @@ const App = () => {
       }
     );
   }, [reload, reloadAgendamentos, agendaView]);
+
+  function selectionEnd(start = '08:00', end = '18:00', interval = 30) {
+    let startTime = start
+    let endTime = end
+
+    let selects = [startTime]
+    let multiplicador = interval
+
+    while(startTime != endTime) {
+      startTime = moment(startTime, 'HH:mm').add(multiplicador, 'minutes').format('HH:mm')
+      selects.push(startTime)
+    }
+
+    return selects
+  }
 
   function notifyDisableDate() {
     notify("Data não permitida", "warning", 1000);
@@ -474,6 +500,22 @@ const App = () => {
 
   return (
     <Card>
+      <CardHeader>
+      <CardHeaderToolbar>
+
+      <Select
+        className="select_agenda"
+        onCreateOption={e => {
+          handleCreate(e);
+        }}
+        placeholder="Visualizar agenda de..."
+        options={dentistas}
+        onChange={value => {
+          setAgendaView(value.value)
+        }}
+      />
+      </CardHeaderToolbar>
+      </CardHeader>
       <Drawer
         anchor="right"
         open={modalAppointamentDatails}
@@ -488,7 +530,7 @@ const App = () => {
           <h3 className="drawer_title">Detalhes do Agendamento</h3>
           <div className="actions">
             <span
-              onClick={() => alert("Em manutenção")}
+              onClick={() => alert("Em manutenção, quando implementarmos o WhatsApp o cliente será notificado através desse botão")}
               style={{ cursor: "pointer" }}
               className="svg-icon menu-icon"
             >
@@ -497,7 +539,7 @@ const App = () => {
                 src={toAbsoluteUrl("/assets/icons/email.svg")}
               />
             </span>
-            <span
+            {/* <span
               onClick={() => alert("Em manutenção")}
               style={{ cursor: "pointer" }}
               className="svg-icon menu-icon"
@@ -506,7 +548,7 @@ const App = () => {
                 style={{ fill: "#545454", color: "#3699FF", marginLeft: 8 }}
                 src={toAbsoluteUrl("/media/svg/icons/Design/create.svg")}
               />
-            </span>
+            </span> */}
             <span
               onClick={() => handleDelete(appointmentData.id)}
               style={{ cursor: "pointer" }}
@@ -787,34 +829,44 @@ const App = () => {
                 <Form.Group as={Col} controlId="formGridAddress1">
                   <Form.Label>Início</Form.Label>
                   <Form.Control
-                    type="time"
-                    // placeholder="Username"
-                    aria-describedby="inputGroupPrepend"
-                    style={{
-                      backgroundColor: startOrEnd === "start" ? "#3699FF" : "",
-                    }}
+                    as="select"
                     defaultValue={
                       clickHorario ? clickHorario.startDate : undefined
                     }
-                    onChange={(e) => {}}
-                    // disabled
-                  />
+                    onChange={(e) => {
+                      setClickHorario({
+                        ...clickHorario,
+                        startDate: e.target.value
+                      })
+                    }}       
+                  >
+                    {
+                      agendaConfig.options ? agendaConfig.options.map(option => (
+                        <option value={option}>{option}</option>
+                      )) : <></>
+                    }
+                  </Form.Control>
                 </Form.Group>
                 <Form.Group as={Col} controlId="formGridAddress1">
                   <Form.Label>Término</Form.Label>
                   <Form.Control
-                    type="time"
-                    onClick={() => setStartOrEnd("end")}
-                    style={{
-                      backgroundColor: startOrEnd === "end" ? "#3699FF" : "",
-                    }}
+                    as="select"
                     defaultValue={
                       clickHorario ? clickHorario.endDate : undefined
                     }
-                    // placeholder="Username"
-                    aria-describedby="inputGroupPrepend"
-                    // disabled
-                  />
+                    onChange={(e) => {
+                      setClickHorario({
+                        ...clickHorario,
+                        endDate: e.target.value
+                      })
+                    }}
+                  >
+                    {
+                      agendaConfig.options ? agendaConfig.options.map(option => (
+                        <option value={option}>{option}</option>
+                      )) : <></>
+                    }
+                  </Form.Control>
                 </Form.Group>
               </Form.Row>
             </Form>
@@ -838,6 +890,7 @@ const App = () => {
         dateCellRender={renderDateCell}
         timeCellRender={renderTimeCell}
         cellDuration={agendaConfig ? agendaConfig.scale : 30}
+        // cellDuration={agendaConfig ? agendaConfig.scale : 30}
         appointmentRender={ReturnAppointamentClick}
         editing={{ allowAdding: false, allowUpdating: true }}
         onCellClick={(e) => {

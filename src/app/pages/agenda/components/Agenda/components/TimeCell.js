@@ -7,9 +7,9 @@ export default function TimeCell(props) {
   const hasCoffeeCupIcon = Utils.hasCoffeeCupIcon(date);
 
   return (
-    <div className={isDinner ? "dinner" : null}>
+    <div>
       {text}
-      {hasCoffeeCupIcon ? <div className="cafe" /> : null}
+      {/* {hasCoffeeCupIcon ? <div className="cafe" /> : null} */}
     </div>
   );
 }
