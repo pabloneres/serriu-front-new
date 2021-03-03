@@ -391,12 +391,16 @@ const App = () => {
 
   const ReturnAppointamentClick = (props) => {
     const { appointmentData } = props;
+    console.log(appointmentData)
     return (
       <div
         className="appointament_render"
         style={{ borderLeftColor: appointmentData.dentista.color_schedule }}
       >
-        <span>{appointmentData.paciente.name.split(" ")[0]}</span>
+        <div className="appointament_render_name">
+          <span>{appointmentData.paciente.name.split(" ")[0]}</span>
+          <span>{moment(appointmentData.startDate).format('HH:mm')} - {moment(appointmentData.endDate).format('HH:mm')}</span>
+        </div>
         <div
           className="status_circle"
           style={{
@@ -462,6 +466,7 @@ const App = () => {
     //Confirmado - 1
     //Cancelado - 2
     //Atendido - 3
+    //Não compareceu - 4
     switch (status) {
       case 0:
         return <strong style={{ color: "rgb(196, 196, 28)" }}>Agendado</strong>;
@@ -471,6 +476,8 @@ const App = () => {
         return <strong style={{ color: "orange" }}>Cancelado</strong>;
       case 3:
         return <strong style={{ color: "blue" }}>Atendido</strong>;
+      case 4:
+        return <strong style={{ color: "yellow" }}>Não compareceu</strong>;
     }
   };
 
@@ -489,6 +496,8 @@ const App = () => {
         return "red";
       case 3:
         return "green";
+      case 4:
+        return "yellow";
     }
   };
 
@@ -741,18 +750,29 @@ const App = () => {
                   <option
                     className="teste-option"
                     value={0}
-                    style={{ color: ReturnStatusColor(0) }}
+                    // style={{ color: ReturnStatusColor(0) }}
                   >
                     Agendado
                   </option>
-                  <option value={1} style={{ color: ReturnStatusColor(1) }}>
-                    Trabalhando
+                  <option value={1} 
+                  // style={{ color: ReturnStatusColor(1) }}
+                  >
+                    Confirmado
                   </option>
-                  <option value={2} style={{ color: ReturnStatusColor(2) }}>
+                  <option value={2} 
+                  // style={{ color: ReturnStatusColor(2) }}
+                  >
                     Cancelado
                   </option>
-                  <option value={3} style={{ color: ReturnStatusColor(3) }}>
+                  <option value={3} 
+                  // style={{ color: ReturnStatusColor(3) }}
+                  >
                     Atendido
+                  </option>
+                  <option value={4} 
+                  // style={{ color: ReturnStatusColor(4) }}
+                  >
+                    Não compareceu
                   </option>
                 </Form.Control>
               </span>
@@ -1018,13 +1038,16 @@ const App = () => {
                     Agendado
                   </option>
                   <option value={1} style={{ color: ReturnStatusColor(1) }}>
-                    Trabalhando
+                    Confirmado
                   </option>
                   <option value={2} style={{ color: ReturnStatusColor(2) }}>
                     Cancelado
                   </option>
                   <option value={3} style={{ color: ReturnStatusColor(3) }}>
                     Atendido
+                  </option>
+                  <option value={4} style={{ color: ReturnStatusColor(4) }}>
+                    Não compareceu
                   </option>
                 </Form.Control>
               </span>
@@ -1322,7 +1345,7 @@ const App = () => {
         views={views}
         defaultCurrentView={currentView}
         defaultCurrentDate={currentDate}
-        height={800}
+        // height={800}
         showAllDayPanel={false}
         firstDayOfWeek={1}
         startDayHour={agendaConfig ? agendaConfig.start : 8}

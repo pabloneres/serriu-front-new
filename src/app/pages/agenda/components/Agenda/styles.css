@@ -4,7 +4,7 @@
 
 .dx-scheduler-date-table-cell,
 .dx-scheduler-time-panel-cell {
-  height: 30px;
+  height: 35px;
 }
 
 .dx-scheduler-appointment-content {
@@ -32,6 +32,11 @@
   justify-content: space-between;
   align-items: center;
   color: black;
+}
+
+.appointament_render_name {
+  display: flex;
+  flex-direction: column ;
 }
 
 .status_circle {
@@ -244,4 +249,8 @@ span.paciente-code {
 .select_update {
   width: 50%;
   /* padding-left: 10%; */
+}
+
+.teste-option {
+  font-weight: bold;
 }
