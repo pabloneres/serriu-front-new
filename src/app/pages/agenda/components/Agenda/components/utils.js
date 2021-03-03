@@ -34,30 +34,25 @@ export default class Utils {
     let startDate = new Date(appointmentData.startDate)
     let startWeek = startDate.getDay()
     let startHours = moment(startDate).format('HH:mm:ss').split(':')
+
+    let currentDate = new Date()
     
     let endDate = new Date(appointmentData.endDate)
     let endtHours = moment(endDate).format('HH:mm:ss').split(':')
 
     startHours = `${startHours[0]}:${startHours[1]}`
     endtHours = `${endtHours[0]}:${endtHours[1]}`
-    // const endDate = new Date(appointmentData.endDate).getDay()
-   
 
     const returnFalse = days[startWeek].enable //true
     const returnFalse2 = startHours >= days[startWeek].start //true 
     const returnFalse3 = endtHours <= days[startWeek].end  //true
+    const returnFalse4 = moment(startDate).isAfter(currentDate)  //true
 
-
-    // console.log(startHours)
-    // console.log(returnFalse)
-    // console.log(returnFalse2)
-    // console.log(returnFalse3)
-    // console.log(returnFalse && returnFalse2 && returnFalse3)
-
-    return returnFalse && returnFalse2 && returnFalse3
+    return returnFalse && returnFalse2 && returnFalse3 && returnFalse4
   }
 
   static isValidAppointmentRender(start, days) {
+    let currentDate = new Date()
     let startDate = new Date(start)
     let startWeek = startDate.getDay()
     let startHours = moment(startDate).format('HH:mm:ss').split(':')
@@ -66,24 +61,14 @@ export default class Utils {
     if (!days || days.length === 0) {
       return
     }
-
-    // let endDate = new Date(appointmentData.endDate)
-    // let endtHours = moment(endDate).format('HH:mm:ss').split(':')
-
-    // endtHours = `${endtHours[0]}:${endtHours[1]}`
-    // const endDate = new Date(appointmentData.endDate).getDay()
-   
-
+    
     const returnFalse = days[startWeek].enable
     const returnFalse2 = startHours >= days[startWeek].start 
     const returnFalse3 = startHours < days[startWeek].end 
+    const returnFalse4 = moment(startDate).isAfter(currentDate)  //true
 
 
-    // console.log(startHours)
-    // console.log(returnFalse3)
-    // console.log(returnFalse && returnFalse2 && returnFalse3)
-
-    return returnFalse && returnFalse2 && returnFalse3
+    return returnFalse && returnFalse2 && returnFalse3 && returnFalse4
   }
 
   static isValidAppointmentInterval(startDate, endDate, cellDuration) {
