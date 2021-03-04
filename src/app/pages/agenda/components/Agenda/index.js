@@ -399,7 +399,7 @@ const App = () => {
       >
         <div className="appointament_render_name">
           <span>{appointmentData.paciente.name.split(" ")[0]}</span>
-          <span>{moment(appointmentData.startDate).format('HH:mm')} - {moment(appointmentData.endDate).format('HH:mm')}</span>
+          <span className="appointament_render_name_hour">{moment(appointmentData.startDate).format('HH:mm')} - {moment(appointmentData.endDate).format('HH:mm')}</span>
         </div>
         <div
           className="status_circle"

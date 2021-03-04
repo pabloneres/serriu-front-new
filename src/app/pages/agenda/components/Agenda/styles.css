@@ -39,6 +39,10 @@
   flex-direction: column ;
 }
 
+.appointament_render_name_hour {
+  font-size: 12px;
+}
+
 .status_circle {
   padding: 5%;
   border-radius: 50%;
