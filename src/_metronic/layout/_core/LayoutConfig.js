@@ -64,8 +64,8 @@ export function getInitLayoutConfig() {
     // == Page Splash Screen loading
     loader: {
       enabled: true,
-      type: "", // default|spinner-message|spinner-logo
-      logo: toAbsoluteUrl("/media/logos/logo-dark-sm.png"),
+      type: "spinner-logo", // default|spinner-message|spinner-logo
+      logo: toAbsoluteUrl("/media/logos/serriu_logo.png"),
       message: "Please wait..."
     },
     // page toolbar

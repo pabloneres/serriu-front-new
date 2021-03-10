@@ -69,11 +69,11 @@ function ForgotPassword(props) {
     <>
       {isRequested && <Redirect to="/auth/reset-password" />}
       {!isRequested && (
-        <div className="login-form login-forgot" style={{ display: "block" }}>
+        <div className="login-form login-forgot" style={{ display: "block", minWidth: 500 }}>
           <div className="text-center mb-10 mb-lg-20">
-            <h3 className="font-size-h1">Forgotten Password ?</h3>
+            <h3 className="font-size-h1">Esqueceu sua senha ?</h3>
             <div className="text-muted font-weight-bold">
-              Enter your email to reset your password
+              Digite seu email para resetar sua senha
             </div>
           </div>
           <form
@@ -109,7 +109,7 @@ function ForgotPassword(props) {
                 className="btn btn-primary font-weight-bold px-9 py-4 my-3 mx-4"
                 disabled={formik.isSubmitting}
               >
-                Submit
+                Enviar
               </button>
               <Link to="/auth">
                 <button
@@ -117,7 +117,7 @@ function ForgotPassword(props) {
                   id="kt_login_forgot_cancel"
                   className="btn btn-light-primary font-weight-bold px-9 py-4 my-3 mx-4"
                 >
-                  Cancel
+                  Cancelar
                 </button>
               </Link>
             </div>

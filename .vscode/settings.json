@@ -7,5 +7,6 @@
         "src/_metronic/i18n",
         "public/scheduler_trial/codebase/locale",
         "src/_metronic/i18n/messages"
-    ]
+    ],
+    "i18n-ally.keystyle": "nested"
 }

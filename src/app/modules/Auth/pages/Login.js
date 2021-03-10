@@ -6,6 +6,7 @@ import { connect } from "react-redux";
 import { FormattedMessage, injectIntl } from "react-intl";
 import * as auth from "../_redux/authRedux";
 import { login } from "../_redux/authCrud";
+import { toAbsoluteUrl } from "../../../../_metronic/_helpers";
 
 /*
   INTL (i18n) docs:
@@ -90,16 +91,18 @@ function Login(props) {
   });
 
   return (
-    <div className="login-form login-signin" id="kt_login_signin_form">
+    <div className="login-form login-signin" id="kt_login_signin_form"
+      style={{minWidth: 500}}
+    >
       {/* begin::Head */}
       <div className="text-center mb-10 mb-lg-20">
-        <h3 className="font-size-h1">
-          <FormattedMessage id="AUTH.LOGIN.TITLE" />
-        </h3>
-        <p className="text-muted font-weight-bold">
-          Enter your username and password
-        </p>
+        <img
+          alt="Logo"
+          className="max-h-70px"
+          src={toAbsoluteUrl("/media/logos/serriu_logo.svg")}
+        />
       </div>
+
       {/* end::Head */}
 
       {/*begin::Form*/}
@@ -112,14 +115,15 @@ function Login(props) {
             <div className="alert-text font-weight-bold">{formik.status}</div>
           </div>
         ) : (
-          <div className="mb-10 alert alert-custom alert-light-info alert-dismissible">
-            <div className="alert-text ">
-              {/* <p>Use a conta  <strong>master@hotmail.com</strong> para acesso no admin</p>
-              <p>Use a conta  <strong>matriz@hotmail.com</strong> para acesso na matriz</p>
-              <p>Use a conta  <strong>clinica@hotmail.com</strong> para acesso na filial</p>
-              <p>Todas as contas usam a mesma senha <strong>master123</strong></p> */}
-            </div>
-          </div>
+          // <div className="mb-10 alert alert-custom alert-light-info alert-dismissible">
+          //   <div className="alert-text ">
+          //     <p>Use a conta  <strong>master@hotmail.com</strong> para acesso no admin</p>
+          //     <p>Use a conta  <strong>matriz@hotmail.com</strong> para acesso na matriz</p>
+          //     <p>Use a conta  <strong>clinica@hotmail.com</strong> para acesso na filial</p>
+          //     <p>Todas as contas usam a mesma senha <strong>master123</strong></p>
+          //   </div>
+          // </div>
+          <></>
         )}
 
         <div className="form-group fv-plugins-icon-container">
@@ -160,7 +164,7 @@ function Login(props) {
             className="text-dark-50 text-hover-primary my-3 mr-2"
             id="kt_login_forgot"
           >
-            <FormattedMessage id="AUTH.GENERAL.FORGOT_BUTTON" />
+            Esqueceu a Senha ?
           </Link>
           <button
             id="kt_login_signin_submit"
@@ -168,7 +172,7 @@ function Login(props) {
             disabled={formik.isSubmitting}
             className={`btn btn-primary font-weight-bold px-9 py-4 my-3`}
           >
-            <span>Sign In</span>
+            <span>Entrar</span>
             {loading && <span className="ml-3 spinner spinner-white"></span>}
           </button>
         </div>

@@ -33,7 +33,6 @@ export function DentistaPage() {
       index(authToken)
       .then( ({data} ) => {
         setUsers(data)
-        console.log(data)
       }).catch((err)=>{
         if (err.response.status === 401) {
           setLogout(true)
@@ -92,7 +91,7 @@ export function DentistaPage() {
           {users.map( dentist => (
             <tr key={dentist.id} >
               <td>{dentist.id_acesso}</td>
-              <td>{dentist.name}</td>
+              <td><Link to={`/dentista/editar/${dentist.id}`}>{dentist.name}</Link></td>
               <td>{dentist.cpf}</td>
               <td>{dentist.cro}</td>
               <td>{dentist.cro_number}</td>

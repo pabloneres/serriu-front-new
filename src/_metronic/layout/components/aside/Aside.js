@@ -5,6 +5,8 @@ import {Brand} from "../brand/Brand";
 import {AsideMenu} from "./aside-menu/AsideMenu";
 import {useHtmlClassService} from "../../_core/MetronicLayout";
 
+import { toAbsoluteUrl } from "../../../_helpers";
+
 export function Aside() {
   const uiService = useHtmlClassService();
 
@@ -34,7 +36,7 @@ export function Aside() {
                 {/* begin::Header Logo */}
                 <div className="header-logo">
                   <Link to="">
-                    <img alt="logo" src={layoutProps.headerLogo}/>
+                    <img alt="logo" src={toAbsoluteUrl("/media/logos/serriu_logo.svg")}/>
                   </Link>
                 </div>
                 {/* end::Header Logo */}

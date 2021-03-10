@@ -199,6 +199,7 @@ const App = () => {
   const [dadosAgendamento, setDadosAgendamento] = useState({ undefined });
   const [days, setDays] = useState([]);
   const [agendaConfig, setAgendaConfig] = useState(undefined);
+  const [primeiraConsulta, SetPrimeiraConsulta] = useState(0);
 
   const [enableEdit, setEnableEdit] = useState(false);
 
@@ -330,8 +331,8 @@ const App = () => {
       return;
     }
 
-    if (!dentistasSelecionado) {
-      alert("Preencha todos os campos!");
+    if (!dentistasSelecionado && primeiraConsulta === 0) {
+      alert("Preencha todos os campos! Dentista" + primeiraConsulta);
       return;
     }
 
@@ -348,6 +349,7 @@ const App = () => {
         startDate: clickHorario.dia + " " + clickHorario.startDate,
         endDate: clickHorario.dia + " " + clickHorario.endDate,
         obs: obs,
+        primeiraConsulta,
         pacienteData: pacienteData,
         status: statusSelecionado,
       };
@@ -395,7 +397,7 @@ const App = () => {
     return (
       <div
         className="appointament_render"
-        style={{ borderLeftColor: appointmentData.dentista.color_schedule }}
+        style={{ borderLeftColor: appointmentData.dentista ? appointmentData.dentista.color_schedule : 'white' }}
       >
         <div className="appointament_render_name">
           <span>{appointmentData.paciente.name.split(" ")[0]}</span>
@@ -672,7 +674,7 @@ const App = () => {
               </div>
             </div>
             <div className="row-popover">
-              <span>Codigo </span>
+              <span>Token </span>
               <span className="paciente-code">
                 {appointmentData.paciente.id_acesso}
               </span>
@@ -699,7 +701,7 @@ const App = () => {
                 }}
                 src={toAbsoluteUrl("/assets/icons/dent.svg")}
               />
-              <span>{appointmentData.dentista.name}</span>
+              <span>{appointmentData.dentista ? appointmentData.dentista.name : 'Primeira Consulta'}</span>
             </div>
             <div className="row-popover">
               <SVG
@@ -878,7 +880,9 @@ const App = () => {
               />
               <span>{appointmentData.paciente.name}</span>
             </div>
-            <div className="row-popover">
+            {
+              appointmentData.dentista ? 
+              <div className="row-popover">
               <SVG
                 style={{
                   fill: "#000",
@@ -888,24 +892,25 @@ const App = () => {
                 }}
                 src={toAbsoluteUrl("/assets/icons/dent.svg")}
               />
-              <Select
-                className="select_update"
-                placeholder="Selecione o dentista..."
-                options={dentistasModal}
-                defaultValue={{
-                  label: appointmentData.dentista.name,
-                  value: appointmentData.dentista_id,
-                }}
-                onChange={(e) => {
-                  updateAgendamento({
-                    id: appointmentData.id,
-                    dentista_id: e.value,
-                    type: 'dentista_id'
-                  });
-                }}
-              />
+                <Select
+                  className="select_update"
+                  placeholder="Selecione o dentista..."
+                  options={dentistasModal}
+                  defaultValue={{
+                    label: appointmentData.dentista.name,
+                    value: appointmentData.dentista_id,
+                  }}
+                  onChange={(e) => {
+                    updateAgendamento({
+                      id: appointmentData.id,
+                      dentista_id: e.value,
+                      type: 'dentista_id'
+                    });
+                  }}
+                />
               {/* <span>{appointmentData.dentista.name}</span> */}
-            </div>
+            </div> : <></>
+            }
             <div className="row-popover">
               <SVG
                 style={{
@@ -1209,9 +1214,15 @@ const App = () => {
               )}
               <Form.Row>
                 <Form.Group as={Col} controlId="formGridAddress1">
+                  <Form.Label>Primeira consulta ?</Form.Label>
+                  <Form.Check type="checkbox" defaultChecked={primeiraConsulta === 0 ? false : true} onChange={(e) => {SetPrimeiraConsulta(e.target.checked === true ? 1 : 0)}} />
+                </Form.Group>
+              </Form.Row>
+              <Form.Row>
+                <Form.Group as={Col} controlId="formGridAddress1">
                   <Form.Label>Dentista</Form.Label>
                   <Select
-                    required
+                    isDisabled={primeiraConsulta === 1}
                     placeholder="Selecione o dentista..."
                     options={dentistasModal}
                     onChange={(value) => {

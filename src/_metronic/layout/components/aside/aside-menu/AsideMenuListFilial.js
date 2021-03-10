@@ -133,6 +133,11 @@ export function AsideMenuListFilial({ layoutProps }) {
                   <span className="menu-text">Procedimentos Abertos</span>
                 </NavLink>
               </li>
+              <li className="menu-item menu-item-submenu " aria-haspopup="true" data-menu-toggle="hover">
+                <NavLink className="menu-link menu-toggle" to="/dashboard">
+                  <span className="menu-text">Monitoramento</span>
+                </NavLink>
+              </li>
             </ul>
           </div>
         </li>

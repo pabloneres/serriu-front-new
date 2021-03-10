@@ -29,7 +29,7 @@ export function Brand() {
       >
         {/* begin::Logo */}
         <Link to="" className="brand-logo">
-          <img alt="logo" src={layoutProps.headerLogo}/>
+          <img alt="logo" src={toAbsoluteUrl("/media/logos/serriu_logo.svg")} style={{padding: 30}} />
         </Link>
         {/* end::Logo */}
 
