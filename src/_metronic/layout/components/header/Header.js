@@ -4,6 +4,7 @@ import { useHtmlClassService } from "../../_core/MetronicLayout";
 import { Topbar } from "./Topbar";
 import { HeaderMenuWrapper } from "./header-menu/HeaderMenuWrapper";
 import { AnimateLoading } from "../../../_partials/controls";
+import { toAbsoluteUrl } from "../../../_helpers";
 
 export function Header() {
   const uiService = useHtmlClassService();
@@ -37,7 +38,7 @@ export function Header() {
           {layoutProps.menuHeaderDisplay && <HeaderMenuWrapper />}
           {!layoutProps.menuHeaderDisplay && <div />}
           {/*end::Header Menu Wrapper*/}
-
+          <img src={toAbsoluteUrl("/media/logos/serriu_logo.svg")} style={{padding: 10}}/>
           {/*begin::Topbar*/}
           <Topbar />
           {/*end::Topbar*/}

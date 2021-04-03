@@ -69,7 +69,9 @@ export function* saga() {
   yield takeLatest(actionTypes.UserRequested, function* userRequested() {
     const {config: {headers : { Authorization }}, data: user} = yield getUserByToken();
     
-    const userData = {...user, authToken: Authorization.split(' ')[1]}
+    const data = user[0]
+
+    const userData = {...data, authToken: Authorization.split(' ')[1]}
   
     yield put(actions.fulfillUser(userData));
   });

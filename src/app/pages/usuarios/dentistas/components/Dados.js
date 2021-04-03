@@ -115,7 +115,7 @@ export function Dados(props) {
 
   return (
     <Card>
-      <CardHeader title="Adicionar novo dentista"></CardHeader>
+      <CardHeader title="Dados do Dentista"></CardHeader>
       <CardBody>
         <Form
           onSubmit={formik.handleSubmit}

@@ -12,6 +12,7 @@ import { Receber } from './components/Receber'
 import { Recebidos } from './components/Recebidos'
 import { Orcamentos } from './components/Orcamentos'
 import { FichaClinica } from './components/FichaClinica'
+import { Caixa } from './components/Caixa'
 
 
 export function FinanceiroPage(props) {
@@ -28,7 +29,8 @@ export function FinanceiroPage(props) {
       'receber': () => <Receber/>,
       'recebidos': () => <Recebidos/>,
       'orcamentos': () => <Orcamentos/>,
-      'fichaClinica': () => <FichaClinica/>
+      'fichaClinica': () => <FichaClinica/>,
+      'caixa': () => <Caixa/>
     }
     return itensMenu[menu]();
   }
@@ -36,6 +38,9 @@ export function FinanceiroPage(props) {
   return (
     <Card>
       <Nav className="mr-auto" variant="tabs">
+        <Nav.Item>
+          <Nav.Link onClick={()=> { setMenu('caixa') }} className={menu == 'caixa' ? 'active' : ''} >Caixa</Nav.Link>
+        </Nav.Item>
         <Nav.Item>
           <Nav.Link onClick={()=> { setMenu('receber') }} className={menu == 'receber' ? 'active' : ''} >A receber</Nav.Link>
         </Nav.Item>

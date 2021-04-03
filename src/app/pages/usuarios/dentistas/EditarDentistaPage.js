@@ -16,8 +16,9 @@ import { update, show } from "~/app/controllers/pacienteController";
 
 import { Dados } from "./components/Dados";
 import { Comissoes } from "./components/Comissoes";
-// import { FichaClinica } from "./components/FichaClinica";
-// import { Financeiro } from "./components/Financeiro";
+import { ConfigComissoes } from "./components/ConfigComissoes";
+import { AgendaDentista } from "./components/AgendaDentista";
+
 
 // import { AdicionarOrcamentoPage } from "~/app/pages/orcamento/AdicionarOrcamentoPage";
 
@@ -45,7 +46,9 @@ export function EditarDentistaPage(props) {
   function HandleChangeMenu() {
     const itensMenu = {
       dados: () => <Dados />,
-      comissoes: () => <Comissoes />
+      comissoes: () => <Comissoes />,
+      configComissoes: () => <ConfigComissoes />,
+      agendaDentista: () => <AgendaDentista />
     };
 
     return itensMenu[menu]();
@@ -62,6 +65,26 @@ export function EditarDentistaPage(props) {
             className={menu == "dados" ? "active" : ""}
           >
             Dados
+          </Nav.Link>
+        </Nav.Item>
+        <Nav.Item>
+          <Nav.Link
+            onClick={() => {
+              setMenu("agendaDentista");
+            }}
+            className={menu == "agendaDentista" ? "active" : ""}
+          >
+            Agenda de Trabalho
+          </Nav.Link>
+        </Nav.Item>
+        <Nav.Item>
+          <Nav.Link
+            onClick={() => {
+              setMenu("configComissoes");
+            }}
+            className={menu == "configComissoes" ? "active" : ""}
+          >
+            Configuração Comissão
           </Nav.Link>
         </Nav.Item>
         <Nav.Item>

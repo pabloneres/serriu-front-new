@@ -1,0 +1,163 @@
+.container-all {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  margin-top: 20px;
+}
+
+.container {
+  width: 100%;
+  padding: 20px;
+}
+
+.card-body-agenda {
+  background-color: #eef0f8;
+  padding: 0 !important;
+}
+
+.container-select-days {
+  display: flex;
+  flex-direction: column;
+}
+
+.select-day {
+  width: 100%;
+  padding: 12px 120px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.day-of-week {
+  display: flex;
+  align-items: center;
+}
+
+.day-of-week span {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.select-day-check {
+  padding: 5px;
+}
+
+.hours-of-day {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.containerHour {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 16px;
+  border-radius: 8px;
+  padding: 0px 40px;
+  border: 1px solid #dcdde2;
+}
+
+.containerHour span {
+  margin-bottom: 5px;
+}
+
+span.separator-hours {
+  font-weight: bold;
+  font-size: 15px;
+}
+
+.form-control-hour-agenda {
+  border: none !important;
+  padding: 0 5px !important;
+}
+
+.active_button {
+  font-weight: bold;
+}
+
+.ul_button_config li{
+  list-style: none;
+  padding: 10px;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.row-modal-comissao {
+  border: 1px solid rgb(212, 212, 212);
+  margin: 10px 0;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.fildset-container {
+  border: 1px solid silver;
+  border-radius: 5px;
+  padding: 10px;
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+.fildset-title {
+  width: auto; border: none; padding-right: 5px; padding-left: 5px; margin-left: 10px; margin-bottom: 0px; font-weight: bold; font-size: 15px; color: rgb(117, 117, 117);
+}
+
+
+.container-comissao {
+  width: 100%;
+  margin: 0 auto;
+  max-width: 400px;
+  border-radius: 8px;
+  border: 2px solid rgb(56, 142, 60);
+  overflow: hidden;
+}
+
+.container-comissao .header-container-comissao {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgb(56, 142, 60);
+  color: white;
+  padding: 10px;
+}
+
+.container-comissao .body-container-comissao {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.body-container-comissao .modo-pagamento {
+  width: 100%;
+  font-size: 14px;
+  color: #a1a1a1;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  margin: 20px 0;
+}
+
+.body-container-comissao .comissao-valor {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.body-container-comissao .comissao-valor span {
+  font-size: 12px;
+}
+
+.body-container-comissao .comissao-valor span.span-comissao {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.body-container-comissao .buttons-actions {
+  margin-bottom: 20px;
+}
+
+.modo-pagamento-row span {
+  margin-left: 10px;
+}

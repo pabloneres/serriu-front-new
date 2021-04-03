@@ -14,12 +14,13 @@ import { index, update, show } from "~/app/controllers/controller";
 import Select from 'react-select'
 
 export function Comissoes(props) {
-  const { params, url } = useRouteMatch();
+  // const { params, url } = useRouteMatch();
   const { intl } = props;
   const {
-    user: { authToken }
+    user: {authToken, dentists}
   } = useSelector(state => state.auth);
   const history = useHistory();
+
 
   const [reload, setReload] = useState(false);
   const [dentistData, setDentistData] = useState({})
@@ -49,24 +50,24 @@ export function Comissoes(props) {
   const [pagamentos, setPagamentos] = useState([])
 
   useEffect(() => {
-    show(authToken, '/dentist', params.id)
+    show(authToken, '/dentist', dentists[0].id)
     .then(({data}) => {
       setDentistData(data[0])
     })
     .catch((err)=> history.push('/dentista'))
 
-    index(authToken, `/configuracao/comissao/${params.id}`).then(({ data }) => {
+    index(authToken, `/configuracao/comissao/${dentists[0].id}`).then(({ data }) => {
       setConfig(data)
     })
  
-    index(authToken, `/comissao/valores/${params.id}`).then(({ data }) => {
+    index(authToken, `/comissao/valores/${dentists[0].id}`).then(({ data }) => {
       console.log(data)
       setValues(data)
     })
   }, [authToken, reload]);
 
   useEffect(() => {
-    index(authToken, `/comissao/${params.id}?status=${option}`).then(
+    index(authToken, `/comissao/${dentists[0].id}?status=${option}`).then(
       ({ data }) => {
         setPagamentos(data);
       }
@@ -107,7 +108,7 @@ export function Comissoes(props) {
 
   return (
     <Card>
-      <CardHeader title={`Comisões de ${dentistData.name}`}>
+      <CardHeader title={`Comisões`}>
         <CardHeaderToolbar style={{flex: 1}}>
           <div style={{flex: 1, display: 'flex', flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center'}}>
             

@@ -48,6 +48,8 @@ import { ProcedimentoPage } from '~/app/pages/procedimentos/ProcedimentoPage'
 import ConfigurarAgenda from '~/app/pages/configuracoes/agenda'
 
 
+import { Comissoes } from '~/app/pages/dentista/comissoes'
+
 
 
 const GoogleMaterialPage = lazy(() =>
@@ -104,6 +106,9 @@ export default function BasePage() {
         <ContentRoute exact path="/tabela-precos" component={TabelaPreco} />
         <ContentRoute exact path="/tabela-especialidades" component={TabelaEspecialidade} />
         <ContentRoute exact path="/tabela-procedimentos" component={TabelaProcedimento} />
+
+
+        <ContentRoute exact path="/comissoes" component={Comissoes} />
 
         <ContentRoute exact path="/equipamentos" component={Equipamentos} />
 

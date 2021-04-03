@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Card, CardHeader, CardBody } from "~/_metronic/_partials/controls";
+import { Card, CardHeader, CardBody, CardHeaderToolbar } from "~/_metronic/_partials/controls";
 import { Link } from "react-router-dom";
 
 import { Table, Modal, Button, Form, Col, InputGroup } from "react-bootstrap";
@@ -11,7 +11,7 @@ import SVG from "react-inlinesvg";
 import { toAbsoluteUrl, checkIsActive } from "~/_metronic/_helpers";
 import { index, update, show } from "~/app/controllers/controller";
 
-export function Recebidos(props) {
+export function Caixa(props) {
   const { params, url } = useRouteMatch();
   const { intl } = props;
   const {
@@ -308,7 +308,11 @@ export function Recebidos(props) {
     <Card>
       {modal ? <ModalPayment /> : ""}
       <ShowModal />
-      <CardHeader title="A Receber"></CardHeader>
+      <CardHeader title="Caixa">
+        <CardHeaderToolbar>
+          <Button>Criar Caixa</Button>
+        </CardHeaderToolbar>
+      </CardHeader>
       <CardBody>
         <Table striped bordered hover>
           <thead>

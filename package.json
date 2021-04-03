@@ -2,7 +2,8 @@
     "name": "serriu",
     "version": "7.0.8",
     "private": true,
-    "homepage": "https://localhost:5000",
+    "start_url": ".",
+    "homepage": ".",
     "scripts": {
         "start": "react-app-rewired start -o",
         "build": "react-app-rewired build",

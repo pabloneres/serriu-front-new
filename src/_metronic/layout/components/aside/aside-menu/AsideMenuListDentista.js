@@ -33,6 +33,17 @@ export function AsideMenuListDentista({ layoutProps }) {
           className={`menu-item ${getMenuItemActive("/agenda", false)}`}
           aria-haspopup="true"
         >
+          <NavLink className="menu-link" to="/comissoes">
+            <span className="svg-icon menu-icon">
+              <SVG style={{"fill": "#3699FF"}} src={toAbsoluteUrl("/media/svg/icons/Design/money.svg")} />
+            </span>
+            <span className="menu-text">Comissões</span>
+          </NavLink>
+        </li>
+        <li
+          className={`menu-item ${getMenuItemActive("/agenda", false)}`}
+          aria-haspopup="true"
+        >
           <NavLink className="menu-link" to="/agenda">
             <span className="svg-icon menu-icon">
               <SVG style={{"fill": "#3699FF"}} src={toAbsoluteUrl("/media/svg/icons/Design/calendar.svg")} />
