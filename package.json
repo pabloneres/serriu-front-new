@@ -32,6 +32,7 @@
         ]
     },
     "dependencies": {
+        "@ant-design/icons": "^4.6.2",
         "@date-io/date-fns": "^2.10.6",
         "@devexpress/dx-react-core": "^2.7.4",
         "@devexpress/dx-react-scheduler": "^2.7.4",
@@ -48,6 +49,7 @@
         "@syncfusion/ej2-react-base": "^18.4.39",
         "@syncfusion/ej2-react-schedule": "^18.4.39",
         "@tanem/svg-injector": "8.0.50",
+        "antd": "^4.15.3",
         "apexcharts": "3.19.2",
         "axios": "0.19.2",
         "axios-mock-adapter": "1.18.1",
@@ -85,7 +87,7 @@
         "react-draggable": "4.4.2",
         "react-html-parser": "^2.0.2",
         "react-inlinesvg": "1.2.0",
-        "react-input-mask": "^2.0.4",
+        "react-input-mask": "^3.0.0-alpha.2",
         "react-intl": "3.6.2",
         "react-is": "16.13.1",
         "react-perfect-scrollbar": "1.5.8",
@@ -112,7 +114,7 @@
         "babel-plugin-root-import": "^6.5.0",
         "copyfiles": "2.1.1",
         "customize-cra": "^1.0.0",
-        "node-sass": "4.13.0",
+        "node-sass": "4.14.0",
         "prettier": "1.19.1",
         "react-app-rewired": "^2.1.6",
         "serve": "11.2.0",

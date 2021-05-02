@@ -13,16 +13,12 @@ import { toAbsoluteUrl, checkIsActive, sortCaret  } from "~/_metronic/_helpers";
 import { index, update, show, store} from "~/app/controllers/controller";
 import BootstrapTable from "react-bootstrap-table-next";
 import ActionsColumnFormatter from '~/utils/ActionsColumnFormatter'
-import { Table as TableNew, Tag, Space, Tooltip, Input, notification, Tabs, Statistic } from 'antd';
-import { FolderOpenOutlined, DeleteOutlined,
-  EditOutlined, DollarCircleOutlined } from '@ant-design/icons';
 import Select from 'react-select'
 
 import moment from "moment";
 import "moment/locale/pt-br";
 moment.locale("pt-br");
 
-const {TabPane} = Tabs
 const atualData = () => {
   let atual = new Date()
   atual = moment(atual).format()
@@ -33,24 +29,22 @@ const atualData = () => {
   return separados
 }
 
-export function Comissoes(props) {
+function Comissoes(props) {
   const { params, url } = useRouteMatch();
-  const id = params.id
   const { intl } = props;
   const {
     user: { authToken }
   } = useSelector(state => state.auth);
   const history = useHistory();
+  const id = props.id
 
   const [reload, setReload] = useState(false);
   const [dentistData, setDentistData] = useState({})
   const [config, setConfig] = useState({})
   
-  const [option, setOption] = useState('pagar')
+  const [option, setOption] = useState(1)
   const [padrao, setPadrao] = useState(false)
   const [values, setValues] = useState({})
-  const [activeKey, setActiveKey] = useState('pagar')
-
   const [optionsStatus, setOptionsStatus] = useState([
     {
       label: 'Todos',
@@ -58,15 +52,14 @@ export function Comissoes(props) {
     },
     {
       label: 'Pendente',
-      value: 'pagar'
+      value: 1
     },
     {
       label: 'Pago',
-      value: 'pago'
+      value: 2
     },
   ])
 
-  const [selectionType, setSelectionType] = useState('checkbox')
   const [pagamentos, setPagamentos] = useState([])
   const [ordemData, setOrdemData] = useState(undefined)
   const [showOrdemDetais, setShowOrdemDetais] = useState(false)
@@ -92,15 +85,15 @@ export function Comissoes(props) {
   }, [authToken, reload, padrao]);
 
   useEffect(() => {
-    index(authToken, `/comissao/${id}?status=${activeKey}`).then(
+    index(authToken, `/comissao/${id}?status=${option}`).then(
       ({ data }) => {
         setPagamentos(data);
       }
     );
-  }, [activeKey])
+  }, [option])
 
   useEffect(() => {
-    index(authToken, `/comissao/${id}?status=${activeKey}`).then(
+    index(authToken, `/comissao/${id}?status=${undefined}`).then(
       ({ data }) => {
         setPagamentos(data);
       }
@@ -120,16 +113,13 @@ export function Comissoes(props) {
         return 'Não executado' 
     
       case 1:
-        return 'Aguardando cliente' 
+        return 'Pendente' 
      
       case 2:
-      return 'Pendente' 
-
-      case 3:
       return 'Pago' 
     
       default:
-        return status;
+        return;
     }
 
     return 
@@ -145,6 +135,7 @@ export function Comissoes(props) {
       }
     )
   }
+  
   
   const showDetails = (id) => {
     show(authToken, `/comissao/detalhes`, id).then(({ data }) => {
@@ -166,67 +157,71 @@ export function Comissoes(props) {
       tipo: 0,
       ordens: selecionado
     }).then( _ => {
-      setSelecionado([])
       setModalPayment(false)
       setPadrao(!padrao)
-      setReload(!reload)
-      setOption(!option)
     })
   }
 
   const columns = [
     {
-      dataIndex: "pacientes",
-      title: "Paciente",
-      render: data => <span>{data.name}</span>
-    },
-    {
-      dataIndex: "executado_em",
-      title: "Data de execução",
-      render: data => <span>{returnDate(data)}</span>
-    },
-    {
-      dataIndex: "status_comissao",
-      title: "Status",
-      render: data => <span>{returnStatusComissao(data)}</span>,
-    },
-    {
-      dataIndex: "",
-      title: "Aprovado",
-    },
-    {
-      dataIndex: "valor_total",
-      title: "Valor",
-      render: data => <span>{convertMoney(data)}</span>,
-    },
-    {
-      dataIndex: "valor_comissao",
-      title: "Valor Comissão",
+      dataField: "pacientes.name",
+      text: "Paciente",
       sort: true,
-      render: data => <span>{convertMoney(data)}</span>,
+      sortCaret: sortCaret,
     },
     {
-      title: "Ações",
+      dataField: "executado_em",
+      text: "Data de execução",
+      sort: true,
+      sortCaret: sortCaret,
+      formatter: returnDate
+    },
+    {
+      dataField: "status_comissao",
+      text: "Status",
+      sort: true,
+      sortCaret: sortCaret,
+      formatter: returnStatusComissao,
+    },
+    {
+      dataField: "",
+      text: "Aprovado",
+      sort: true,
+      sortCaret: sortCaret,
+    },
+    {
+      dataField: "valor_total",
+      text: "Valor",
+      sort: true,
+      formatter: convertMoney,
+      sortCaret: sortCaret,
+    },
+    {
+      dataField: "valor_comissao",
+      text: "Valor Comissão",
+      sort: true,
+      formatter: convertMoney,
+      sortCaret: sortCaret,
+    },
+    {
+      dataField: "action",
+      text: "Ações",
       classes: "text-right pr-0",
-      render: data => (
-        <Space size="middle">
-          <Tooltip placement="top" title="Visualizar">
-            <span onClick={() => showDetails(data.id) }  style={{"cursor": "pointer"}} className="svg-icon menu-icon">
-              <FolderOpenOutlined twoToneColor="#eb2f96"/>
-            </span>
-          </Tooltip>
-          <Tooltip placement="top" title="Editar">
-            <span onClick={() => editComissao(data.id) }  style={{"cursor": "pointer"}} className="svg-icon menu-icon">
-              <EditOutlined />
-            </span>
-          </Tooltip>
-        </Space>
-      )
+      formatter: ActionsColumnFormatter,
+      formatExtraData: {
+        showDetails,
+        options: ['view'],
+      },
+      sortCaret: sortCaret,
+      headerClasses: "text-right pr-3",
+      style: {
+        minWidth: "100px",
+      },
     },
   ];
 
   const handleOnSelect = (row, isSelect) => {
-    if (row.status_comissao === 3) {
+    if (row.status_comissao === 2) {
       return false
     }
     if (isSelect) {
@@ -253,20 +248,8 @@ export function Comissoes(props) {
     selected: selecionado.id,
     onSelect: handleOnSelect,
     onSelectAll: handleOnSelectAll,
-    nonSelectable: pagamentos.map(r => r.status_comissao !== 'pagar' ? r.id : null),
+    nonSelectable: pagamentos.map(r => r.status_comissao !== 1 ? r.id : null),
   };
-
-  const rowSelection = {
-    onChange: ( rowKey, selectedRows) => {
-      setSelecionado(selectedRows)
-    },
-    getCheckboxProps: (record) => ({
-      disabled: record. status_comissao !== 'pagar' ,
-      // Column configuration not to be checked
-      name: record.name,
-    }),
-  };
-
 
   const rowStyle = (row, rowIndex) => {
     const style = {};
@@ -462,72 +445,73 @@ export function Comissoes(props) {
         <CardHeaderToolbar style={{flex: 1}}>
           <div style={{flex: 1, display: 'flex', flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center'}}>
             
-           <div></div>
+            <Select
+              className="select_agenda"
+              placeholder="Filtro"
+              options={optionsStatus}
+              defaultValue={optionsStatus[1]}
+              onChange={(value) => {
+                setOption(value.value);
+              }}
+            />
             
             <div style={{display: 'flex', flexDirection: 'row', width: '50%'}}>
           
-             {/* {
-               option === 2 ? 
+             {
+               option === 0 ? 
                <fieldset className="fildset-container" >
                <legend className="fildset-title">Pendente</legend>
                  <span>{convertMoney(values.pendentes)}</span>
                </fieldset> : <></>
-             } */}
+             }
           
            
              {
-               activeKey === 'pagar' ? 
+               option === undefined || option === 1 ? 
                <>
-                <Space size="large" ><Statistic title="Pendente" value={convertMoney(values.pendentes)} />
-                  <Space size="large" ><Statistic title="Selecionado" value={convertMoney(selecionado.reduce((a, b) => a + b.valor_comissao, 0))} /></Space>
-                </Space>
+                <fieldset className="fildset-container" style={{marginRight: 20}} >
+                <legend className="fildset-title">Pendente</legend>
+                  <span>{convertMoney(values.pendentes)}</span>
+                </fieldset>
                </>
                : <></>
-              }
+             }
 
 
             {
-              activeKey === 'pago' ? 
-                <Space size="large" ><Statistic title="Pago" value={convertMoney(pagamentos.reduce((a, b) => a + b.valor_comissao, 0))} /></Space>
-               : <></>
+               option === 2 ? 
+               <fieldset className="fildset-container" >
+               <legend className="fildset-title">Pago</legend>
+                 <span>{convertMoney(pagamentos.reduce((a, b) => a + b.valor_comissao, 0))}</span>
+               </fieldset> : <></>
              }
-             
+
              </div>
-            <Button
-              disabled={pagamentos.reduce((a, b) => a + b.valor_comissao, 0) === 0 || option !== 'pagar'}
-              variant={selecionado.length > 0  ? 'primary' : 'secondary'} 
-              onClick={() => setModalPayment(true)}
-            >Pagar</Button>
 
           </div>
         </CardHeaderToolbar>
       </CardHeader>
       <CardBody>
-        <div style={{display: 'flex', flex: 1}}>
-            <Tabs
-              size="small"
-              tabPosition="left"
-              defaultActiveKey="pagar"
-              activeKey={activeKey}
-              onChange={(e) => setActiveKey(e)}
-            >
-            <TabPane tab="Pendentes" key="pagar" />
-          
-            <TabPane tab="Pagos" key="pago" />
-
-            <TabPane tab="Todos" key="0" />
-           </Tabs>
-            <TableNew
-              dataSource={pagamentos.map(item => ({...item, key: item.id}))} 
-              columns={columns}  
-              rowSelection={{
-                type: selectionType,
-                ...rowSelection,
-              }}
-              style={{width: '100%', paddingLeft: 10}}
-            />
-          </div>
+        <BootstrapTable
+          wrapperClasses="table-responsive"
+          classes="table table-head-custom table-vertical-center overflow-hidden"
+          bootstrap4
+          bordered={false}
+          remote
+          keyField="id"
+          defaultSorted={[{ dataField: "id", order: "asc" }]}
+          onTableChange={() => {}}
+          selectRow={ selectRow }
+          data={pagamentos}
+          columns={columns}
+          rowStyle={ rowStyle }
+        >
+          {/* <PleaseWaitMessage entities={entities} />
+          <NoRecordsFoundMessage entities={entities} /> */}
+        </BootstrapTable>
       </CardBody>
     </Card>
   );
 }
+
+export default Comissoes

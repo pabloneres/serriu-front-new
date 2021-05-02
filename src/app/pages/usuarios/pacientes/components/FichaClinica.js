@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { CardHeader, CardBody } from "~/_metronic/_partials/controls";
+import { notification, Divider, Space } from 'antd';
+import { Statistic } from 'antd';
 import {
   Card,
   Accordion,
@@ -22,6 +24,11 @@ import { useSelector } from "react-redux";
 import TextField from '@material-ui/core/TextField';
 import { makeStyles } from '@material-ui/core/styles';
 import { conversorMonetario, formatDate } from "~/app/modules/Util";
+import { atualData } from '~/utils/data'
+import moment from "moment";
+import { index, update, show, store } from "~/app/controllers/controller";
+import "moment/locale/pt-br";
+moment.locale("pt-br");
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -44,14 +51,21 @@ export function FichaClinica() {
   const [reload, setReload] = useState(false);
   const [modalData, setModalData] = useState();
 
-  const [data, setData] = useState();
+  const [data, setData] = useState(moment(new Date()));
   const [hora, setHora] = useState();
+
+  const [pacienteInfo, setPacienteInfo] = useState(undefined);
 
   const [modalExecutar, setModalExecutar] = useState(false);
   const [modalAgendamento, setModalAgendamento] = useState(false);
   const [selectedDate, setSelectedDate] = React.useState(new Date('2014-08-18T21:11:54'));
 
   let erro = [];
+
+  notification.config({
+    placement: 'bottomRight',
+    duration: 3,
+  });
 
   useEffect(() => {
     indexAprovados(authToken, params.id).then(({ data }) => {
@@ -100,6 +114,11 @@ export function FichaClinica() {
       });
       setOrcamentos_executados(serialiazed);
     });
+
+    show(authToken, '/patient', params.id).then(({data}) => {
+      console.log(data)
+      setPacienteInfo(data[0])
+    }) 
   }, [reload]);
 
   const getFacesProcedimentoFormatado = (procedimento) => {
@@ -132,12 +151,39 @@ export function FichaClinica() {
   }
 
   function handlerFormExecutarProcedimento() {
-    updateAprovado(authToken, modalData[1].id, { ...modalData })
+    console.log(modalData)
+    if (modalData[0].saldo_disponivel < modalData[1].valor) {
+      if (modalData[0].cobranca !== 'parcial') {
+        notification.error({
+          message: `Saldo insulficiente!`,
+          description:
+            'O Paciente não possui saldo sulficiente para executar o procedimento.',
+        });
+        return
+      }
+      
+    }
+    updateAprovado(authToken, modalData[1].id, { ...modalData, data: atualData() })
       .then(() => {
         setReload(!reload);
-        return;
+        if (modalData[0].cobranca === 'parcial' && modalData[0].saldo_disponivel < modalData[1].valor) {
+          notification.warn({
+            message: `Saldo insulficiente!`,
+            description:
+              'Procedimento liberado para execução, mas o saldo do cliente ficará negativo.',
+          });
+          return
+        } 
+
+        return notification.success({
+          message: `Procedimento liberado!`,
+          description:
+            'Procedimento liberado para execução.',
+        });
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        console.log(err)
+      });
 
     modalClose();
     return;
@@ -174,6 +220,18 @@ export function FichaClinica() {
     setSelectedDate(date);
   };
 
+  const returnValue = (e, currency = 'brl') => {
+    const value = Number(e)
+    return value.toLocaleString('pt-br', { style: 'currency', currency })
+  }
+
+  const returnSaldo = (value) => {
+    if (value < 0) {
+      return <span style={{color: 'red'}}> {value.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})} </span>
+    }
+    return <span style={{color: 'green'}}> {value.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})} </span>
+  }
+
   return (
     <div className="fichaClinica">
       <Modal show={modalExecutar}>
@@ -193,9 +251,9 @@ export function FichaClinica() {
                           onChange={(e) => {
                             setData(e.target.value);
                           }}
-                          type="date"
+                          type="datetime-local"
                           name="data"
-                          value={data}
+                          defaultValue={atualData()}
                         />
                       </Form.Group>
                     </Form.Row>
@@ -390,7 +448,10 @@ export function FichaClinica() {
       <Accordion>
         <Card>
           <Accordion.Toggle as={Card.Header} eventKey="0">
-            Planos de Tratamento Aprovados
+            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+              Planos de Tratamento Aprovados
+              {/* <Statistic title="Saldo disponivel" valueStyle={{ fontSize: 16, color: 'green', }} value={returnValue(pacienteInfo ? pacienteInfo.saldo_disponivel : 0)} /> */}
+            </div>
           </Accordion.Toggle>
           <Accordion.Collapse eventKey="0" className="listaProcedimentos">
             <Accordion>
@@ -409,6 +470,7 @@ export function FichaClinica() {
                               Valor: {conversorMonetario(orcamento.total)}
                             </Col>
                             <Col>Status: {ReturnStatus(orcamento.status)}</Col>
+                            <Col>Saldo: {returnSaldo(orcamento.saldo_disponivel)}</Col>
                           </Row>
                         </Container>
                       </Accordion.Toggle>

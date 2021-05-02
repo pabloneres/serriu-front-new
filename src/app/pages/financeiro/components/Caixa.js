@@ -10,6 +10,9 @@ import { useSelector, connect } from "react-redux";
 import SVG from "react-inlinesvg";
 import { toAbsoluteUrl, checkIsActive } from "~/_metronic/_helpers";
 import { index, update, show } from "~/app/controllers/controller";
+import moment from "moment";
+import "moment/locale/pt-br";
+moment.locale("pt-br");
 
 export function Caixa(props) {
   const { params, url } = useRouteMatch();
@@ -34,7 +37,7 @@ export function Caixa(props) {
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
-    index(authToken, `/financeiro/user?status_id=${3}&pago=${1}`).then(
+    index(authToken, `/caixa/clinica`).then(
       ({ data }) => {
         setPagamentos(data);
       }
@@ -126,192 +129,21 @@ export function Caixa(props) {
     });
   };
 
-  const ShowModal = () => {
-    if (!ordem || !orcamento) {
-      return <></>;
+
+  const returnTipo = (tipo) => {
+    switch (tipo) {
+      case 0:
+        return 'Entrada'
+      case 1:
+        return 'Saida'
+      default:
+        return tipo
     }
-
-    return (
-      <Modal show={modalInfo} size="lg">
-        <Modal.Header>Orçamento</Modal.Header>
-        <Modal.Body>
-          <Table striped bordered hover>
-            <thead>
-              <tr>
-                <th>Informações</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Referência</td>
-                <td>{returnReferencia(ordem)}</td>
-              </tr>
-              <tr>
-                <td>Dentista</td>
-                <td>{orcamento.dentistas.name}</td>
-              </tr>
-              <tr>
-                <td>Data</td>
-                <td>{orcamento.criado_em}</td>
-              </tr>
-              <tr>
-                <td>Status do Orçamento</td>
-                <td>{ReturnStatus(orcamento.status)}</td>
-              </tr>
-            </tbody>
-          </Table>
-          <Table striped bordered hover>
-            <thead>
-              <tr>
-                <th>Procedimentos</th>
-                <th>Dente</th>
-                <th>Faces</th>
-                <th>Valor</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {orcamento.procedimentos_orcamentos
-                ? orcamento.procedimentos_orcamentos.map(procedimento => (
-                    <tr key={procedimento.id}>
-                      <td>{procedimento.procedimento_nome}</td>
-                      <td>
-                        {procedimento.label ? procedimento.label : "Geral"}
-                      </td>
-                      <td>
-                        {procedimento.faces.lenght && procedimento.faces.lenght > 0
-                          ? procedimento.faces.map(face => (
-                              <span style={{ color: "red" }}>
-                                {face.label}{" "}
-                              </span>
-                            ))
-                          : "Geral"}
-                      </td>
-                      <td>
-                        {procedimento.valor.toLocaleString("pt-br", {
-                          style: "currency",
-                          currency: "BRL"
-                        })}
-                      </td>
-                      <td>
-                        {procedimento.status === 1 ? (
-                          <span style={{ color: "green" }}>Executado</span>
-                        ) : (
-                          <span style={{ color: "red" }}>Pendente</span>
-                        )}
-                      </td>
-                    </tr>
-                  ))
-                : ""}
-            </tbody>
-          </Table>
-          <Table striped bordered hover>
-            <thead>
-              <tr>
-                <th>Forma de pagamento</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Forma Cobrança</td>
-                <td>{ordem.cobranca === "total" ? "Total" : "Procedimento"}</td>
-              </tr>
-              <tr>
-                <td>Forma de Pagamento</td>
-                <td>
-                  {ordem.pagamento === "dinheiro" ? "Dinheiro" : "Boleto"}
-                </td>
-              </tr>
-              <tr>
-                <td>Condição de Pagamento</td>
-                <td>{ordem.condicao === "vista" ? "À vista" : "Parcelado"}</td>
-              </tr>
-
-              {ordem.condicao === "parcelado" ? (
-                <tr>
-                  <td>Parcelamento</td>
-                  <td>
-                    {ordem.valor
-                      ? `Entrada de ${ordem.valor.toLocaleString("pt-br", {
-                          style: "currency",
-                          currency: "BRL"
-                        })} + `
-                      : ""}
-                    <span style={{ color: "red" }}>
-                      {`${orcamento.parcelas} X ${(
-                        (orcamento.total - orcamento.entrada) /
-                        orcamento.parcelas
-                      ).toLocaleString("pt-br", {
-                        style: "currency",
-                        currency: "BRL"
-                      })}`}
-                    </span>
-                  </td>
-                </tr>
-              ) : (
-                ""
-              )}
-            </tbody>
-          </Table>
-          <div
-            className="text-right"
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center"
-            }}
-          >
-            <span>
-              Total{" "}
-              <strong>
-                {ordem.valor.toLocaleString("pt-br", {
-                  style: "currency",
-                  currency: "BRL"
-                })}
-              </strong>
-            </span>
-            <div>
-              {ordem.pago === 0 ? (
-                <Button
-                  onClick={() => {
-                    setShowModal(!showModal);
-                    handlePayment({
-                      id: ordem.id,
-                      name: ordem.pacientes.name
-                    });
-                  }}
-                  className="mr-2"
-                  variant="primary"
-                >
-                  Receber
-                </Button>
-              ) : (
-                ""
-              )}
-              <Button
-                onClick={() => {
-                  setModalInfo(!modalInfo);
-                }}
-                className="mr-2"
-                variant="danger"
-              >
-                Fechar
-              </Button>
-            </div>
-          </div>
-        </Modal.Body>
-      </Modal>
-    );
-  };
+  }
 
   return (
     <Card>
-      {modal ? <ModalPayment /> : ""}
-      <ShowModal />
       <CardHeader title="Caixa">
-        <CardHeaderToolbar>
-          <Button>Criar Caixa</Button>
-        </CardHeaderToolbar>
       </CardHeader>
       <CardBody>
         <Table striped bordered hover>
@@ -320,6 +152,7 @@ export function Caixa(props) {
               <th>Data</th>
               <th>Paciente</th>
               <th>Dentista</th>
+              <th>Tipo</th>
               <th>Valor</th>
               <th style={{ width: 100 }}></th>
             </tr>
@@ -327,9 +160,10 @@ export function Caixa(props) {
           <tbody>
             {pagamentos.map(item => (
               <tr key={item.id}>
-                <td>{item.criado_em}</td>
-                <td>{item.pacientes.name}</td>
-                <td>{item.dentistas.name}</td>
+                <td>{moment(item.data).format('LLL')}</td>
+                <td></td>
+                <td></td>
+                <td>{returnTipo(item.tipo)}</td>
                 <td>
                   {item.valor.toLocaleString("pt-br", {
                     style: "currency",

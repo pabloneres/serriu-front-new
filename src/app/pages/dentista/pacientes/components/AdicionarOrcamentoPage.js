@@ -43,8 +43,7 @@ import Select from "react-select";
 const options = {
   cobranca: [
     {value: 'total', label: 'Total'},
-    {value: 'procedimento', label: 'Procedimento executado'},
-    {value: 'parcial', label: 'Parcial'}
+    {value: 'procedimento', label: 'Procedimento executado'}
   ],
   pagamento: [
     {value: 'dinheiro', label: 'Dinheiro'},
@@ -56,9 +55,7 @@ const options = {
   ]
 }
 
-export function EditarOrcamentoPage({ orcamento, alterar }) {
-  console.log(orcamento)
-  console.log(alterar)
+function AdicionarOrcamentoPage({ orcamento, alterar }) {
   const {user: { authToken }} = useSelector((state) => state.auth);
   const history = useHistory();
   const { params, url } = useRouteMatch();
@@ -83,7 +80,7 @@ export function EditarOrcamentoPage({ orcamento, alterar }) {
   const [cobranca, setCobranca] = useState({})
   const [pagamento, setPagamento] = useState({})
   const [condicao, setCondicao] = useState({})
-  const [entrada, setEntrada] = useState(0)
+  const [entrada, setEntrada] = useState()
   const [parcelas, setParcelas] = useState()
   const [showAlert, setShowAlert] = useState(false)
 
@@ -91,7 +88,9 @@ export function EditarOrcamentoPage({ orcamento, alterar }) {
 
   useEffect(() => {
     if (orcamento !== undefined) {
-      let procedimentos = orcamento.procedimentos_orcamentos
+      console.log(orcamento);
+      let procedimentos = JSON.parse(orcamento.procedimento);
+      console.log(procedimentos);
 
       procedimentos.map((row) => {
         row.label = row.procedimento;
@@ -108,8 +107,8 @@ export function EditarOrcamentoPage({ orcamento, alterar }) {
 
     let opcoesPagamento = {
       cobranca,
-      pagamento: cobranca.value === 'procedimento' || cobranca.value === 'parcial' ? options['pagamento'][0] : pagamento,
-      condicao: cobranca.value === 'procedimento' || cobranca.value === 'parcial' ? options['condicao'][0] : condicao,
+      pagamento: cobranca.value === 'procedimento' ? options['pagamento'][0] : pagamento,
+      condicao: cobranca.value === 'procedimento' ? options['condicao'][0] : condicao,
       entrada,
       parcelas,
     }
@@ -235,18 +234,18 @@ export function EditarOrcamentoPage({ orcamento, alterar }) {
   };
 
   const getFacesProcedimentoFormatado = (procedimento) => {
-    console.log(procedimento)
     let strFaces = "";
-    
-    // strFaces = strFaces.concat(dente.label);
+    procedimento.dentes.map((dente) => {
+      strFaces = strFaces.concat(dente.label);
 
-    // if (dente.faces !== undefined) {
-    //   dente.faces.map((face) => {
-    //     strFaces = strFaces.concat(face.label);
-    //   });
-    // }
+      if (dente.faces !== undefined) {
+        dente.faces.map((face) => {
+          strFaces = strFaces.concat(face.label);
+        });
+      }
 
       strFaces = strFaces.concat(", ");
+    });
 
     strFaces = strFaces.slice(0, -2);
 
@@ -374,8 +373,8 @@ export function EditarOrcamentoPage({ orcamento, alterar }) {
               <Form.Label>Forma de Pagamento</Form.Label>
                 <Select
                   required
-                  value={cobranca.value === 'procedimento' || cobranca.value === 'parcial' ? options['pagamento'][0] : pagamento}
-                  isDisabled={cobranca.value === 'procedimento' || cobranca.value === 'parcial'}
+                  value={cobranca.value === 'procedimento' ? options['pagamento'][0] : pagamento}
+                  isDisabled={cobranca.value === 'procedimento'}
                   placeholder="Selecione a forma de pagamento..."
                   options={options['pagamento']}
                   onChange={(value) => {
@@ -391,8 +390,8 @@ export function EditarOrcamentoPage({ orcamento, alterar }) {
               <Form.Label>Condição de Pagamento</Form.Label>
                 <Select
                   required
-                  value={pagamento.value === 'boleto' ? options['condicao'][0] : cobranca.value === 'procedimento' ||  cobranca.value === 'parcial' ? options['condicao'][0] : condicao}
-                  isDisabled={cobranca.value === 'procedimento' || cobranca.value === 'parcial'}
+                  value={pagamento.value === 'boleto' ? options['condicao'][0] : cobranca.value === 'procedimento' ? options['condicao'][0] : condicao}
+                  isDisabled={cobranca.value === 'procedimento'}
                   placeholder="Selecione a condição de pagamento..."
                   options={options['condicao']}
                   onChange={(value) => {
@@ -471,44 +470,6 @@ export function EditarOrcamentoPage({ orcamento, alterar }) {
               }
             })()}
 
-            {(() => {
-              if (cobranca.value === 'parcial') {
-                return (
-                  <Form.Row className="justify-content-md-center">
-                     <Form.Group as={Col}>
-                      <Form.Label>Valor Entrada</Form.Label>
-                      <Form.Control
-                        type="number"
-                        name="valorEntrada"
-                        value={entrada}
-                        required
-                        onChange={(e) => {
-                          setEntrada(e.target.value)
-                        }}
-                      />
-                      <Form.Control.Feedback type="invalid">
-                        Esse campo é necessario!
-                      </Form.Control.Feedback>
-                    </Form.Group>
-
-                    <Form.Group as={Col}>
-                      <Form.Label>Restante</Form.Label>
-                      <Form.Control
-                        type="text"
-                        name="valorEntrada"
-                        disabled
-                        value={conversorMonetario( getTotalProcedimentos() - entrada )}
-                      />
-                      <Form.Control.Feedback type="invalid">
-                        Esse campo é necessario!
-                      </Form.Control.Feedback>
-                    </Form.Group>
-
-                  </Form.Row>
-                );
-              }
-            })()}
-
             <Modal.Footer>
               <Button
                 variant="secondary"
@@ -531,33 +492,16 @@ export function EditarOrcamentoPage({ orcamento, alterar }) {
         <Form>
           <Form.Row>
             {/* LISTAR CLINICAS */}
-            <Form.Group as={Col} controlId="formGridAddress1">
+            {/* <Form.Group as={Col} controlId="formGridAddress1">
               <Form.Label>Clinica *</Form.Label>
               <Form.Control disabled as="select" name="clinica">
                 {clinicas.map((row) => {
                   return <option key={row.name}>{row.name}</option>;
                 })}
               </Form.Control>
-            </Form.Group>
+            </Form.Group> */}
 
             {/* LISTAR DENTISTAS */}
-
-            <Form.Group as={Col} controlId="formGridAddress1">
-              <Form.Label>Dentista *</Form.Label>
-                <Select
-                  isClearable={true}
-                  value={procedimento}
-                  placeholder="Selecione o dentista..."
-                  options={dentistas.map(item => ({
-                    value: item.dentista_id,
-                    label: item.name
-                  }))}
-                  onChange={(value) => {
-                    console.log(value)
-                    handlerMudancaDentista(value)
-                  }}
-                />
-            </Form.Group>
 
             {/* INSERE A DATA */}
             <Form.Group as={Col} controlId="formGridPassword">
@@ -757,3 +701,6 @@ export function EditarOrcamentoPage({ orcamento, alterar }) {
     </Card>
   );
 }
+
+
+export default AdicionarOrcamentoPage

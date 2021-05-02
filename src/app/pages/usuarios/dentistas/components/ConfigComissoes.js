@@ -11,6 +11,8 @@ import { useFormik } from "formik";
 import api from "~/app/services/api";
 import * as Yup from "yup";
 import notify from "devextreme/ui/notify";
+import {MixedWidget1} from '../../../../../_metronic/_partials/widgets/index'
+import {Input , Form as FormNew} from 'antd'
 
 import {
   Card,
@@ -24,6 +26,7 @@ import { DropdownMenu1 } from "~/_metronic/_partials/dropdowns";
 import './styles.css'
 
 export function ConfigComissoes() {
+
   const { params, url } = useRouteMatch()
   const {
     user: { authToken,  },
@@ -66,7 +69,34 @@ export function ConfigComissoes() {
         <Modal.Body>
           <Form>
 
-            <fieldset className="fildset-container" >
+          <fieldset className="fildset-container" >
+          <legend className="fildset-title">Recebe Comissão</legend>
+            <Form.Row className="justify-content-md-center">
+              <Form.Group as={Col} controlId="formGridAddress1">
+                <Form.Check
+                  type="radio"
+                  label="Sim"
+                  name="recebe"
+                  id="recebe"
+                  defaultChecked={config.recebe_comissao === 1}
+                  onChange={(e) => updateConfig({recebe_comissao: e.target.checked ? 1 : 0})}
+                />
+              </Form.Group>
+
+              <Form.Group as={Col} controlId="formGridAddress1">
+                <Form.Check
+                  type="radio"
+                  label="Não"
+                  name="recebe"
+                  id="recebe2"
+                  defaultChecked={config.recebe_comissao === 0}
+                  onChange={(e) => updateConfig({recebe_comissao: e.target.checked ? 0 : 1})}
+                />
+              </Form.Group>
+            </Form.Row>
+          </fieldset>
+      
+            {/* <fieldset className="fildset-container" >
               <legend className="fildset-title">Aprovação da Clinica</legend>
               <Form.Row className="justify-content-md-center">
                 <Form.Group as={Col} controlId="formGridAddress1">
@@ -78,7 +108,7 @@ export function ConfigComissoes() {
                   />
                 </Form.Group>
               </Form.Row>
-            </fieldset>
+            </fieldset> */}
          
             {/* <fieldset className="fildset-container" >
               <legend className="fildset-title">Forma de Cobrança</legend>
@@ -114,15 +144,34 @@ export function ConfigComissoes() {
             <fieldset className="fildset-container" >
               <legend className="fildset-title">Comissão</legend>
               <Form.Row className="justify-content-md-center">
-                <Form.Group as={Col} controlId="formGridAddress1">
-                  <Form.Label>Comissão Geral</Form.Label>
-                  <Form.Control 
+                <FormNew.Item
+                  style={{width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}}
+                  label="Comissão Boleto"
+                >
+                  <Input
                     type="number" 
                     defaultValue={config.comissao_geral} 
                     placeholder="Ex: 50 => 50%" 
                     onChange={e => updateConfig({comissao_geral: e.target.value})}
+                    disabled={config.recebe_comissao === 0}
+                    suffix="%"
                   />
-                </Form.Group>
+                </FormNew.Item>
+              </Form.Row>
+              <Form.Row className="justify-content-md-center">
+                <FormNew.Item
+                  style={{width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}}
+                  label="Comissão Boleto"
+                >
+                  <Input
+                    type="number" 
+                    defaultValue={config.comissao_boleto} 
+                    placeholder="Ex: 50 => 50%" 
+                    onChange={e => updateConfig({comissao_boleto: e.target.value})}
+                    disabled={config.recebe_comissao === 0}
+                    suffix="%"
+                  />
+                </FormNew.Item>
               </Form.Row>
             </fieldset> : 
               <></>
@@ -134,9 +183,10 @@ export function ConfigComissoes() {
               <Form.Group as={Col} controlId="formGridAddress1">
                 <Form.Check
                   type="radio"
-                  label="No Recebimento do Pagamento"
+                  label="Por Orçamento"
                   name="recebimentoType"
                   id="pagamento"
+                  disabled={config.recebe_comissao === 0}
                   defaultChecked={config.pagamento === 0}
                   onChange={(e) => updateConfig({pagamento: e.target.checked ? 0 : 1})}
                 />
@@ -148,6 +198,7 @@ export function ConfigComissoes() {
                   label="Na Execução do Procedimento"
                   name="recebimentoType"
                   id="pagamento2"
+                  disabled={config.recebe_comissao === 0}
                   defaultChecked={config.pagamento === 1}
                   onChange={(e) => updateConfig({pagamento: e.target.checked ? 1 : 0})}
                 />
@@ -163,6 +214,7 @@ export function ConfigComissoes() {
                   type="checkbox" 
                   label="Descontar Taxas de Pagamento" 
                   id="impostos"
+                  disabled={config.recebe_comissao === 0}
                   defaultChecked={config.descontar_impostos === 1}
                   onChange={(e) => updateConfig({descontar_impostos: e.target.checked ? 1 : 0})}
                 />
@@ -173,7 +225,7 @@ export function ConfigComissoes() {
                 <Form.Control 
                   type="number" 
                   defaultValue={config.impostos} 
-                  disabled={config.descontar_impostos === 0}
+                  disabled={config.descontar_impostos === 0 && config.recebe_comissao === 0}
                   onChange={e => updateConfig({impostos: e.target.value})}
                   placeholder="Ex: 50 => 50%" />
               </Form.Group>
@@ -244,24 +296,30 @@ export function ConfigComissoes() {
                 <CardHeaderToolbar></CardHeaderToolbar>
               </CardHeader>
               <CardBody>
-                <div className="container-comissao">
-                  <div className="header-container-comissao">
-                    <span>Recebimento</span>
+                <div className="container-comissao" style={{borderColor: config.recebe_comissao === 0 ? 'red' : 'rgb(56, 142, 60)'}}>
+                  <div className="header-container-comissao" style={{backgroundColor: config.recebe_comissao === 0 ? 'red' : 'rgb(56, 142, 60)'}}>
+                    <span> {config.recebe_comissao === 0 ? 'Não recebe comissão' : 'Recebe comissão'} </span>
                   </div>
                   <div className="body-container-comissao">
                     <div className="modo-pagamento">
                       <div className="modo-pagamento-row">
-                        <input type="checkbox" name="teste" id="" checked={config.forma_cobranca === 0} />
-                        <span>Porcentagem</span>
+                        <input type="checkbox" name="teste" id="" checked={config.pagamento === 0} />
+                        <span>Orçamento</span>
                       </div>
                       <div className="modo-pagamento-row">
-                        <input type="checkbox" name="teste" id="" checked={config.forma_cobranca === 1} />
+                        <input type="checkbox" name="teste" id="" checked={config.pagamento === 1} />
                         <span>Procedimento</span>
                       </div>
                     </div>
+                    <div style={{width: '100%', display: 'flex', justifyContent: 'space-evenly'}}>
                     <div className="comissao-valor">
                       <span>Comissão Geral</span>
                       <span className="span-comissao">{config.comissao_geral}%</span>
+                    </div>
+                    <div className="comissao-valor">
+                      <span>Comissão Boleto</span>
+                      <span className="span-comissao">{config.comissao_boleto}%</span>
+                    </div>
                     </div>
                     <div className="buttons-actions">
                       <Button onClick={() => setModal(true)}>Editar</Button>

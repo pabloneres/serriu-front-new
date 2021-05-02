@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { Card, CardHeader, CardBody } from "~/_metronic/_partials/controls";
+import { Card, CardHeader, CardBody, CardHeaderToolbar } from "~/_metronic/_partials/controls";
 import { Link } from "react-router-dom";
+import { InputNumber, Row, Input, Button, Statistic } from 'antd';
 
-import { Table, Modal, Button, Form, Col, InputGroup } from "react-bootstrap";
+import { Table, Form, Col, InputGroup, Modal } from "react-bootstrap";
 
 import { FormattedMessage, injectIntl } from "react-intl";
 import { useHistory, useRouteMatch } from "react-router-dom";
 import { useSelector, connect } from "react-redux";
 import SVG from "react-inlinesvg";
 import { toAbsoluteUrl, checkIsActive } from "~/_metronic/_helpers";
-import { index, update, show } from "~/app/controllers/controller";
+import { index, update, show, store } from "~/app/controllers/controller";
 
 export function Financeiro(props) {
   const { params, url } = useRouteMatch();
@@ -32,14 +33,23 @@ export function Financeiro(props) {
   const [orcamento, setOrcamento] = useState(undefined);
 
   const [showModal, setShowModal] = useState(false);
+  const [showModalSaldo, setShowModalSaldo] = useState(false);
+  const [addSaldo, setAddSaldo] = useState(undefined);
+  const [pacienteInfo, setPacienteInfo] = useState(undefined);
+
 
   useEffect(() => {
     index(
       authToken,
-      `/financeiro/user?status_id=1,2,3&usuario_id=${params.id}&pago=0,1`
+      `/financeiro/user?status=pendente,pago&usuario_id=${params.id}&pago=0,1`
     ).then(({ data }) => {
       setPagamentos(data);
     });
+
+    show(authToken, '/patient', params.id).then(({data}) => {
+      console.log(data)
+      setPacienteInfo(data[0])
+    }) 
   }, [authToken, params.id, reload]);
 
   if (!pagamentos) {
@@ -71,6 +81,19 @@ export function Financeiro(props) {
       </Modal>
     );
   };
+
+  const handleAddSaldo = () => {
+    update(authToken, '/paciente/saldo', params.id, {valor: addSaldo, tipo: 0 }).then(_ => {
+      setAddSaldo(undefined)
+      setShowModalSaldo(false)
+      setReload(!reload)
+    })
+  }
+
+  const returnValue = (e, currency = 'brl') => {
+    const value = Number(e)
+    return value.toLocaleString('pt-br', { style: 'currency', currency })
+  }
 
   const handlePayment = data => {
     setPaymentInfos(data);
@@ -324,7 +347,21 @@ export function Financeiro(props) {
     <Card>
       {modal ? <ModalPayment /> : ""}
       <ShowModal />
-      <CardHeader title="A Receber"></CardHeader>
+      <CardHeader title="Financeiro cliente">
+        {/* <CardHeaderToolbar>
+          <Statistic title="Saldo disponivel"  valueStyle={{ fontSize: 16, color: 'green', }} value={returnValue(pacienteInfo ? pacienteInfo.saldo_disponivel : 0)} />
+          <button
+            style={{marginLeft: 100}}
+            type="button"
+            className="btn btn-primary"
+            onClick={() => { 
+              setShowModalSaldo(true)
+            }}
+          >
+            Adicionar saldo
+          </button>
+        </CardHeaderToolbar> */}
+      </CardHeader>
       <CardBody>
         <Table striped bordered hover>
           <thead>

@@ -30,14 +30,25 @@ export function AsideMenuListDentista({ layoutProps }) {
           </NavLink>
         </li>
         <li
+          className={`menu-item ${getMenuItemActive("/dentista/pacientes", false)}`}
+          aria-haspopup="true"
+        >
+          <NavLink className="menu-link" to="/dentista/pacientes">
+            <span className="svg-icon menu-icon">
+              <SVG style={{ "fill": "#3699FF" }} src={toAbsoluteUrl("/media/svg/icons/Design/pacients.svg")} />
+            </span>
+            <span className="menu-text">Pacientes</span>
+          </NavLink>
+        </li>
+        <li
           className={`menu-item ${getMenuItemActive("/agenda", false)}`}
           aria-haspopup="true"
         >
-          <NavLink className="menu-link" to="/comissoes">
+          <NavLink className="menu-link" to="/dentista/financeiro">
             <span className="svg-icon menu-icon">
               <SVG style={{"fill": "#3699FF"}} src={toAbsoluteUrl("/media/svg/icons/Design/money.svg")} />
             </span>
-            <span className="menu-text">Comissões</span>
+            <span className="menu-text">Financeiro</span>
           </NavLink>
         </li>
         <li

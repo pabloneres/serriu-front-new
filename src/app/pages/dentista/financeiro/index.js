@@ -14,27 +14,22 @@ import * as Yup from "yup";
 import { useSelector } from "react-redux";
 import { update, show } from "~/app/controllers/pacienteController";
 
-import { Dados } from "./components/Dados";
-import { Comissoes } from "./components/Comissoes";
-import { ConfigComissoes } from "./components/ConfigComissoes";
-import { AgendaDentista } from "./components/AgendaDentista";
-import { Recebidos } from "./components/Recebidos";
+import Comissoes from "./Comissoes";
+import Recebidos from "./Recebidos";
 
-
-// import { AdicionarOrcamentoPage } from "~/app/pages/orcamento/AdicionarOrcamentoPage";
-
-export function EditarDentistaPage(props) {
+function Financeiro(props) {
   const { params, url } = useRouteMatch();
   const { intl } = props;
   const {
-    user: { authToken },
-  } = useSelector((state) => state.auth);
+    user: { authToken, dentists }
+  } = useSelector(state => state.auth);
+  const id = dentists[0].id
   const history = useHistory();
 
   const [patient, setPatient] = useState({});
   const [user, setUser] = useState({});
   const [ufs, setUfs] = useState([]);
-  const [menu, setMenu] = useState("dados");
+  const [menu, setMenu] = useState("comissoes");
 
   useEffect(() => {
     if (props.location.state) {
@@ -48,13 +43,11 @@ export function EditarDentistaPage(props) {
       .catch((err) => history.push("/pacientes"));
   }, []);
 
+
   function HandleChangeMenu() {
-    const itensMenu = {
-      dados: () => <Dados />,
-      comissoes: () => <Comissoes />,
-      configComissoes: () => <ConfigComissoes />,
-      agendaDentista: () => <AgendaDentista />,
-      recebidos: () => <Recebidos />
+    const itensMenu = { 
+      comissoes: () => <Comissoes id={id} />,
+      recebidos: () => <Recebidos id={id} />,
     }
     return itensMenu[menu]();
   }
@@ -64,36 +57,7 @@ export function EditarDentistaPage(props) {
   return (
     <Card>
       <Nav className="mr-auto" variant="tabs">
-        <Nav.Item>
-          <Nav.Link
-            onClick={() => {
-              setMenu("dados");
-            }}
-            className={menu == "dados" ? "active" : ""}
-          >
-            Dados
-          </Nav.Link>
-        </Nav.Item>
-        <Nav.Item>
-          <Nav.Link
-            onClick={() => {
-              setMenu("agendaDentista");
-            }}
-            className={menu == "agendaDentista" ? "active" : ""}
-          >
-            Agenda de Trabalho
-          </Nav.Link>
-        </Nav.Item>
-        <Nav.Item>
-          <Nav.Link
-            onClick={() => {
-              setMenu("configComissoes");
-            }}
-            className={menu == "configComissoes" ? "active" : ""}
-          >
-            Configuração Comissão
-          </Nav.Link>
-        </Nav.Item>
+
         <Nav.Item>
           <Nav.Link
             onClick={() => {
@@ -104,6 +68,7 @@ export function EditarDentistaPage(props) {
             Comissões
           </Nav.Link>
         </Nav.Item>
+
         <Nav.Item>
           <Nav.Link
             onClick={() => {
@@ -114,8 +79,12 @@ export function EditarDentistaPage(props) {
             Recebidos
           </Nav.Link>
         </Nav.Item>
+
       </Nav>
       <HandleChangeMenu />
     </Card>
   );
 }
+
+
+export default Financeiro

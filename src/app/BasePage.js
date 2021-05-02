@@ -48,7 +48,13 @@ import { ProcedimentoPage } from '~/app/pages/procedimentos/ProcedimentoPage'
 import ConfigurarAgenda from '~/app/pages/configuracoes/agenda'
 
 
-import { Comissoes } from '~/app/pages/dentista/comissoes'
+
+//////////////////////////////////////////////////////
+import FinanceiroDentista from '~/app/pages/dentista/financeiro'
+import PacientesDentista from '~/app/pages/dentista/pacientes'
+import PacienteMenu from '~/app/pages/dentista/pacientes/components'
+//////////////////////////////////////////////////////
+
 
 
 
@@ -108,7 +114,6 @@ export default function BasePage() {
         <ContentRoute exact path="/tabela-procedimentos" component={TabelaProcedimento} />
 
 
-        <ContentRoute exact path="/comissoes" component={Comissoes} />
 
         <ContentRoute exact path="/equipamentos" component={Equipamentos} />
 
@@ -128,7 +133,17 @@ export default function BasePage() {
         <ContentRoute exact path="/configurar-agenda" component={ConfigurarAgenda} />
 
 
+
+        {/* dentistas menu */}
         
+        <ContentRoute exact path="/dentista/financeiro" component={FinanceiroDentista} />
+        <ContentRoute exact path="/dentista/pacientes" component={PacientesDentista} />
+        <ContentRoute exact path="/dentista/paciente/editar/:id" component={PacienteMenu} />
+
+
+        {/* dentistas menu */}
+
+
 
         <ContentRoute path="/my-page" component={MyPage} />
         <Route path="/google-material" component={GoogleMaterialPage} />

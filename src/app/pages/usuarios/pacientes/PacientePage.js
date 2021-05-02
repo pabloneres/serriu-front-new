@@ -96,10 +96,10 @@ export function PacientePage() {
               <td>{patient.gender}</td>
               <td><Link to={''} />
               <span onClick={() => history.push(`/paciente/editar/${patient.id}`) } className="svg-icon menu-icon">
-                  <SVG style={{"fill": "#3699FF", "color": "#3699FF"}} src={toAbsoluteUrl("/media/svg/icons/Design/create.svg")} />
+                <SVG style={{"fill": "#3699FF", "color": "#3699FF"}} src={toAbsoluteUrl("/media/svg/icons/General/Visible.svg")} />
               </span>
               <span onClick={() => handleDelete(patient.id) }  style={{"cursor": "pointer"}} className="svg-icon menu-icon">
-                <SVG style={{"fill": "#3699FF", "color": "#3699FF", "marginLeft": 8}} src={toAbsoluteUrl("/media/svg/icons/Design/delete.svg")} />
+                <SVG style={{"marginLeft": 10}} src={toAbsoluteUrl("/media/svg/icons/General/Trash.svg")} />
               </span>
               </td>
             </tr>

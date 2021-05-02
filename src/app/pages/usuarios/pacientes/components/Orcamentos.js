@@ -2,13 +2,16 @@
 import React, { useEffect, useState } from "react";
 import { useHistory, Redirect, useRouteMatch } from "react-router-dom";
 import { AdicionarOrcamentoPage } from "~/app/pages/orcamento/AdicionarOrcamentoPage";
+import { EditarOrcamentoPage } from "~/app/pages/orcamento/EditarOrcamentoPage";
 import { Link } from 'react-router-dom'
 import SVG from 'react-inlinesvg'
-import { Table } from "react-bootstrap";
-import { store, index, getProcedimentos, orcamento, show, destroy, aprovar } from '~/app/controllers/orcamentoController';
+import { store, getProcedimentos, orcamento, destroy, aprovar, show } from '~/app/controllers/orcamentoController';
+import { update, index } from '~/app/controllers/controller';
 import { useSelector } from "react-redux";
 import {format} from 'date-fns-tz'
-
+import { FolderOpenOutlined, DeleteOutlined,
+  EditOutlined, DollarCircleOutlined } from '@ant-design/icons';
+import { Table as TableNew, Modal as ModalNew, Tag, Space, Tooltip, Input, notification, Tabs, Checkbox } from 'antd';
 import { toAbsoluteUrl, checkIsActive } from "~/_metronic/_helpers";
 import {
   Card,
@@ -17,23 +20,47 @@ import {
   CardBody
 } from "~/_metronic/_partials/controls";
 
-import { Modal, Button, Form, Col, InputGroup } from 'react-bootstrap'
+import { Modal, Button, Form, Col, InputGroup, Table } from 'react-bootstrap'
 import { set } from "lodash";
+
+const { TabPane } = Tabs
 
 export function Orcamentos() {
   const {user: {authToken}} = useSelector((state) => state.auth);
   const { params, url } = useRouteMatch()
   const [showForm, setShowForm] = useState(false)
+  const [showFormEdit, setShowFormEdit] = useState(false)
+  const [showAddSaldo, setShowAddSaldo] = useState(false)
+  const [saldo, setSaldo] = useState({undefined})
+  const [enviarComissao, setEnviarComissao] = useState(true)
   const [ logout, setLogout ] = useState(false)
   const [orcamentos, setOrcamentos] = useState([])
   const [orcamentoSelecionado, setOrcamentoSelecionado] = useState([])
   const [ getOrcamento, setGetOrcamento ] = useState([])
   const [showOrcamento, setShowOrcamento] = useState(false)
   const [reload, setReload] = useState(false)
+  const [activeKey, setActiveKey] = useState('0')
   const history = useHistory();
 
-  useEffect(() => {
-    orcamento(authToken, params.id)
+  notification.config({
+    placement: 'bottomRight',
+    duration: 3,
+  });
+
+// useEffect(() => {
+//     orcamento(authToken, params.id)
+//     .then( ({data}) => {
+//       console.log(data)
+//       setOrcamentos(data)
+//     }).catch((err)=>{
+//       if (err.response.status === 401) {
+//         setLogout(true)
+//       }
+//     })
+// }, [reload, activeKey])
+
+useEffect(() => {
+  index(authToken, `/list_orcamentos/${params.id}?status=${activeKey}`)
     .then( ({data}) => {
       console.log(data)
       setOrcamentos(data)
@@ -42,7 +69,7 @@ export function Orcamentos() {
         setLogout(true)
       }
     })
-}, [reload])
+}, [reload, activeKey])
 
 function handleDelete(id) {
   destroy(authToken, id).then(()=>{
@@ -52,7 +79,7 @@ function handleDelete(id) {
 
 function handleEdit(orcamento) {
   setOrcamentoSelecionado(orcamento)
-  setShowForm(true);
+  setShowFormEdit(true);
 }
 
 function handleShow(id) {
@@ -99,72 +126,198 @@ function ReturnStatus(status) {
   }
 }
 
-  function HandleOrcamento() {
-    if (showForm) {
-      return <AdicionarOrcamentoPage orcamento={orcamentoSelecionado} alterar={orcamentoSelecionado !== undefined} />
-    }
+const convertMoney = (value) => {
+  return value.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})
+}
 
-    if (!showForm) {
-      return (
-        <Card>
-          <CardHeader title="Orçamentos">
-            <CardHeaderToolbar>
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={() => { 
-                  setShowForm(true) 
-                  setOrcamentoSelecionado(undefined);
-                }}
-              >
-                Adicionar Orcamento
-                </button>
-            </CardHeaderToolbar>
-          </CardHeader>
-          <CardBody>
-            <Table striped bordered hover>
-              <thead>
-                <tr>
-                  <th>Data</th>
-                  <th>Dentista</th>
-                  <th>Status</th>
-                  <th>Valor</th>
-                  <th style={{ "width": 100 }}>Ações</th>
-                </tr>
-              </thead>
-              <tbody>
-              {orcamentos.map( orcamento => (
-                <tr key={orcamento.id} >
-                  <td>{orcamento.criado_em}</td>
-                  <td>{orcamento.dentistas.name}</td>
-                  <td>{ReturnStatus(orcamento.status)}</td>
-                  <td>{ orcamento.total ? orcamento.total.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) : '' }
-                  </td>
-                  <td><Link to={''} />
-                  {
-                    orcamento.status !== 3 ? 
-                    <span onClick={() => handleDelete(orcamento.id) }  style={{"cursor": "pointer"}} className="svg-icon menu-icon">
-                      <SVG style={{"fill": "#3699FF", "color": "#3699FF", "marginLeft": 8}} src={toAbsoluteUrl("/media/svg/icons/Design/delete.svg")} />
-                    </span>
-                    : ''
-                  }
-                  <span onClick={() => handleShow(orcamento.id) }  style={{"cursor": "pointer"}} className="svg-icon menu-icon">
-                    <SVG style={{"fill": "#3699FF", "color": "#3699FF", "marginLeft": 8}} src={toAbsoluteUrl("/media/svg/icons/Design/view.svg")} />
-                  </span>
-                  </td>
-                </tr>
-              ))}
-              </tbody>
-            </Table>
-          </CardBody>
-        </Card>
-      )
+const returnSaldo = (value) => {
+  if (value < 0) {
+    return <span style={{color: 'red'}}> {convertMoney(value)} </span>
+  }
+  return <span style={{color: 'green'}}> {convertMoney(value)} </span>
+}
+
+const columns = [
+  {
+    title: 'Id',
+    dataIndex: 'id',
+    key: 'id'
+  },
+  {
+    title: 'Data',
+    dataIndex: 'criado_em',
+    key: 'criado_em'
+  },
+  {
+    title: 'Dentista',
+    dataIndex: 'dentistas',
+    key: 'dentista',
+    render: data => <span>{data.name}</span>
+  },
+  {
+    title: 'Status',
+    dataIndex: 'status',
+    key: 'status',
+    render: data => <span>{data}</span>
+  },
+  {
+    title: 'Valor',
+    dataIndex: 'total',
+    key: 'valor',
+    render: data => <span>{convertMoney(data)}</span>
+  },
+  {
+    title: 'Saldo',
+    dataIndex: 'saldo_disponivel',
+    key: 'saldo',
+    render: data => <span>{returnSaldo(data)}</span>
+  },
+  {
+    title: 'Ações',
+    key: 'acoes',
+    render: data => (
+      <Space size="middle">
+        {
+          orcamento.status !== 3 ? 
+          <Tooltip placement="top" title="Excluir">
+            <span onClick={() => handleDelete(data.id) }  style={{"cursor": "pointer"}} className="svg-icon menu-icon">
+              <DeleteOutlined />
+            </span>
+          </Tooltip>
+          : ''
+        }
+          <Tooltip placement="top" title="Visualizar">
+            <span onClick={() => handleShow(data.id) }  style={{"cursor": "pointer"}} className="svg-icon menu-icon">
+              <FolderOpenOutlined twoToneColor="#eb2f96"/>
+            </span>
+          </Tooltip>
+          <Tooltip placement="top" title="Editar">
+            <span onClick={() => handleEdit(data) }  style={{"cursor": "pointer"}} className="svg-icon menu-icon">
+              <EditOutlined />
+            </span>
+          </Tooltip>
+          <Tooltip placement="top" title="Saldo">
+            <span onClick={() => {
+              console.log(data)
+              setSaldo({id: data.id, dentista: data.dentistas.name})
+              setShowAddSaldo(true)
+            }}  style={{"cursor": "pointer"}} className="svg-icon menu-icon">
+              <DollarCircleOutlined />
+            </span>
+          </Tooltip>
+      </Space>
+    )
+  }
+]
+
+const handleAddSaldo = () => {
+  update(authToken, '/paciente/saldo', saldo.id, {valor: saldo.value, tipo: 0, enviarComissao }).then(_ => {
+    setSaldo({undefined})
+    setShowAddSaldo(false)
+    setReload(!reload)
+
+    return notification.success({
+      message: `Saldo Adicionado!`,
+      description:
+        'O saldo foi adicionado ao orçamento.',
+    });
+  })
+}
+
+function HandleOrcamento() {
+  if (showFormEdit) {
+    return <EditarOrcamentoPage orcamento={orcamentoSelecionado} alterar={orcamentoSelecionado !== undefined} />
+  }
+
+  if (showForm) {
+    return <AdicionarOrcamentoPage orcamento={orcamentoSelecionado} alterar={orcamentoSelecionado !== undefined} />
+  }
+
+  if (!showForm) {
+    return (
+      <Card>
+        <CardHeader title="Orçamentos">
+          <CardHeaderToolbar>
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={() => { 
+                setShowForm(true) 
+                setOrcamentoSelecionado(undefined);
+              }}
+            >
+              Adicionar Orcamento
+              </button>
+          </CardHeaderToolbar>
+        </CardHeader>
+        <CardBody>
+          <div style={{display: 'flex', flex: 1}}>
+            <Tabs
+              size="small"
+              tabPosition="left"
+              defaultActiveKey="0"
+              activeKey={activeKey}
+              onChange={(e) => setActiveKey(e)}
+            >
+            <TabPane tab="Salvos" key="salvo" />
+          
+            <TabPane tab="Aprovados" key="aprovado" />
+
+            <TabPane tab="Em andamento" key="andamento" />
+    
+            <TabPane tab="Finalizados" key="finalizado" />
+
+            <TabPane tab="Todos" key="0" />
+           </Tabs>
+            <TableNew dataSource={orcamentos} columns={columns} style={{width: '100%', paddingLeft: 10}}/>
+          </div>
+        </CardBody>
+      </Card>
+    )
+  }
+  return
+}
+
+  const returnFormaCobranca = (forma) => {
+    switch (forma) {
+      case 'procedimento':
+        return 'Procedimento'
+        
+      case 'parcial':
+        return 'Parcial'
+        
+    
+      default:
+        return forma
     }
-    return
   }
 
   return (
     <>
+      <ModalNew 
+        title="Adicionar Saldo" 
+        visible={showAddSaldo} 
+        onOk={() => handleAddSaldo()} 
+        onCancel={() => {
+          setShowAddSaldo(false)
+          setSaldo({undefined})
+        }}>
+        <Input
+          value={saldo.value}
+          onChange={e => setSaldo({...saldo, value: e.target.value})}
+          placeholder="100,00"
+          prefix="R$"
+        />
+
+        <Checkbox 
+        style={{marginTop: 15}} 
+        defaultChecked={enviarComissao} 
+        onChange={(e) => {setEnviarComissao(e.target.checked)}}
+        > Enviar comissão ao dentista {saldo.dentista} ?
+        </Checkbox>
+
+
+      </ModalNew>
       <Modal
         show={showOrcamento}
         size="lg"
@@ -259,7 +412,7 @@ function ReturnStatus(status) {
                   Forma Cobrança
                 </td>
                 <td>
-                  {getOrcamento.cobranca === 'total' ? 'Total' : 'Procedimento'}
+                  {returnFormaCobranca(getOrcamento.cobranca)}
                 </td>
               </tr>
               <tr>

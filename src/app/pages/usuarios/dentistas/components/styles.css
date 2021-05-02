@@ -161,3 +161,11 @@ span.separator-hours {
 .modo-pagamento-row span {
   margin-left: 10px;
 }
+
+.parent-expand-foo {
+  background-color: #a1a1a1;
+}
+
+.expanding-foo {
+  background-color: #53c8cc70;
+}

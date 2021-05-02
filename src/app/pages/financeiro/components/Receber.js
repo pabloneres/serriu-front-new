@@ -34,7 +34,7 @@ export function Receber(props) {
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
-    index(authToken, `/financeiro/user?status_id=${2}&pago=${0}`).then(
+    index(authToken, `/financeiro/user?status=pendente&pago=${0}`).then(
       ({ data }) => {
         setPagamentos(data);
       }

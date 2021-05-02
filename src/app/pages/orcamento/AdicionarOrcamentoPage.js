@@ -10,6 +10,7 @@ import {
   Modal,
   ButtonToolbar,
   ButtonGroup,
+  Alert
 } from "react-bootstrap";
 import SVG from "react-inlinesvg";
 
@@ -30,7 +31,7 @@ import {
   update,
   getProcedimentos,
 } from "~/app/controllers/orcamentoController";
-
+import { index as indexAll } from "~/app/controllers/controller";
 import { conversorMonetario, formatDate } from "~/app/modules/Util";
 
 //COMPONENTES
@@ -42,7 +43,8 @@ import Select from "react-select";
 const options = {
   cobranca: [
     {value: 'total', label: 'Total'},
-    {value: 'procedimento', label: 'Procedimento executado'}
+    {value: 'procedimento', label: 'Procedimento executado'},
+    {value: 'parcial', label: 'Parcial'}
   ],
   pagamento: [
     {value: 'dinheiro', label: 'Dinheiro'},
@@ -79,8 +81,9 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
   const [cobranca, setCobranca] = useState({})
   const [pagamento, setPagamento] = useState({})
   const [condicao, setCondicao] = useState({})
-  const [entrada, setEntrada] = useState()
+  const [entrada, setEntrada] = useState(0)
   const [parcelas, setParcelas] = useState()
+  const [showAlert, setShowAlert] = useState(false)
 
   const [opcoesPagamento, setOpcoesPagamento] = useState(undefined)
 
@@ -105,8 +108,8 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
 
     let opcoesPagamento = {
       cobranca,
-      pagamento: cobranca.value === 'procedimento' ? options['pagamento'][0] : pagamento,
-      condicao: cobranca.value === 'procedimento' ? options['condicao'][0] : condicao,
+      pagamento: cobranca.value === 'procedimento' || cobranca.value === 'parcial' ? options['pagamento'][0] : pagamento,
+      condicao: cobranca.value === 'procedimento' || cobranca.value === 'parcial' ? options['condicao'][0] : condicao,
       entrada,
       parcelas,
     }
@@ -152,8 +155,17 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
     setTabela(e.target.value);
   };
 
-  const handlerMudancaDentista = (e) => {
-    setDentista(e.target.value);
+  const handlerMudancaDentista = async ({value, label}) => {
+    setDentista(value)
+
+    indexAll(authToken, `/configuracao/comissao/${value}`).then(({ data }) => {
+      console.log(data)
+      
+      if (data.comissao_geral === 0.00) {
+        setShowAlert(true)
+      }
+    })
+
   };
 
   const handlerMudancaProcedimentos = (procedimento, action) => {
@@ -251,7 +263,7 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
           dentista,
           paciente_id: params.id,
           formaPagamento: opcoesPagamento,
-          status: 1,
+          status: 'aprovado',
         })
           .then(() => {
             return history.push(`${url}`);
@@ -287,7 +299,7 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
         dentista,
         paciente_id: params.id,
         formaPagamento: opcoesPagamento,
-        status: 1,
+        status: 'aprovado',
         valorTotal: getTotalProcedimentos(),
       })
         .then(() => history.push(`${url}`))
@@ -305,7 +317,7 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
         paciente_id: params.id,
         formaPagamento: opcoesPagamento,
         valorTotal: getTotalProcedimentos(),
-        status: 0
+        status: 'salvo'
       })
         .then(() => history.push(`${url}`))
         .catch((err) => {
@@ -317,6 +329,24 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
   }
   return (
     <Card>
+      <Modal show={showAlert} onHide={() => setShowAlert(false)} centered>
+        <Modal.Body>Esse dentista não tem uma comissão configurada, deseja criar ?</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowAlert(false)}>
+            Cancelar
+          </Button>
+          <Link 
+            to={{
+            pathname: "/dentista/editar/" + dentista,
+            state: { rota: 'configComissoes' }
+          }}
+          >
+            <Button variant="primary">
+              Criar
+            </Button>
+          </Link>
+        </Modal.Footer>
+      </Modal>
       <Modal show={modalFormaPagamento && getTotalProcedimentos() > 0} size="lg">
         <Modal.Header closeButton>
           <Modal.Title>Forma de Pagamento</Modal.Title>
@@ -344,8 +374,8 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
               <Form.Label>Forma de Pagamento</Form.Label>
                 <Select
                   required
-                  value={cobranca.value === 'procedimento' ? options['pagamento'][0] : pagamento}
-                  isDisabled={cobranca.value === 'procedimento'}
+                  value={cobranca.value === 'procedimento' || cobranca.value === 'parcial' ? options['pagamento'][0] : pagamento}
+                  isDisabled={cobranca.value === 'procedimento' || cobranca.value === 'parcial'}
                   placeholder="Selecione a forma de pagamento..."
                   options={options['pagamento']}
                   onChange={(value) => {
@@ -361,8 +391,8 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
               <Form.Label>Condição de Pagamento</Form.Label>
                 <Select
                   required
-                  value={pagamento.value === 'boleto' ? options['condicao'][0] : cobranca.value === 'procedimento' ? options['condicao'][0] : condicao}
-                  isDisabled={cobranca.value === 'procedimento'}
+                  value={pagamento.value === 'boleto' ? options['condicao'][0] : cobranca.value === 'procedimento' ||  cobranca.value === 'parcial' ? options['condicao'][0] : condicao}
+                  isDisabled={cobranca.value === 'procedimento' || cobranca.value === 'parcial'}
                   placeholder="Selecione a condição de pagamento..."
                   options={options['condicao']}
                   onChange={(value) => {
@@ -441,6 +471,44 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
               }
             })()}
 
+            {(() => {
+              if (cobranca.value === 'parcial') {
+                return (
+                  <Form.Row className="justify-content-md-center">
+                     <Form.Group as={Col}>
+                      <Form.Label>Valor Entrada</Form.Label>
+                      <Form.Control
+                        type="number"
+                        name="valorEntrada"
+                        value={entrada}
+                        required
+                        onChange={(e) => {
+                          setEntrada(e.target.value)
+                        }}
+                      />
+                      <Form.Control.Feedback type="invalid">
+                        Esse campo é necessario!
+                      </Form.Control.Feedback>
+                    </Form.Group>
+
+                    <Form.Group as={Col}>
+                      <Form.Label>Restante</Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="valorEntrada"
+                        disabled
+                        value={conversorMonetario( getTotalProcedimentos() - entrada )}
+                      />
+                      <Form.Control.Feedback type="invalid">
+                        Esse campo é necessario!
+                      </Form.Control.Feedback>
+                    </Form.Group>
+
+                  </Form.Row>
+                );
+              }
+            })()}
+
             <Modal.Footer>
               <Button
                 variant="secondary"
@@ -473,26 +541,22 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
             </Form.Group>
 
             {/* LISTAR DENTISTAS */}
+
             <Form.Group as={Col} controlId="formGridAddress1">
               <Form.Label>Dentista *</Form.Label>
-              <Form.Control
-                as="select"
-                name="dentista"
-                onChange={(e) => handlerMudancaDentista(e)}
-              >
-                <option value=""></option>
-                {dentistas.map((row) => {
-                  return (
-                    <option
-                      key={row.user_id}
-                      value={row.dentista_id}
-                      selected={dentista === row.user_id}
-                    >
-                      {row.name}
-                    </option>
-                  );
-                })}
-              </Form.Control>
+                <Select
+                  isClearable={true}
+                  value={procedimento}
+                  placeholder="Selecione o dentista..."
+                  options={dentistas.map(item => ({
+                    value: item.dentista_id,
+                    label: item.name
+                  }))}
+                  onChange={(value) => {
+                    console.log(value)
+                    handlerMudancaDentista(value)
+                  }}
+                />
             </Form.Group>
 
             {/* INSERE A DATA */}

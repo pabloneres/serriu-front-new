@@ -21,7 +21,7 @@ export function FinanceiroPage(props) {
   const { user: { authToken } } = useSelector((state) => state.auth);
   const history = useHistory();
   
-  const [menu, setMenu] = useState('receber')
+  const [menu, setMenu] = useState('caixa')
 
 
   function HandleChangeMenu() {
