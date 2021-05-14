@@ -4,6 +4,16 @@ import { useLocation } from "react-router";
 import { NavLink } from "react-router-dom";
 import SVG from "react-inlinesvg";
 import { toAbsoluteUrl, checkIsActive } from "../../../../_helpers";
+import { 
+  ToolOutlined,
+  MenuOutlined,
+  CalendarOutlined,
+  SmileOutlined,
+  DollarOutlined,
+  UserOutlined,
+  InfoCircleOutlined,
+  RobotOutlined
+} from '@ant-design/icons'
 
 export function AsideMenuListFilial({ layoutProps }) {
   const location = useLocation();
@@ -19,12 +29,25 @@ export function AsideMenuListFilial({ layoutProps }) {
       <ul className={`menu-nav ${layoutProps.ulClasses}`}>
         {/*begin::1 Level*/}
         <li
+          className={`menu-item ${getMenuItemActive("/administrador", false)}`}
+          aria-haspopup="true"
+        >
+          <NavLink className="menu-link" to="/administrador">
+            <span className="svg-icon menu-icon">
+              <RobotOutlined />
+              {/* <SVG style={{ "fill": "#3699FF", "color": "#3699FF" }} src={toAbsoluteUrl("/media/svg/icons/Design/Layers.svg")} /> */}
+            </span>
+            <span className="menu-text">Administrador</span>
+          </NavLink>
+        </li>
+        <li
           className={`menu-item ${getMenuItemActive("/dashboard", false)}`}
           aria-haspopup="true"
         >
           <NavLink className="menu-link" to="/dashboard">
             <span className="svg-icon menu-icon">
-              <SVG style={{ "fill": "#3699FF", "color": "#3699FF" }} src={toAbsoluteUrl("/media/svg/icons/Design/Layers.svg")} />
+              <MenuOutlined />
+              {/* <SVG style={{ "fill": "#3699FF", "color": "#3699FF" }} src={toAbsoluteUrl("/media/svg/icons/Design/Layers.svg")} /> */}
             </span>
             <span className="menu-text">Dashboard</span>
           </NavLink>
@@ -35,31 +58,20 @@ export function AsideMenuListFilial({ layoutProps }) {
         >
           <NavLink className="menu-link" to="/agenda">
             <span className="svg-icon menu-icon">
-              <SVG style={{ "fill": "#3699FF" }} src={toAbsoluteUrl("/media/svg/icons/Design/calendar.svg")} />
+            <CalendarOutlined />
+              {/* <SVG style={{ "fill": "#3699FF" }} src={toAbsoluteUrl("/media/svg/icons/Design/calendar.svg")} /> */}
             </span>
             <span className="menu-text">Agenda</span>
           </NavLink>
         </li>
-        {
-          /**   <li
-             className={`menu-item ${getMenuItemActive("/orcamento", false)}`}
-             aria-haspopup="true"
-           >
-             <NavLink className="menu-link" to="/orcamento">
-               <span className="svg-icon menu-icon">
-                 <SVG style={{"fill": "#3699FF"}} src={toAbsoluteUrl("/media/svg/icons/Design/money.svg")} />
-               </span>
-               <span className="menu-text">Orçamento</span>
-             </NavLink>
-           </li> */
-        }
         <li
           className={`menu-item ${getMenuItemActive("/pacientes", false)}`}
           aria-haspopup="true"
         >
           <NavLink className="menu-link" to="/pacientes">
             <span className="svg-icon menu-icon">
-              <SVG style={{ "fill": "#3699FF" }} src={toAbsoluteUrl("/media/svg/icons/Design/pacients.svg")} />
+              <SmileOutlined />
+              {/* <SVG style={{ "fill": "#3699FF" }} src={toAbsoluteUrl("/media/svg/icons/Design/pacients.svg")} /> */}
             </span>
             <span className="menu-text">Pacientes</span>
           </NavLink>
@@ -70,7 +82,8 @@ export function AsideMenuListFilial({ layoutProps }) {
         >
           <NavLink className="menu-link" to="/financeiro">
             <span className="svg-icon menu-icon">
-              <SVG style={{ "fill": "#3699FF" }} src={toAbsoluteUrl("/media/svg/icons/Design/money.svg")} />
+              <DollarOutlined />
+              {/* <SVG style={{ "fill": "#3699FF" }} src={toAbsoluteUrl("/media/svg/icons/Design/money.svg")} /> */}
             </span>
             <span className="menu-text">Financeiros</span>
           </NavLink>
@@ -82,7 +95,8 @@ export function AsideMenuListFilial({ layoutProps }) {
         >
           <NavLink className="menu-link menu-toggle" to="/usuarios">
             <span className="svg-icon menu-icon">
-              <SVG style={{ "fill": "#3699FF" }} src={toAbsoluteUrl("/media/svg/icons/Design/users.svg")} />
+              <UserOutlined />
+              {/* <SVG style={{ "fill": "#3699FF" }} src={toAbsoluteUrl("/media/svg/icons/Design/users.svg")} /> */}
             </span>
             <span className="menu-text">Usúarios</span>
             <i className="menu-arrow" ></i>
@@ -115,7 +129,8 @@ export function AsideMenuListFilial({ layoutProps }) {
         >
           <NavLink className="menu-link menu-toggle" to="/configuracoes">
             <span className="svg-icon menu-icon">
-              <SVG style={{ "fill": "#3699FF" }} src={toAbsoluteUrl("/media/svg/icons/Design/Information.svg")} />
+              <InfoCircleOutlined />
+              {/* <SVG style={{ "fill": "#3699FF" }} src={toAbsoluteUrl("/media/svg/icons/Design/Information.svg")} /> */}
             </span>
             <span className="menu-text">Informações</span>
             <i className="menu-arrow" ></i>
@@ -148,7 +163,8 @@ export function AsideMenuListFilial({ layoutProps }) {
         >
           <NavLink className="menu-link menu-toggle" to="/configuracoes">
             <span className="svg-icon menu-icon">
-              <SVG style={{ "fill": "#3699FF" }} src={toAbsoluteUrl("/media/svg/icons/Design/settings.svg")} />
+              <ToolOutlined />
+              {/* <SVG style={{ "fill": "#3699FF" }} src={toAbsoluteUrl("/media/svg/icons/Design/settings.svg")} /> */}
             </span>
             <span className="menu-text">Configurações</span>
             <i className="menu-arrow" ></i>
@@ -206,11 +222,11 @@ export function AsideMenuListFilial({ layoutProps }) {
                         <span className="menu-text">Tabela de Especialidade</span>
                       </NavLink>
                     </li>
-                    <li className="menu-item menu-item-submenu " aria-haspopup="true" data-menu-toggle="hover">
+                    {/* <li className="menu-item menu-item-submenu " aria-haspopup="true" data-menu-toggle="hover">
                       <NavLink className="menu-link menu-toggle" to="/tabela-procedimentos">
                         <span className="menu-text">Tabela de Procedimentos</span>
                       </NavLink>
-                    </li>
+                    </li> */}
                   </ul>
                 </div>
               </li>

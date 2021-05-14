@@ -43,13 +43,17 @@ export function ConfigComissoes() {
   const [selectMenu, setSelectMenu] = useState("horarios");
   const [modal, setModal] = useState(false);
   const [config, setConfig] = useState({undefined})
+  const [configEspecialidade, setConfigEspecialidades] = useState([])
+  const [editComissao, setEditComissao] = useState(undefined)
 
 
   const [tipoPagamento, setTipoPagamento] = useState(1)
 
   useEffect(() => {
     index(authToken, `/configuracao/comissao/${params.id}`).then(({ data }) => {
-      setConfig(data)
+      setConfig(data.comissao)
+      console.log(data.configEspecialidade)
+      setConfigEspecialidades(data.configEspecialidade)
     })
   }, [reload]);
 
@@ -60,11 +64,70 @@ export function ConfigComissoes() {
     })  
   }
 
+  const updateComissaoEspecialidade = (id) => {
+    update(authToken, `/especialidade/comissao`, id, editComissao ).then((data) => {
+      setEditComissao(undefined)
+      setReload(!reload)
+    })  
+  }
+
   return (
     <Card>
+      <Modal size="lg" show={editComissao ? true : false} onHide={() => setEditComissao(undefined)} >
+        <Modal.Header closeButton>
+          <Modal.Title>Alterar comissão</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form style={{display: 'flex', justifyContent: 'space-around', paddingLeft: 10, paddingRight: 10}}>
+            <Form.Row className="justify-content-md-center">
+              <FormNew.Item
+                style={{width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}}
+                label="Clinico Geral à vista"
+              >
+                <Input
+                  type="number" 
+                  defaultValue={editComissao ? editComissao.comissao_vista : ''} 
+                  placeholder="Ex: 50 => 50%" 
+                  onChange={e => setEditComissao({...editComissao, comissao_vista: e.target.value})}
+                  disabled={editComissao ? editComissao.recebe_comissao === 0 : ''}
+                  suffix="%"
+                />
+              </FormNew.Item>
+            </Form.Row>
+            <Form.Row className="justify-content-md-center">
+              <FormNew.Item
+                style={{width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}}
+                label="Clinico Geral Boleto"
+              >
+                <Input
+                  type="number" 
+                  defaultValue={editComissao ? editComissao.comissao_boleto : ''} 
+                  placeholder="Ex: 50 => 50%" 
+                  onChange={e => setEditComissao({...editComissao, comissao_boleto: e.target.value})}
+                  disabled={editComissao ? editComissao.recebe_comissao === 0 : ''}
+                  suffix="%"
+                />
+              </FormNew.Item>
+            </Form.Row>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            variant="secondary"
+            onClick={() => {
+              setEditComissao(undefined)
+            }}
+          >
+            Fechar
+          </Button>
+          <Button variant="primary" onClick={() => {updateComissaoEspecialidade(editComissao.id)}}>
+            Salvar
+          </Button>
+        </Modal.Footer>
+      </Modal>
       <Modal size="lg" show={modal} onHide={() => {}} >
         <Modal.Header closeButton>
-          <Modal.Title>Adicionar nova configuração de comissão</Modal.Title>
+          <Modal.Title>Alterar métodos de pagamento</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
@@ -95,87 +158,6 @@ export function ConfigComissoes() {
               </Form.Group>
             </Form.Row>
           </fieldset>
-      
-            {/* <fieldset className="fildset-container" >
-              <legend className="fildset-title">Aprovação da Clinica</legend>
-              <Form.Row className="justify-content-md-center">
-                <Form.Group as={Col} controlId="formGridAddress1">
-                  <Form.Check 
-                    type="checkbox" 
-                    label="Requer Aprovação" 
-                    defaultChecked={config.requer_aprovacao === 1} 
-                    onChange={e => updateConfig({requer_aprovacao: e.target.checked ? 1 : 0})}
-                  />
-                </Form.Group>
-              </Form.Row>
-            </fieldset> */}
-         
-            {/* <fieldset className="fildset-container" >
-              <legend className="fildset-title">Forma de Cobrança</legend>
-               <Form.Row className="justify-content-md-center">
-                <Form.Group as={Col} controlId="formGridAddress1">
-                  <Form.Check
-                    type="radio"
-                    label="Porcentagem"
-                    name="paymentType"
-                    value={1}
-                    defaultChecked={config.forma_cobranca === 0}
-                    id="porcentagemPagamento"
-                    onChange={(e) => updateConfig({forma_cobranca: e.target.checked ? 0 : 1})}
-                  />
-                </Form.Group>
-              
-                <Form.Group as={Col} controlId="formGridAddress1">
-                  <Form.Check
-                    type="radio"
-                    label="Valor Fixo Procedimento"
-                    name="paymentType"
-                    value={2}
-                    defaultChecked={config.forma_cobranca === 1}
-                    onChange={(e) => updateConfig({forma_cobranca: e.target.checked ? 1 : 0})}
-                    id="porcentagemPagamento"
-                  />
-                </Form.Group>
-              </Form.Row>
-            </fieldset> */}
-
-          {
-            tipoPagamento === 1 ? 
-            <fieldset className="fildset-container" >
-              <legend className="fildset-title">Comissão</legend>
-              <Form.Row className="justify-content-md-center">
-                <FormNew.Item
-                  style={{width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}}
-                  label="Comissão Boleto"
-                >
-                  <Input
-                    type="number" 
-                    defaultValue={config.comissao_geral} 
-                    placeholder="Ex: 50 => 50%" 
-                    onChange={e => updateConfig({comissao_geral: e.target.value})}
-                    disabled={config.recebe_comissao === 0}
-                    suffix="%"
-                  />
-                </FormNew.Item>
-              </Form.Row>
-              <Form.Row className="justify-content-md-center">
-                <FormNew.Item
-                  style={{width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}}
-                  label="Comissão Boleto"
-                >
-                  <Input
-                    type="number" 
-                    defaultValue={config.comissao_boleto} 
-                    placeholder="Ex: 50 => 50%" 
-                    onChange={e => updateConfig({comissao_boleto: e.target.value})}
-                    disabled={config.recebe_comissao === 0}
-                    suffix="%"
-                  />
-                </FormNew.Item>
-              </Form.Row>
-            </fieldset> : 
-              <></>
-          }
 
           <fieldset className="fildset-container" >
           <legend className="fildset-title">Pagamento</legend>
@@ -257,9 +239,36 @@ export function ConfigComissoes() {
               </CardHeader>
               {needCreate && showCreate ? (
                 <CardBody>
-                  <div>
-                    <h6 style={{fontSize: 14}}>Alteração de Comissão</h6>
-                    <Button onClick={() => setModal(!modal)}>Alterar</Button>
+                  <div className="container-comissao" style={{borderColor: config.recebe_comissao === 0 ? 'red' : 'rgb(56, 142, 60)'}}>
+                      <div className="header-container-comissao" style={{backgroundColor: config.recebe_comissao === 0 ? 'red' : 'rgb(56, 142, 60)'}}>
+                        <span> Opções de Pagamento </span>
+                      </div>
+                      <div className="body-container-comissao">
+                        Recebe ?
+                        <div className="modo-pagamento">
+                          <div className="modo-pagamento-row">
+                            <input type="checkbox" name="teste" id="" checked={config.recebe_comissao === 1} />
+                            <span>Recebe comissão</span>
+                          </div>
+                          <div className="modo-pagamento-row">
+                            <input type="checkbox" name="teste" id="" checked={config.recebe_comissao === 0} />
+                            <span>Não recebe comissão</span>
+                          </div>
+                        </div>
+                        <div className="modo-pagamento">
+                          <div className="modo-pagamento-row">
+                            <input type="checkbox" name="teste" id="" checked={config.pagamento === 0} />
+                            <span>Orçamento</span>
+                          </div>
+                          <div className="modo-pagamento-row">
+                            <input type="checkbox" name="teste" id="" checked={config.pagamento === 1} />
+                            <span>Procedimento</span>
+                          </div>
+                        </div>
+                        <div className="buttons-actions">
+                          <Button onClick={() => setModal(!modal)}>Editar</Button>
+                        </div>
+                      </div>
                   </div>
                 </CardBody>
               ) : (
@@ -296,36 +305,32 @@ export function ConfigComissoes() {
                 <CardHeaderToolbar></CardHeaderToolbar>
               </CardHeader>
               <CardBody>
-                <div className="container-comissao" style={{borderColor: config.recebe_comissao === 0 ? 'red' : 'rgb(56, 142, 60)'}}>
-                  <div className="header-container-comissao" style={{backgroundColor: config.recebe_comissao === 0 ? 'red' : 'rgb(56, 142, 60)'}}>
-                    <span> {config.recebe_comissao === 0 ? 'Não recebe comissão' : 'Recebe comissão'} </span>
-                  </div>
-                  <div className="body-container-comissao">
-                    <div className="modo-pagamento">
-                      <div className="modo-pagamento-row">
-                        <input type="checkbox" name="teste" id="" checked={config.pagamento === 0} />
-                        <span>Orçamento</span>
+              
+                {
+                  configEspecialidade.map(item => (
+                    <div className="container-comissao" style={{borderColor: config.recebe_comissao === 0 ? 'red' : 'rgb(56, 142, 60)', marginBottom: 10}}>
+                      <div className="header-container-comissao" style={{backgroundColor: config.recebe_comissao === 0 ? 'red' : 'rgb(56, 142, 60)'}}>
+                        <span> {item.especialidade.name} </span>
                       </div>
-                      <div className="modo-pagamento-row">
-                        <input type="checkbox" name="teste" id="" checked={config.pagamento === 1} />
-                        <span>Procedimento</span>
+                      <div className="body-container-comissao">
+                        <div style={{width: '100%', display: 'flex', justifyContent: 'space-evenly', marginTop: 20}}>
+                        <div className="comissao-valor">
+                          <span>Comissão Geral</span>
+                          <span className="span-comissao">{item.comissao_vista}%</span>
+                        </div>
+                        <div className="comissao-valor">
+                          <span>Comissão Boleto</span>
+                          <span className="span-comissao">{item.comissao_boleto}%</span>
+                        </div>
+                        </div>
+                        <div className="buttons-actions">
+                          <Button onClick={() => setEditComissao(item)}>Editar</Button>
+                        </div>
                       </div>
                     </div>
-                    <div style={{width: '100%', display: 'flex', justifyContent: 'space-evenly'}}>
-                    <div className="comissao-valor">
-                      <span>Comissão Geral</span>
-                      <span className="span-comissao">{config.comissao_geral}%</span>
-                    </div>
-                    <div className="comissao-valor">
-                      <span>Comissão Boleto</span>
-                      <span className="span-comissao">{config.comissao_boleto}%</span>
-                    </div>
-                    </div>
-                    <div className="buttons-actions">
-                      <Button onClick={() => setModal(true)}>Editar</Button>
-                    </div>
-                  </div>
-                </div>
+                  ))
+                }
+              
               </CardBody>
             </Card>
           </div>

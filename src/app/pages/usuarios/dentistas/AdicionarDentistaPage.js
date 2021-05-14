@@ -10,6 +10,7 @@ import * as Yup from "yup";
 import { useSelector } from "react-redux";
 import axios from 'axios'
 import { store } from '~/app/controllers/dentistaController'
+import InputMask from '~/utils/mask'
 
 
 const initialValues = {
@@ -140,12 +141,15 @@ export function AdicionarDentistaPage(props) {
 
             <Form.Group as={Col} controlId="formGridPassword">
               <Form.Label>CPF *</Form.Label>
-              <Form.Control
+              <InputMask mask="999.999.999-99"  className="input-mask"
+                {...formik.getFieldProps("cpf")}
+              />
+              {/* <Form.Control
                 type="text"
                 placeholder="Digite seu CPF"
                 name="cpf"
                 {...formik.getFieldProps("cpf")}
-              />
+              /> */}
               {formik.touched.cpf && formik.errors.cpf ? (
                 <div className="fv-plugins-message-container">
                   <div className="fv-help-block">{formik.errors.cpf}</div>
@@ -194,11 +198,14 @@ export function AdicionarDentistaPage(props) {
 
           <Form.Group as={Col} controlId="formGridAddress1">
               <Form.Label>Celular *</Form.Label>
-              <Form.Control
+              <InputMask mask="(99) 99999-9999"  className="input-mask"
+                {...formik.getFieldProps("tel")}
+              />
+              {/* <Form.Control
                 placeholder="Digite seu celular"
                 name="tel"
                 {...formik.getFieldProps("tel")}
-              />
+              /> */}
               {formik.touched.tel && formik.errors.tel ? (
                 <div className="fv-plugins-message-container">
                   <div className="fv-help-block">{formik.errors.tel}</div>

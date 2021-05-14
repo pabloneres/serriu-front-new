@@ -80,19 +80,19 @@ function handleAprovar(id) {
 
 function ReturnStatus(status) {
   switch (status) {
-    case 0:
+    case 'salvo':
       return (
         <strong style={{color: 'red'}}>Salvo</strong>
       )
-    case 1:
+    case 'aprovado':
       return (
         <strong style={{color: 'green'}}>Aprovado</strong>
       )
-    case 2:
+    case 'andamento':
       return (
         <strong style={{color: 'orange'}}>Em andamento</strong>
       )
-    case 3:
+    case 'finalizado':
       return (
         <strong style={{color: 'blue'}}>Executado</strong>
       )
@@ -298,7 +298,7 @@ function ReturnStatus(status) {
           <div className="text-right" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
               <span>Total <strong>{getOrcamento.total ? getOrcamento.total.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) : ''}</strong></span>            
              <div>
-              {getOrcamento.status === 0 ? (
+              {getOrcamento.status === 'salvo' ? (
                 <Button onClick={() => {handleAprovar(getOrcamento.id)}} className="mr-2" variant="primary">
                   Aprovar
                 </Button>

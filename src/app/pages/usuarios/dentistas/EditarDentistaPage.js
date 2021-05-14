@@ -19,6 +19,7 @@ import { Comissoes } from "./components/Comissoes";
 import { ConfigComissoes } from "./components/ConfigComissoes";
 import { AgendaDentista } from "./components/AgendaDentista";
 import { Recebidos } from "./components/Recebidos";
+import { Especialidades } from "./components/Especialidades";
 
 
 // import { AdicionarOrcamentoPage } from "~/app/pages/orcamento/AdicionarOrcamentoPage";
@@ -54,7 +55,8 @@ export function EditarDentistaPage(props) {
       comissoes: () => <Comissoes />,
       configComissoes: () => <ConfigComissoes />,
       agendaDentista: () => <AgendaDentista />,
-      recebidos: () => <Recebidos />
+      recebidos: () => <Recebidos />,
+      especialidades: () => <Especialidades />
     }
     return itensMenu[menu]();
   }
@@ -82,6 +84,16 @@ export function EditarDentistaPage(props) {
             className={menu == "agendaDentista" ? "active" : ""}
           >
             Agenda de Trabalho
+          </Nav.Link>
+        </Nav.Item>
+        <Nav.Item>
+          <Nav.Link
+            onClick={() => {
+              setMenu("especialidades");
+            }}
+            className={menu == "especialidades" ? "active" : ""}
+          >
+            Especialidades
           </Nav.Link>
         </Nav.Item>
         <Nav.Item>

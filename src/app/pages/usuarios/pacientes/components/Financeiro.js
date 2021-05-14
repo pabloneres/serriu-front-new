@@ -237,7 +237,7 @@ export function Financeiro(props) {
                         })}
                       </td>
                       <td>
-                        {procedimento.status === 1 ? (
+                        {procedimento.status === 'executado' ? (
                           <span style={{ color: "green" }}>Executado</span>
                         ) : (
                           <span style={{ color: "red" }}>Pendente</span>

@@ -236,7 +236,7 @@ export function TabelaPreco() {
           <tbody>
           {tabelas.map( tabela => (
             <tr key={tabela.id} >
-              <td><Link to={`/tabela-precos/${tabela.id}/especialidades`} >{tabela.name}</Link></td>
+              <td><Link to={`/tabela-precos/${tabela.id}/procedimentos`} >{tabela.name}</Link></td>
               {/* <td>{tabela.email}</td>
               <td>{'CNPJ'}</td>
               <td>{'TEMPO DE CONSULTA'}</td> */}

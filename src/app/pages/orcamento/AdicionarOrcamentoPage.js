@@ -31,6 +31,7 @@ import {
   update,
   getProcedimentos,
 } from "~/app/controllers/orcamentoController";
+import { index as indexNew } from '~/app/controllers/controller'
 import { index as indexAll } from "~/app/controllers/controller";
 import { conversorMonetario, formatDate } from "~/app/modules/Util";
 
@@ -82,7 +83,7 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
   const [pagamento, setPagamento] = useState({})
   const [condicao, setCondicao] = useState({})
   const [entrada, setEntrada] = useState(0)
-  const [parcelas, setParcelas] = useState()
+  const [parcelas, setParcelas] = useState(undefined)
   const [showAlert, setShowAlert] = useState(false)
 
   const [opcoesPagamento, setOpcoesPagamento] = useState(undefined)
@@ -108,10 +109,10 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
 
     let opcoesPagamento = {
       cobranca,
-      pagamento: cobranca.value === 'procedimento' || cobranca.value === 'parcial' ? options['pagamento'][0] : pagamento,
-      condicao: cobranca.value === 'procedimento' || cobranca.value === 'parcial' ? options['condicao'][0] : condicao,
+      pagamento: returnFormaPagamento(),
+      condicao: returnCondicao('value'),
       entrada,
-      parcelas,
+      parcelas: !parcelas ? 1 : parcelas,
     }
     setOpcoesPagamento(opcoesPagamento)
     setModalFormaPagamento(false);
@@ -131,36 +132,67 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
       });
   }, []);
 
-  useEffect(() => {
-    if (tabela !== undefined) {
-      getProcedimentos(authToken, tabela)
-        .then(({ data }) => {
-          console.log(data)
-          setProcedimentos(data);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    }
-  }, [tabela]);
-
-  const getDentistaName = (value) => {
-    let dentistaName = dentistas.filter((row) => row.dentista_id == value);
-    return dentistaName[0] !== undefined ? dentistaName[0].name : "";
-  };
-
+  // useEffect(() => {
+  //   if (tabela !== undefined) {
+  //     getProcedimentos(authToken, tabela)
+  //       .then(({ data }) => {
+  //         console.log(data)
+  //         setProcedimentos(data);
+  //       })
+  //       .catch((err) => {
+  //         console.log(err);
+  //       });
+  //   }
+  // }, [tabela]);
 
   const handlerMudancaTabela = (e) => {
-    setProcedimento(undefined);
+    setProcedimento(undefined)
+
+    indexNew(authToken, `dentista/procedimentos/${dentista.value}?tabela_id=${e.target.value}`).then(({data}) => {
+      console.log(data)
+      
+      let procedimentos = []
+
+      data.forEach(itemData => {
+        itemData.procedimento.forEach(item => {
+          procedimentos.push({
+            ...item,
+            label: item.name,
+            id: item.id,
+            valor: item.value,
+            value: item.id,
+            comissao: {
+              comissao_boleto: itemData.comissao_boleto,
+              comissao_vista: itemData.comissao_vista,
+              dentista_id: itemData.dentista_id,
+              especialidade_id: itemData.especialidade_id,
+            },
+          })
+        })
+      })
+
+
+      console.log(procedimentos)
+
+      setProcedimentos(procedimentos)
+    })
+
+    // getProcedimentos(authToken, tabela)
+    // .then(({ data }) => {
+    //   console.log(data)
+    // })
+    // .catch((err) => {
+    //   console.log(err);
+    // });
+
+  
     setTabela(e.target.value);
   };
 
-  const handlerMudancaDentista = async ({value, label}) => {
-    setDentista(value)
+  const handlerMudancaDentista = async (data) => {
+    setDentista(data)
 
-    indexAll(authToken, `/configuracao/comissao/${value}`).then(({ data }) => {
-      console.log(data)
-      
+    indexAll(authToken, `/configuracao/comissao/${data.value}`).then(({ data }) => {    
       if (data.comissao_geral === 0.00) {
         setShowAlert(true)
       }
@@ -169,14 +201,14 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
   };
 
   const handlerMudancaProcedimentos = (procedimento, action) => {
+    console.log(procedimento)
+
     if (procedimento && procedimento.value)
       setProcedimento({ ...procedimento });
     else setProcedimento(undefined);
   };
 
   const addProcedimentoFinalizado = (e, proced) => {
-    console.log(proced);
-    //let newProced = proced.assign({},proced)
     if (proced.acao === undefined) {
       proced.habilitado = true;
       setProcedimentosFinalizados([...procedimentosFinalizados, proced]);
@@ -225,7 +257,7 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
           <ProcedimentoSelecaoDente
             onFinish={addProcedimentoFinalizado}
             procedimento={procedimento}
-            dentista={getDentistaName(dentista)}
+            dentista={dentista}
           />
         );
       }
@@ -254,15 +286,27 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
   };
 
   function handleSubmit(type) {
+
+    let comissao_total_vista = procedimentosFinalizados.map(item => {
+      return (item.valorTotal * item.comissao.comissao_vista / 100)
+    }).reduce((a, b) => a + b, 0)
+
+    let comissao_total_boleto = procedimentosFinalizados.map(item => {
+      return (item.valorTotal * item.comissao.comissao_boleto / 100)
+    }).reduce((a, b) => a + b, 0)
+
+
     if (alterar) {
       console.log(orcamento.id);
 
       if (type === "aprovar") {
         update(authToken, orcamento.id, {
           procedimentos: procedimentosFinalizados,
-          dentista,
+          dentista: dentista.value,
           paciente_id: params.id,
           formaPagamento: opcoesPagamento,
+          comissao_total_vista,
+          comissao_total_boleto,
           status: 'aprovado',
         })
           .then(() => {
@@ -277,8 +321,10 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
 
       update(authToken, orcamento.id, {
         procedimentos: procedimentosFinalizados,
-        dentista,
+        dentista: dentista.value,
         paciente_id: params.id,
+        comissao_total_vista,
+        comissao_total_boleto,
         formaPagamento: opcoesPagamento,
       })
         .then(() => {
@@ -296,10 +342,12 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
     if (type === "aprovar") {
       store(authToken, {
         procedimentos: procedimentosFinalizados,
-        dentista,
+        dentista: dentista.value,
         paciente_id: params.id,
         formaPagamento: opcoesPagamento,
         status: 'aprovado',
+        comissao_total_vista,
+        comissao_total_boleto,
         valorTotal: getTotalProcedimentos(),
       })
         .then(() => history.push(`${url}`))
@@ -313,10 +361,12 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
     if (type === "salvar") {
       store(authToken, {
         procedimentos: procedimentosFinalizados,
-        dentista,
+        dentista: dentista.value,
         paciente_id: params.id,
         formaPagamento: opcoesPagamento,
         valorTotal: getTotalProcedimentos(),
+        comissao_total_vista,
+        comissao_total_boleto,
         status: 'salvo'
       })
         .then(() => history.push(`${url}`))
@@ -327,6 +377,35 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
         });
     }
   }
+
+  const returnFormaPagamento = () => {
+    if (cobranca.value === 'procedimento' || cobranca.value === 'parcial' ) {
+      return options['pagamento'][0]
+    }
+    return pagamento
+  }
+
+  const returnCondicao = (props) => {
+    if (props === 'value') {
+      if (pagamento.value === 'dinheiro') {
+        return options['condicao'][0]
+      }
+  
+      if (cobranca.value === 'procedimento' ||  cobranca.value === 'parcial') {
+        return options['condicao'][0]
+      }
+  
+      return condicao
+    }
+
+    if (props === 'disabled') {
+      if (cobranca.value === 'procedimento' || cobranca.value === 'parcial' || pagamento.value === 'dinheiro') {
+        return true
+      }
+    }
+  }
+
+
   return (
     <Card>
       <Modal show={showAlert} onHide={() => setShowAlert(false)} centered>
@@ -374,7 +453,7 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
               <Form.Label>Forma de Pagamento</Form.Label>
                 <Select
                   required
-                  value={cobranca.value === 'procedimento' || cobranca.value === 'parcial' ? options['pagamento'][0] : pagamento}
+                  value={returnFormaPagamento()}
                   isDisabled={cobranca.value === 'procedimento' || cobranca.value === 'parcial'}
                   placeholder="Selecione a forma de pagamento..."
                   options={options['pagamento']}
@@ -391,8 +470,8 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
               <Form.Label>Condição de Pagamento</Form.Label>
                 <Select
                   required
-                  value={pagamento.value === 'boleto' ? options['condicao'][0] : cobranca.value === 'procedimento' ||  cobranca.value === 'parcial' ? options['condicao'][0] : condicao}
-                  isDisabled={cobranca.value === 'procedimento' || cobranca.value === 'parcial'}
+                  value={returnCondicao('value')}
+                  isDisabled={returnCondicao('disabled')}
                   placeholder="Selecione a condição de pagamento..."
                   options={options['condicao']}
                   onChange={(value) => {
@@ -439,7 +518,7 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
 
                     <Form.Group as={Col}>
                       {/*sm={3}*/}
-                      <Form.Label>parcelas</Form.Label>
+                      <Form.Label>Parcelas</Form.Label>
                       <Form.Control
                         as="select"
                         name="parcelas"
@@ -546,7 +625,7 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
               <Form.Label>Dentista *</Form.Label>
                 <Select
                   isClearable={true}
-                  value={procedimento}
+                  value={dentista}
                   placeholder="Selecione o dentista..."
                   options={dentistas.map(item => ({
                     value: item.dentista_id,
@@ -624,7 +703,7 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
                         <div className="conteudo">
                           <div className="linha">{row.label}</div>
                           <div className="linha">
-                            {getDentistaName(dentista)}
+                            {dentista.label}
                           </div>
                           <div className="linha">
                             {getFacesProcedimentoFormatado(row)}
@@ -632,6 +711,7 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
                         </div>
                         <div className="total">
                           <p className="texto">
+                            {console.log(row)}
                             {conversorMonetario(row.valorTotal)}
                           </p>
 

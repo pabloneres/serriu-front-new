@@ -179,11 +179,15 @@ function SelecaoDentes({numeroListaDentes,procedimento,callback}) {
             }
             else
             {
+
+
             
                 listaDentesFinalizados.splice(indice, 1);
                 setListaDentesFinalizados([...listaDentesFinalizados]);
 
                 key.active = false;
+
+                
             }
 
         }

@@ -6,6 +6,8 @@ import Select from "react-select";
 import SelecaoDentes from "../SelecaoDentes";
 
 function ProcedimentoSelecaoDente({ onFinish, procedimento, dentista }) {
+  console.log(procedimento)
+
   const [denticao, setDenticao] = useState("0");
   const [dentes, setDentes] = useState();
 
@@ -53,14 +55,15 @@ function ProcedimentoSelecaoDente({ onFinish, procedimento, dentista }) {
 
   return (
     <>
+      {console.log(dentista)}
       <Form.Row>
         <Form.Group as={Col} controlId="formGridAddress1">
           <Form.Label>Nome</Form.Label>
-          <Form.Control disabled type="text" name="nome" value={dentista} />
+          <Form.Control disabled type="text" name="nome" value={dentista.label} />
         </Form.Group>
 
         <Form.Group as={Col}>
-          <Form.Label>dentição</Form.Label>
+          <Form.Label>Dentição</Form.Label>
           <Select
             placeholder="Selecione dentição"
             value={buscaListaDenticoes(denticao)}

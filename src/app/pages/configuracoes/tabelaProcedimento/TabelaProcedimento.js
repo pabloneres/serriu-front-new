@@ -37,7 +37,7 @@ export function TabelaProcedimento() {
     name: '',
     value: '',
     geral: '',
-    preco: '',
+    preco: params.id,
     especialidade: ''
   }
   
@@ -52,10 +52,10 @@ export function TabelaProcedimento() {
       .min(1, "Minimum 3 symbols")
       .max(50, "Maximum 50 symbols")
       .required('Campo obrigatorio!'),
-    preco: Yup.string()
+    // preco: Yup.string()
   
-      .max(10, "Maximum 50 symbols")
-      .required('Campo obrigatorio!'),
+    //   .max(10, "Maximum 50 symbols")
+    //   .required('Campo obrigatorio!'),
     especialidade: Yup.string()
       .min(1, "Minimum 3 symbols")
       .max(50, "Maximum 50 symbols")
@@ -160,7 +160,7 @@ export function TabelaProcedimento() {
         }
       })
 
-    indexAll(authToken)
+    indexAll(authToken, params.id)
       .then(({data}) => {
         setProcedimentos(data)
       })
@@ -251,7 +251,7 @@ export function TabelaProcedimento() {
 
           <Form.Row>
 
-            <Form.Group as={Col} controlId="formGridAddress1">
+            {/* <Form.Group as={Col} controlId="formGridAddress1">
               <Form.Label>Tabela de preços *</Form.Label>
               <Form.Control
                 as="select"
@@ -272,7 +272,7 @@ export function TabelaProcedimento() {
                 <div className="fv-help-block">{formik.errors.preco}</div>
               </div>
               ) : null}
-            </Form.Group>   
+            </Form.Group>    */}
 
             <Form.Group as={Col} controlId="formGridAddress1">
               <Form.Label>Especialidade *</Form.Label>

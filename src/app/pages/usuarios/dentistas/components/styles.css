@@ -169,3 +169,96 @@ span.separator-hours {
 .expanding-foo {
   background-color: #53c8cc70;
 }
+
+
+.expanded-row-newtable > .ant-table-cell {
+  background-color: #fafafa;
+  padding: 5px;
+  padding-bottom: 15px;
+}
+
+.expanded-row-newtable > .ant-table-cell:hover {
+  background-color: #62c1d04f;
+}
+
+.expanded-row-newtable > td > div > div > div > div.ant-table {
+  margin: 0 !important;
+}
+
+/* .expanded-row-newtable > td > div > div > div > div > div > div > table > thead > tr > th {
+  background-color: #62c1d0a1;
+} */
+
+.input-mask {
+  display: block;
+  width: 100%;
+  height: calc(1.5em + 1.3rem + 2px);
+  padding: 0.65rem 1rem;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #3F4254;
+  background-color: #ffffff;
+  background-clip: padding-box;
+  border: 1px solid #E4E6EF;
+  border-radius: 0.42rem;
+  box-shadow: none;
+}
+
+
+.input-mask:focus {
+  color: #3F4254;
+  background-color: #ffffff;
+  border-color: #69b3ff;
+  border-top-color: rgb(105, 179, 255);
+  border-right-color: rgb(105, 179, 255);
+  border-bottom-color: rgb(105, 179, 255);
+  border-left-color: rgb(105, 179, 255);
+  outline: 0;
+}
+
+.container-especialidades {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 50px;
+
+}
+
+.select-especialidades {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.select-especialidades, .selected-especialidades {
+  flex: 1;
+}
+
+.selected {
+  margin-top: 20px;
+  width: 100%;
+}
+
+.selected ul, li {
+  /* margin-top: 20px; */
+  font-size: 20px;
+  padding: 0;
+  list-style: none;
+}
+
+.container-especialidades {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  justify-content: center;
+}
+
+.config-select-especialidade {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+}
+
+.row {
+  display: flex;
+}

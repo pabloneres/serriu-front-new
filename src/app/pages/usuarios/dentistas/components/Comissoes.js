@@ -68,6 +68,7 @@ export function Comissoes(props) {
 
   const [selectionType, setSelectionType] = useState('checkbox')
   const [pagamentos, setPagamentos] = useState([])
+  const [pagamentosBoleto, setPagamentosBoletos] = useState([])
   const [ordemData, setOrdemData] = useState(undefined)
   const [showOrdemDetais, setShowOrdemDetais] = useState(false)
   const [selecionado, setSelecionado] = useState([])
@@ -94,18 +95,23 @@ export function Comissoes(props) {
   useEffect(() => {
     index(authToken, `/comissao/${id}?status=${activeKey}`).then(
       ({ data }) => {
-        setPagamentos(data);
-      }
-    );
-  }, [activeKey])
+        let orcamento = data.orcamento
+        if (activeKey === 'boleto') {
+          setPagamentosBoletos(orcamento.map(item => ({
+            ...item,
+            procedimentos_orcamentos: item.procedimentos_orcamentos.map(item => ({
+              ...item,
+              valor_comissao: (item.valor * data.comissao_boleto) / 100,
+              comissao_calculo: data.comissao_boleto
+            }))
+          })));
 
-  useEffect(() => {
-    index(authToken, `/comissao/${id}?status=${activeKey}`).then(
-      ({ data }) => {
+          return
+        }
         setPagamentos(data);
       }
     );
-  }, [padrao])
+  }, [activeKey, padrao])
 
   const convertMoney = (value) => {
     return Number(value).toLocaleString("pt-br", {
@@ -135,8 +141,17 @@ export function Comissoes(props) {
     return 
   }
 
+  const ReturnStatusProcedimento = (data) => {
+    switch (data) {
+      case 'salvo':
+        return 'Pendente'
+      case 'executado':
+        return 'Executado'
+    }
+  }
+
   const returnDate = (date) => {
-    return moment(date).format('LLLL')
+    return moment(date).format('DD/MM/YYYY') + ' ás ' + moment(date).format('HH:mm')
   }
 
   const editComissao = (id) => {
@@ -174,7 +189,76 @@ export function Comissoes(props) {
     })
   }
 
-  const columns = [
+  const columnsBoleto = [
+    {
+      title: "Paciente",
+      dataIndex: "pacientes",
+      render: data => <span>{data.name}</span>
+    },
+    {
+      dataIndex: "status",
+      title: "Status Orçamento",
+      render: data => <span>{data}</span>,
+    },
+    {
+      title: "Data de Aprovação",
+      dataIndex: "updated_at",
+      render: data => <span>{returnDate(data)}</span>
+    },
+    {
+      title: "Valor Total",
+      dataIndex: "total",
+      render: data => <span>{convertMoney(data)}</span>,
+    },
+    {
+      title: "Valor Executado",
+      render: data => <span>{convertMoney(data.procedimentos_orcamentos.filter(a => a.status === 'executado').reduce((a, b) => a + b.valor, 0))}</span>,
+    },
+    {
+      title: "Comissão Total",
+      render: data => <span>{convertMoney(data.procedimentos_orcamentos.reduce((a, b) => a + b.valor_comissao, 0))}</span>,
+    },
+    // {
+    //   title: "Status da Comissão",
+    //   render: data => <span>{convertMoney(data.procedimentos_orcamentos.reduce((a, b) => a + b.valor_comissao, 0))}</span>,
+    // },
+  ];
+
+  const innercolumnsBoleto = [
+    {
+      title: "Procedimento",
+      dataIndex: "procedimento_nome",
+      render: data => <span>{data}</span>
+    },
+    {
+      title: "Status Procedimento",
+      dataIndex: 'status',
+      render: data => <span>{ReturnStatusProcedimento(data)}</span>,
+    },
+    {
+      title: "Data de Execução",
+      dataIndex: "updated_at",
+      render: data => <span>{returnDate(data)}</span>
+    },
+    {
+      title: "Valor Procedimento",
+      dataIndex: "valor",
+      render: data => <span>{convertMoney(data)}</span>,
+    },
+    {
+      title: "Valor Comissão",
+      dataIndex: 'valor_comissao',
+      render: data => <span>{convertMoney(data)}</span>,
+    },
+    {
+      title: "Porcentagem",
+      dataIndex: "comissao_calculo",
+      sort: true,
+      render: data => <span>{data}%</span>,
+    },
+  ]
+
+  const columnsDefault = [
     {
       dataIndex: "pacientes",
       title: "Paciente",
@@ -191,8 +275,8 @@ export function Comissoes(props) {
       render: data => <span>{returnStatusComissao(data)}</span>,
     },
     {
-      dataIndex: "",
-      title: "Aprovado",
+      title: "Status Orçamento",
+      render: data => <span>{data.orcamento ? data.orcamento.status : ''}</span>,
     },
     {
       dataIndex: "valor_total",
@@ -247,15 +331,6 @@ export function Comissoes(props) {
     }
   }
 
-  const selectRow = {
-    mode: 'checkbox',
-    clickToSelect: false,
-    selected: selecionado.id,
-    onSelect: handleOnSelect,
-    onSelectAll: handleOnSelectAll,
-    nonSelectable: pagamentos.map(r => r.status_comissao !== 'pagar' ? r.id : null),
-  };
-
   const rowSelection = {
     onChange: ( rowKey, selectedRows) => {
       setSelecionado(selectedRows)
@@ -267,18 +342,15 @@ export function Comissoes(props) {
     }),
   };
 
-
-  const rowStyle = (row, rowIndex) => {
-    const style = {};
-    if (row.status_comissao === 2) {
-      style.backgroundColor = '#E7FCED';
-    } else if (row.status_comissao === 1){
-      style.backgroundColor = '#E7F9FC';
-    } else {
-      style.backgroundColor = '#fff';
-    }
-
-    return style;
+  const InnerTable = (record) => {
+    console.log(record.procedimentos_orcamentos)
+    return ( 
+    <TableNew
+      dataSource={record.procedimentos_orcamentos} 
+      columns={innercolumnsBoleto}
+      pagination={false}
+    />
+  )
   };
 
   return (
@@ -512,20 +584,40 @@ export function Comissoes(props) {
               onChange={(e) => setActiveKey(e)}
             >
             <TabPane tab="Pendentes" key="pagar" />
+            
+            <TabPane tab="Boletos" key="boleto" />
           
             <TabPane tab="Pagos" key="pago" />
 
             <TabPane tab="Todos" key="0" />
            </Tabs>
-            <TableNew
-              dataSource={pagamentos.map(item => ({...item, key: item.id}))} 
-              columns={columns}  
-              rowSelection={{
-                type: selectionType,
-                ...rowSelection,
-              }}
-              style={{width: '100%', paddingLeft: 10}}
-            />
+              {
+                activeKey !== 'boleto' ? 
+                  <TableNew
+                    dataSource={pagamentos.map(item => ({...item, key: item.id}))} 
+                    columns={columnsDefault}  
+                    rowSelection={{
+                      type: selectionType,
+                      ...rowSelection,
+                    }}
+                    style={{width: '100%', paddingLeft: 10}}
+                  /> :  
+                  <TableNew
+                    expandIconAsCell={false}
+                    expandRowByClick
+                    dataSource={pagamentosBoleto} 
+                    columns={columnsBoleto}
+                    expandable={{
+                      expandedRowRender: (record, index, indent, expanded) => InnerTable(record, index, indent, expanded),
+                      expandedRowClassName: () => ' expanded-row-newtable'
+                    }}
+                    // rowSelection={{
+                    //   type: selectionType,
+                    //   ...rowSelection,
+                    // }}
+                    style={{width: '100%', paddingLeft: 10}}
+                  />
+                }
           </div>
       </CardBody>
     </Card>

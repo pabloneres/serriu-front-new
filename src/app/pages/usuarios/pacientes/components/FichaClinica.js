@@ -20,6 +20,7 @@ import {
   updateAprovado,
   indexExecutados,
 } from "~/app/controllers/orcamentoController";
+import { Input } from 'antd'
 import { useSelector } from "react-redux";
 import TextField from '@material-ui/core/TextField';
 import { makeStyles } from '@material-ui/core/styles';
@@ -41,6 +42,8 @@ const useStyles = makeStyles((theme) => ({
     width: 200,
   },
 }));
+
+const { TextArea } = Input;
 
 export function FichaClinica() {
   const classes = useStyles();
@@ -253,13 +256,14 @@ export function FichaClinica() {
                           }}
                           type="datetime-local"
                           name="data"
+                          disabled
                           defaultValue={atualData()}
                         />
                       </Form.Group>
                     </Form.Row>
                     <Form.Row>
                       <Form.Group as={Col} controlId="formGridPassword">
-                        <Form.Label>Tipo</Form.Label>
+                        <Form.Label>Procedimento</Form.Label>
                         <Form.Control
                           disabled
                           type="text"
@@ -267,7 +271,8 @@ export function FichaClinica() {
                           value={modalData[1].procedimento_nome}
                         />
                       </Form.Group>
-                      <Form.Group as={Col} controlId="formGridPassword">
+                      { modalData[1].label ?
+                        <Form.Group as={Col} controlId="formGridPassword">
                         <Form.Label>Dente</Form.Label>
                         <Form.Control
                           disabled
@@ -275,11 +280,12 @@ export function FichaClinica() {
                           name="data"
                           value={modalData[1].label}
                         />
-                      </Form.Group>
+                        </Form.Group> : <></>
+                      }
                     </Form.Row>
                     <Form.Row>
                       <Form.Group as={Col} controlId="formGridPassword">
-                        <Form.Label>Profissional</Form.Label>
+                        <Form.Label>Dentista</Form.Label>
                         <Form.Control
                           disabled
                           type="text"
@@ -297,27 +303,15 @@ export function FichaClinica() {
                     <Form.Row>
                       <Form.Group as={Col} controlId="formGridPassword">
                         <Form.Label>Detalhes proxima consulta</Form.Label>
-                        <Form.Control
+                        <TextArea
+                          rows={4}
+                          name="proximaConsulta"
                           onChange={(e) => {
                             setModalData({
                               ...modalData,
                               detalhes: e.target.value,
                             });
                           }}
-                          type="text"
-                          name="proximaConsulta"
-                        />
-                      </Form.Group>
-                    </Form.Row>
-                    <Form.Row>
-                      <Form.Group as={Col} controlId="formGridPassword">
-                        <Form.Label>Observação *</Form.Label>
-                        <Form.Control
-                          onChange={(e) => {
-                            setModalData({ ...modalData, obs: e.target.value });
-                          }}
-                          type="text"
-                          name="observacao"
                         />
                       </Form.Group>
                     </Form.Row>
@@ -520,7 +514,7 @@ export function FichaClinica() {
                                   </Button>
                                 </Col>
                                 <Col>
-                                  <Button
+                                  {/* <Button
                                     size="sm"
                                     variant="success"
                                     onClick={(e) =>
@@ -528,7 +522,7 @@ export function FichaClinica() {
                                     }
                                   >
                                     Agendar
-                                  </Button>{" "}
+                                  </Button>{" "} */}
                                 </Col>
                               </div>
                             </Row>
@@ -558,7 +552,6 @@ export function FichaClinica() {
                     <th>Profissional</th>
                     <th>Status</th>
                     <th>Detalhes Próx. Consulta</th>
-                    <th>Obs</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -580,7 +573,6 @@ export function FichaClinica() {
                         <td>{item.dentistas.name}</td>
                         <td>{ReturnStatusProcedimento(dente.status)}</td>
                         <td>{dente.detalhes}</td>
-                        <td>{dente.obs}</td>
                       </tr>
                     ))
                   )}

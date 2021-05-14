@@ -14,8 +14,8 @@ const UPDATE_CLINIC_URL = "/procedimento";
 
 const DESTROY_CLINIC_URL = "/procedimento";
 
-export function indexAll(authToken) {
-  return api.get(`${INDEX_CLINICS_URL}`, {
+export function indexAll(authToken, id) {
+  return api.get(`${INDEX_CLINICS_URL}/${id}`, {
     headers: {
       Authorization: 'Bearer ' + authToken
     }

@@ -9,6 +9,7 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useSelector } from "react-redux";
 import { update, show } from '~/app/controllers/pacienteController'
+import { Input } from 'antd'
 
 export function Dados(props) {
   const { params, url } = useRouteMatch()
