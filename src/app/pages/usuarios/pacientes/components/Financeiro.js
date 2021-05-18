@@ -314,7 +314,7 @@ export function Financeiro(props) {
               </strong>
             </span>
             <div>
-              {ordem.pago === 0 ? (
+              {ordem.pago === 0 && ordem.pagamento !== 'boleto' ? (
                 <Button
                   onClick={() => {
                     handlePayment(ordem);
