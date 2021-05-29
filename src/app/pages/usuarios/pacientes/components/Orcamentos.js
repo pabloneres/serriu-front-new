@@ -5,24 +5,26 @@ import { AdicionarOrcamentoPage } from "~/app/pages/orcamento/AdicionarOrcamento
 import { EditarOrcamentoPage } from "~/app/pages/orcamento/EditarOrcamentoPage";
 import { Link } from 'react-router-dom'
 import SVG from 'react-inlinesvg'
-import { store, getProcedimentos, orcamento, destroy, aprovar, show } from '~/app/controllers/orcamentoController';
-import { update, index } from '~/app/controllers/controller';
 import { useSelector } from "react-redux";
-import {format} from 'date-fns-tz'
 import { FolderOpenOutlined, DeleteOutlined,
   EditOutlined, DollarCircleOutlined } from '@ant-design/icons';
-import { Table as TableNew, Modal as ModalNew, Tag, Space, Tooltip, Input, notification, Tabs, Checkbox } from 'antd';
-import { toAbsoluteUrl, checkIsActive } from "~/_metronic/_helpers";
-import {
-  Card,
-  CardHeader,
-  CardHeaderToolbar,
-  CardBody
-} from "~/_metronic/_partials/controls";
-
-import { Modal, Button, Form, Col, InputGroup, Table } from 'react-bootstrap'
-import { set } from "lodash";
-
+  import { Table as TableNew, Modal as ModalNew, Tag, Space, Tooltip, Input, notification, Tabs, Checkbox } from 'antd';
+  import { toAbsoluteUrl, checkIsActive } from "~/_metronic/_helpers";
+  import {
+    Card,
+    CardHeader,
+    CardHeaderToolbar,
+    CardBody
+  } from "~/_metronic/_partials/controls";
+  
+  import { Modal, Button, Form, Col, InputGroup, Table } from 'react-bootstrap'
+  import { set } from "lodash";
+  import { store, getProcedimentos, orcamento, destroy, aprovar } from '~/app/controllers/orcamentoController';
+  import { update, index, show} from '~/app/controllers/controller';
+  import moment from "moment";
+  import "moment/locale/pt-br";
+  moment.locale("pt-br");
+  
 const { TabPane } = Tabs
 
 export function Orcamentos() {
@@ -60,9 +62,8 @@ export function Orcamentos() {
 // }, [reload, activeKey])
 
 useEffect(() => {
-  index(authToken, `/list_orcamentos/${params.id}?status=${activeKey}`)
+  index(authToken, `orcamentos?paciente_id=${params.id}&status=${''}`)
     .then( ({data}) => {
-      console.log(data)
       setOrcamentos(data)
     }).catch((err)=>{
       if (err.response.status === 401) {
@@ -70,6 +71,7 @@ useEffect(() => {
       }
     })
 }, [reload, activeKey])
+
 
 function handleDelete(id) {
   destroy(authToken, id).then(()=>{
@@ -83,16 +85,8 @@ function handleEdit(orcamento) {
 }
 
 function handleShow(id) {
-  show(authToken, id).then(({data}) => {
-    setGetOrcamento({
-      ...data,
-      dentes: data.procedimentos_orcamentos.map(item => {
-        return {
-          ...item,
-          faces: JSON.parse(item.faces)
-        }
-      })
-    })
+  show(authToken, '/orcamentos', id).then(({data}) => {
+    setGetOrcamento(data)
   })
   setShowOrcamento(true)
 }
@@ -123,6 +117,8 @@ function ReturnStatus(status) {
       return (
         <strong style={{color: 'blue'}}>Executado</strong>
       )
+    default: 
+      return status
   }
 }
 
@@ -137,6 +133,10 @@ const returnSaldo = (value) => {
   return <span style={{color: 'green'}}> {convertMoney(value)} </span>
 }
 
+const returnDate = (data) => {
+  return moment(data).format('l') + ' - ' + moment(data).format('LT')
+}
+
 const columns = [
   {
     title: 'Id',
@@ -144,15 +144,20 @@ const columns = [
     key: 'id'
   },
   {
-    title: 'Data',
-    dataIndex: 'criado_em',
-    key: 'criado_em'
+    title: 'Criado em',
+    dataIndex: 'created_at',
+    key: 'created_at'
   },
   {
-    title: 'Dentista',
-    dataIndex: 'dentistas',
-    key: 'dentista',
-    render: data => <span>{data.name}</span>
+    title: 'Valor',
+    dataIndex: 'valor',
+    key: 'valor',
+    render: data => <span>{convertMoney(data)}</span>
+  },
+  {
+    title: 'Qnt. procedimentos',
+    dataIndex: '__meta__',
+    render: data => <span>{data.total_procedimentos}</span>
   },
   {
     title: 'Status',
@@ -161,16 +166,10 @@ const columns = [
     render: data => <span>{ReturnStatus(data)}</span>
   },
   {
-    title: 'Valor',
-    dataIndex: 'total',
-    key: 'valor',
-    render: data => <span>{convertMoney(data)}</span>
-  },
-  {
     title: 'Saldo',
-    dataIndex: 'saldo_disponivel',
+    dataIndex: 'saldo',
     key: 'saldo',
-    render: data => <span>{returnSaldo(data)}</span>
+    render: data => <span>{convertMoney(data)}</span>
   },
   {
     title: 'Ações',
@@ -252,7 +251,7 @@ function HandleOrcamento() {
         </CardHeader>
         <CardBody>
           <div style={{display: 'flex', flex: 1}}>
-            <Tabs
+            {/* <Tabs
               size="small"
               tabPosition="left"
               defaultActiveKey="0"
@@ -268,7 +267,7 @@ function HandleOrcamento() {
             <TabPane tab="Finalizados" key="finalizado" />
 
             <TabPane tab="Todos" key="0" />
-           </Tabs>
+           </Tabs> */}
             <TableNew dataSource={orcamentos} columns={columns} style={{width: '100%', paddingLeft: 10}}/>
           </div>
         </CardBody>
@@ -335,20 +334,28 @@ function HandleOrcamento() {
                 </tr>
             </thead>
             <tbody>
-              <tr>
+              {/* <tr>
                 <td>
                   Dentista
                 </td>
                 <td>
-                  {getOrcamento.dentistas ? getOrcamento.dentistas.name : ''}
+                  {getOrcamento.dentistas ? getOrcamento.dentista.name : ''}
+                </td>
+              </tr> */}
+              <tr>
+                <td>
+                  Data criação
+                </td>
+                <td>
+                  {returnDate(getOrcamento.created_at)}
                 </td>
               </tr>
               <tr>
                 <td>
-                  Data
+                  Data aprovação
                 </td>
                 <td>
-                  {getOrcamento.criado_em}
+                  {returnDate(getOrcamento.data_aprovacao)}
                 </td>
               </tr>
               <tr>
@@ -364,7 +371,9 @@ function HandleOrcamento() {
           <Table striped bordered hover>
             <thead>
                 <tr>
+                  <th>Id</th>
                   <th>Procedimentos</th>
+                  <th>Dentista</th>
                   <th>Dente</th>
                   <th>Faces</th>
                   <th>Valor</th>
@@ -372,26 +381,31 @@ function HandleOrcamento() {
                 </tr>
             </thead>
             <tbody>
-             { getOrcamento.dentes ? 
-               getOrcamento.dentes.map( orcamento => (
+             { getOrcamento.procedimentos ? 
+               getOrcamento.procedimentos.map( orcamento => (
                 <tr key={orcamento.id}>
                 <td>
-                  {orcamento.procedimento_nome}
+                  {orcamento.id}
                 </td>
                 <td>
-                  { orcamento.label ? orcamento.label : 'Geral' }
+                  {orcamento.procedimento.name}
                 </td>
                 <td>
-                  {orcamento.faces ? orcamento.faces.map(face => (
-                    <span style={{color: 'red'}}>{face.label}
-                    {' '}</span>
+                  {orcamento.dentista.name}
+                </td>
+                <td>
+                  { orcamento.dente ? orcamento.dente : 'Geral' }
+                </td>
+                <td>
+                  {orcamento.faces ? JSON.parse(orcamento.faces).map(face => (
+                    <span style={{color: 'red'}}>{face.label}{' '}</span>
                   )): 'Geral'}
                 </td>
                 <td>
-                  {orcamento.valor.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})}
+                  {convertMoney(orcamento.valor)}
                 </td>
                 <td>
-                  {orcamento.status === 1 ? <span style={{color: 'green'}}>Executado</span> : <span style={{color: 'red'}}>Pendente</span>}
+                  {orcamento.status}
                 </td>
               </tr>
                )) : ''
@@ -412,15 +426,7 @@ function HandleOrcamento() {
                   Forma Cobrança
                 </td>
                 <td>
-                  {returnFormaCobranca(getOrcamento.cobranca)}
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  Forma de Pagamento
-                </td>
-                <td>
-                  {getOrcamento.pagamento === 'dinheiro' ? 'Dinheiro' : 'Boleto'}
+                  {getOrcamento.pagamento ? getOrcamento.pagamento.cobranca : ''}
                 </td>
               </tr>
               <tr>
@@ -428,28 +434,34 @@ function HandleOrcamento() {
                   Condição de Pagamento
                 </td>
                 <td>
-                  {getOrcamento.condicao === 'vista' ? 'À vista' : 'Parcelado'}
+                  {getOrcamento.pagamento ? getOrcamento.pagamento.condicao : ''}
                 </td>
               </tr>
               
-                {getOrcamento.condicao === 'parcelado' ?
+              {getOrcamento.pagamento ? 
+              <>
+                {
+                  getOrcamento.pagamento.condicao === 'parcelado' ?
                   <tr>
                     <td>
                       Parcelamento
                     </td>
                     <td>
-                      {getOrcamento.total ? `Entrada de ${getOrcamento.entrada.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})} + ` : ''}
-                      <span style={{color: 'red'}}>
-                      {`${getOrcamento.parcelas} X ${((getOrcamento.total - getOrcamento.entrada) / getOrcamento.parcelas).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})}`}
+                      Entrada de {convertMoney(getOrcamento.pagamento.entrada)}
+                      <span style={{color: 'red'}}>{' + '}
+                      {`${getOrcamento.pagamento.parcelas} X ${convertMoney(((getOrcamento.valor - getOrcamento.pagamento.entrada) / getOrcamento.pagamento.parcelas))}`}
                       </span>
                     </td>
                   </tr>
-                : ''}
+                  : ''
+                }
+              </> 
+              : ''}
               
             </tbody>
           </Table>
           <div className="text-right" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-              <span>Total <strong>{getOrcamento.total ? getOrcamento.total.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) : ''}</strong></span>            
+              <span>Total <strong>{getOrcamento.valor ? convertMoney(getOrcamento.valor) : ''}</strong></span>            
              <div>
               {getOrcamento.status === 'salvo' ? (
                 <Button onClick={() => {handleAprovar(getOrcamento.id)}} className="mr-2" variant="primary">

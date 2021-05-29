@@ -1,7 +1,7 @@
 import api from '../services/api'
 
 // DEFINIR AS ROTAS DAS CLINICAS
-const INDEX_CLINICS_URL = "/orcamentos";
+const INDEX_CLINICS_URL = "/orcamento/data";
 
 const GET_ORCAMENTOS_URL = "/list_orcamentos";
 
@@ -11,13 +11,13 @@ const GET_ORCAMENTOS_ABERTO = "/list_orcamentos_aberto";
 
 const GET_PROCEDIMENTOS_URL = "/procedimento";
 
-const SHOW_CLINIC_URL = "/orcamento";
+const SHOW_CLINIC_URL = "/orcamentos";
 
 const SHOW_EDIT = "/orcamento_edit";
 
-const STORE_CLINIC_URL = "/orcamento";
+const STORE_CLINIC_URL = "/orcamentos";
 
-const UPDATE_CLINIC_URL = "/orcamento";
+const UPDATE_CLINIC_URL = "/orcamentos";
 
 const UPDATE_APROVAR = "/orcamento_aprovar";
 

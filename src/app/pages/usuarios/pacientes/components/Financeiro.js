@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Card, CardHeader, CardBody, CardHeaderToolbar } from "~/_metronic/_partials/controls";
 import { Link } from "react-router-dom";
-import { InputNumber, Row, Input, Button, Statistic } from 'antd';
+import { Table as TableNew, Modal, Tag, Space, Tooltip, Input, notification, Tabs, Checkbox, Button, Select } from 'antd';
+import { FolderOpenOutlined, DeleteOutlined,
+  EditOutlined, DollarCircleOutlined, CheckCircleOutlined } from '@ant-design/icons';
 
-import { Table, Form, Col, InputGroup, Modal } from "react-bootstrap";
+import { Table, Form, Col, InputGroup } from "react-bootstrap";
+import Especialidade from './components/especialidades'
 
 import { FormattedMessage, injectIntl } from "react-intl";
 import { useHistory, useRouteMatch } from "react-router-dom";
@@ -11,6 +14,12 @@ import { useSelector, connect } from "react-redux";
 import SVG from "react-inlinesvg";
 import { toAbsoluteUrl, checkIsActive } from "~/_metronic/_helpers";
 import { index, update, show, store } from "~/app/controllers/controller";
+import moment from "moment";
+import "moment/locale/pt-br";
+import './styles.css'
+import renderer from "devextreme/core/renderer";
+import { data } from "jquery";
+moment.locale("pt-br");
 
 export function Financeiro(props) {
   const { params, url } = useRouteMatch();
@@ -22,12 +31,16 @@ export function Financeiro(props) {
 
   const [reload, setReload] = useState(false);
 
-  const [modal, setModal] = useState(false);
-  const [modalInfo, setModalInfo] = useState(false);
+  const [modal, setModal] = useState(undefined);
+  const [modalInfo, setModalInfo] = useState(undefined);
+
+  const [modalReceber, setModalReceber] = useState(undefined);
+  const [modalReceberInfo, setModalReceberInfo] = useState(undefined);
 
   const [paymentInfos, setPaymentInfos] = useState();
 
   const [pagamentos, setPagamentos] = useState();
+  const [orcamentos, setOrcamentos] = useState([])
 
   const [ordem, setOrdem] = useState(undefined);
   const [orcamento, setOrcamento] = useState(undefined);
@@ -36,69 +49,207 @@ export function Financeiro(props) {
   const [showModalSaldo, setShowModalSaldo] = useState(false);
   const [addSaldo, setAddSaldo] = useState(undefined);
   const [pacienteInfo, setPacienteInfo] = useState(undefined);
+  const [pagamentoConfig, setPagamentoConfig] = useState(undefined);
+  const [formaPagamento, setFormaPagamento] = useState(undefined);
 
+  const [selecionado, setSelecionado] = useState([])
+  const [selectionType, setSelectionType] = useState('checkbox')
+  const [pagamentoValue, setPagamentoValue] = useState(0)
+  const [saldoDistribuir, setSaldoDistribuir] = useState([])
+  const [pagamentoValue2, setPagamentoValue2] = useState(0)
+  const [especialidades, setEspecialidades] = useState([])
+  const [valoresAplicados, setValoresAplicados] = useState([])
+
+
+  useEffect(() => {console.log(saldoDistribuir)}, [saldoDistribuir])
 
   useEffect(() => {
-    index(
-      authToken,
-      `/financeiro/user?status=pendente,pago&usuario_id=${params.id}&pago=0,1`
-    ).then(({ data }) => {
-      setPagamentos(data);
-    });
-
-    show(authToken, '/patient', params.id).then(({data}) => {
-      console.log(data)
-      setPacienteInfo(data[0])
-    }) 
-  }, [authToken, params.id, reload]);
-
-  if (!pagamentos) {
-    return <></>;
-  }
-
-  const ModalPayment = props => {
-    return (
-      <Modal show={modal} onHide={() => {}} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>Confirmar pagamento ?</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          Deseja confirmar pagamento de {paymentInfos.pacientes.name} ?
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            variant="secondary"
-            onClick={() => {
-              setModal(false);
-            }}
-          >
-            Cancelar
-          </Button>
-          <Button variant="primary" onClick={() => payment()}>
-            Sim
-          </Button>
-        </Modal.Footer>
-      </Modal>
-    );
-  };
-
-  const handleAddSaldo = () => {
-    update(authToken, '/paciente/saldo', params.id, {valor: addSaldo, tipo: 0 }).then(_ => {
-      setAddSaldo(undefined)
-      setShowModalSaldo(false)
-      setReload(!reload)
+    index(authToken, `orcamentos?paciente_id=${params.id}&status=${''}&returnType=1`)
+    .then( ({data}) => {
+      setOrcamentos(data)
+    }).catch((err)=>{
     })
-  }
+  }, [authToken, reload]);
+ 
+  useEffect(() => {
+    show(authToken, '/orcamentos', modal).then(({data}) => {
+      setModalInfo(data)
+      if (data.pagamento) {
+        if (data.pagamento.condicao === 'total' || data.pagamento.condicao === 'boleto') {
+          setSelecionado(data.procedimentos.map(item => ({...item, key: item.id})))
+          setPagamentoValue2(data.restante)
+
+          if (data.pagamentos.length === 0) { 
+            let arrEspecialidades = data.procedimentos.map(item => ({
+              id: item.procedimento.especialidade.id,
+              name: item.procedimento.especialidade.name,
+              valor: Number(item.procedimento.valor),
+              restante: Number(item.procedimento.valor),
+              valorAplicado: Number()
+            }))
+
+            let valores = []
+  
+            arrEspecialidades.forEach((item) => {
+              if (!valores.some((el, i) => el.id === item.id)) {
+                valores.push(item)
+              } else {
+                var index = valores.findIndex(current => item.id === current.id)
+            
+                valores[index].valor = valores[index].valor + item.valor
+              }
+            })
+            
+            console.log(valores.map(item => ({
+              ...item,
+              restante: item.valor
+            })))
+
+            setEspecialidades(valores.map(item => ({
+              ...item,
+              restante: item.valor
+            })))
+            
+            return
+          }
+
+          let valores = []
+
+          let especialidadesOrcamento = data.procedimentos.map(item => ({
+            id: item.procedimento.especialidade.id,
+            name: item.procedimento.especialidade.name,
+            valor: Number(item.procedimento.valor),
+            valorAplicado: Number()
+          }))
+
+          especialidadesOrcamento.forEach((item) => {
+            if (!valores.some((el, i) => el.id === item.id)) {
+              valores.push(item)
+            } else {
+              var index = valores.findIndex(current => item.id === current.id)
+          
+              valores[index].valor = valores[index].valor + item.valor
+            }
+          })
+
+          valores = valores.map(item => ({
+            ...item,
+            restante: item.valor
+          }))
+
+          console.table(valores)
+
+          let arrEspecialidades = data.pagamentos.map(item => ({
+            id: item.especialidades.id,
+            name: item.especialidades.name,
+            valor: Number(item.valor) + Number(item.restante),
+            restante: Number(item.restante),
+            valorAplicado: Number()
+          }))
+
+          let valores2 = []
+
+          valores.forEach(item => {
+            arrEspecialidades.forEach(item2 => {
+              if (item.id !== item2.id) {
+                valores2 = [...arrEspecialidades, item]
+              }
+            })
+          })
+
+          console.log(valores2)
+
+          setEspecialidades(valores2)
+
+        }
+      }
+    })
+  }, [modal]);
+
+  useEffect(() => {
+    index(authToken, `/pagamento?procedimento_id=${modalReceber}`).then(({data}) => {
+      setModalReceberInfo(data)
+    })
+  }, [modalReceber]);
 
   const returnValue = (e, currency = 'brl') => {
     const value = Number(e)
     return value.toLocaleString('pt-br', { style: 'currency', currency })
   }
 
-  const handlePayment = data => {
-    setPaymentInfos(data);
-    setModal(true);
-    setModalInfo(false);
+  const handlePagamento = data => {
+    if (data === 'procedimento') {
+      store(authToken, '/orcamento/pagamento', {
+        condicao: data,
+        orcamento_id: modalInfo.id,
+        procedimento_ids: selecionado,
+        formaPagamento,
+        valor: selecionado.reduce((a, b) => a + b.valor, 0)
+      }).then((data) => {
+        setModal(undefined)
+        setReload(!reload)
+        console.log(data)
+      })
+
+      setModal(undefined)
+      setSelecionado([])
+
+      return
+    }
+
+    if (data === 'total') {
+      store(authToken, '/orcamento/pagamento', {
+        condicao: data,
+        orcamento_id: modalInfo.id,
+        // procedimento_ids: selecionado,
+        formaPagamento,
+        valor: Number(pagamentoValue),
+        especialidades: especialidades
+      }).then((data) => {
+        setModal(undefined)
+        setReload(!reload)
+        console.log(data)
+      })
+
+      setModal(undefined)
+      setSelecionado([])
+
+      return
+    }
+
+
+    store(authToken, '/orcamento/pagamento', {
+      orcamento_id: modalInfo.id,
+      formaPagamento,
+      valor: selecionado.reduce((a, b) => a + b.valor, 0)
+    }).then((data) => {
+      setModal(undefined)
+      setReload(!reload)
+      console.log(data)
+    })
+    
+    
+
+    // setPaymentInfos(data);
+    // setModal(true);
+    // setModalInfo(false);
+  };
+
+  const handlePagamentoProcedimento = data => {
+    update(authToken, '/pagamento', data, {
+      status: 'pago',
+      formaPagamento: modalReceberInfo.formaPagamento
+    }).then((data) => {
+      setModalInfo(undefined)
+      setModalReceberInfo(undefined)
+      setReload(!reload)
+    })
+    
+    setModal(false)
+
+    // setPaymentInfos(data);
+    // setModal(true);
+    // setModalInfo(false);
   };
 
   const payment = () => {
@@ -160,193 +311,672 @@ export function Financeiro(props) {
     });
   };
 
-  const ShowModal = () => {
-    if (!ordem || !orcamento) {
-      return <></>;
+  function ReturnStatus(status) {
+    switch (status) {
+      case 'salvo':
+        return (
+          <strong style={{color: 'red'}}>Salvo</strong>
+        )
+      case 'aprovado':
+        return (
+          <strong style={{color: 'green'}}>Aprovado</strong>
+        )
+      case 'andamento':
+        return (
+          <strong style={{color: 'orange'}}>Em andamento</strong>
+        )
+      case 'finalizado':
+        return (
+          <strong style={{color: 'blue'}}>Executado</strong>
+        )
+      default: 
+        return status
     }
+  }
+  
+  const convertMoney = (value) => {
+    if (!value) {
+      return
+    }
+    return Number(value).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})
+  }
+  
+  const returnSaldo = (value) => {
+    if (value < 0) {
+      return <span style={{color: 'red'}}> {convertMoney(value)} </span>
+    }
+    return <span style={{color: 'green'}}> {convertMoney(value)} </span>
+  }
+  
+  const returnDate = (data) => {
+    return moment(data).format('l') + ' - ' + moment(data).format('LT')
+  }
 
-    return (
-      <Modal show={modalInfo} size="lg">
-        <Modal.Header>Orçamento</Modal.Header>
-        <Modal.Body>
-          <Table striped bordered hover>
-            <thead>
-              <tr>
-                <th>Informações</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Referência</td>
-                <td>
-                  {" "}
-                  {ordem.is_parcela === 1
-                    ? "Parcela N°" + ordem.num_parcela
-                    : ordem.is_entrada === 1
-                    ? "Entrada"
-                    : ordem.condicao === "vista"
-                    ? "Pagamento À Vista"
-                    : ""}
-                </td>
-              </tr>
-              <tr>
-                <td>Dentista</td>
-                <td>{orcamento.dentistas.name}</td>
-              </tr>
-              <tr>
-                <td>Data</td>
-                <td>{orcamento.criado_em}</td>
-              </tr>
-              <tr>
-                <td>Status do Orçamento</td>
-                <td>{ReturnStatus(orcamento.status)}</td>
-              </tr>
-            </tbody>
-          </Table>
-          <Table striped bordered hover>
-            <thead>
-              <tr>
-                <th>Procedimentos</th>
-                <th>Dente</th>
-                <th>Faces</th>
-                <th>Valor</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {orcamento.procedimentos_orcamentos
-                ? orcamento.procedimentos_orcamentos.map(procedimento => (
-                    <tr key={procedimento.id}>
-                      <td>{procedimento.procedimento_nome}</td>
-                      <td>
-                        {procedimento.label ? procedimento.label : "Geral"}
-                      </td>
-                      <td>
-                        {procedimento.faces && procedimento.faces.lenght > 0
-                          ? procedimento.faces.map(face => (
-                              <span style={{ color: "red" }}>
-                                {face.label}{" "}
-                              </span>
-                            ))
-                          : "Geral"}
-                      </td>
-                      <td>
-                        {procedimento.valor.toLocaleString("pt-br", {
-                          style: "currency",
-                          currency: "BRL"
-                        })}
-                      </td>
-                      <td>
-                        {procedimento.status === 'executado' ? (
-                          <span style={{ color: "green" }}>Executado</span>
-                        ) : (
-                          <span style={{ color: "red" }}>Pendente</span>
-                        )}
-                      </td>
-                    </tr>
-                  ))
-                : ""}
-            </tbody>
-          </Table>
-          <Table striped bordered hover>
-            <thead>
-              <tr>
-                <th>Forma de pagamento</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Forma Cobrança</td>
-                <td>{ordem.cobranca === "total" ? "Total" : "Procedimento"}</td>
-              </tr>
-              <tr>
-                <td>Forma de Pagamento</td>
-                <td>
-                  {ordem.pagamento === "dinheiro" ? "Dinheiro" : "Boleto"}
-                </td>
-              </tr>
-              <tr>
-                <td>Condição de Pagamento</td>
-                <td>{ordem.condicao === "vista" ? "À vista" : "Parcelado"}</td>
-              </tr>
-
-              {ordem.condicao === "parcelado" ? (
-                <tr>
-                  <td>Parcelamento</td>
-                  <td>
-                    {ordem.valor
-                      ? `Entrada de ${ordem.valor.toLocaleString("pt-br", {
-                          style: "currency",
-                          currency: "BRL"
-                        })} + `
-                      : ""}
-                    <span style={{ color: "red" }}>
-                      {`${orcamento.parcelas} X ${(
-                        (orcamento.total - orcamento.entrada) /
-                        orcamento.parcelas
-                      ).toLocaleString("pt-br", {
-                        style: "currency",
-                        currency: "BRL"
-                      })}`}
-                    </span>
-                  </td>
-                </tr>
-              ) : (
-                ""
-              )}
-            </tbody>
-          </Table>
-          <div
-            className="text-right"
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center"
-            }}
-          >
-            <span>
-              Total{" "}
-              <strong>
-                {ordem.valor.toLocaleString("pt-br", {
-                  style: "currency",
-                  currency: "BRL"
-                })}
-              </strong>
+  const columns = [
+    {
+      title: 'Id',
+      dataIndex: 'id',
+    },
+    {
+      title: 'Aprovado em',
+      dataIndex: 'data_aprovacao',
+      render: data => <span>{returnDate(data)}</span>,
+      key: 'data_aprovacao'
+    },
+    {
+      title: 'Tipo',
+      dataIndex: 'pagamento',
+      render: data => <span>{data.condicao}</span>
+    },
+    {
+      title: 'Entrada',
+      dataIndex: 'pagamento',
+      render: data => <span>{data.entrada ? convertMoney(data.entrada) : '-'}</span>
+    },
+    {
+      title: 'Parcelado',
+      render: data => <span>{data.pagamento.entrada ? convertMoney(data.valor - data.pagamento.entrada) : '-'}</span>
+    },
+    {
+      title: 'Qnt. parcelas',
+      dataIndex: 'pagamento',
+      render: data => <span>{data.parcelas ? data.parcelas : '-'}</span>
+    },
+    {
+      title: 'Total',
+      dataIndex: 'valor',
+      key: 'valor',
+      render: data => <span>{convertMoney(data)}</span>
+    },
+    {
+      title: 'Saldo á pagar',
+      dataIndex: 'restante',
+      key: 'restante',
+      render: data => <span>{convertMoney(data)}</span>
+    },
+    {
+      title: 'Status pagamento',
+      dataIndex: 'status',
+      key: 'status',
+    },
+    {
+      title: 'Ações',
+      key: 'acoes',
+      render: data => (
+        <Space size="middle">
+          {/* {
+            orcamento.status !== 3 ? 
+            <Tooltip placement="top" title="Excluir">
+              <span onClick={() => {} }  style={{"cursor": "pointer"}} className="svg-icon menu-icon">
+                <DeleteOutlined />
+              </span>
+            </Tooltip>
+            : ''
+          } */}
+            <Tooltip placement="top" title="Visualizar">
+              <span onClick={() => {}}  style={{"cursor": "pointer"}} className="svg-icon menu-icon">
+                <FolderOpenOutlined twoToneColor="#eb2f96"/>
+              </span>
+            </Tooltip>
+            <Tooltip placement="top" title="Editar">
+              <span onClick={() => {} }  style={{"cursor": "pointer"}} className="svg-icon menu-icon">
+                <EditOutlined />
+              </span>
+            </Tooltip>
+            <Tooltip placement="top" title="Definir pagamento">
+              <span onClick={() => {setModal(data.id)}}  style={{"cursor": "pointer"}} className="svg-icon menu-icon">
+                <DollarCircleOutlined />
+              </span>
+            </Tooltip>
+        </Space>
+      )
+    }
+  ]
+ 
+  const columns2 = [
+    {
+      title: 'Id',
+      dataIndex: 'procedimento_id'
+    },
+    {
+      title: 'Data pagamento',
+      dataIndex: 'created_at',
+      render: data => <span>{returnDate(data)}</span>,
+    },
+    {
+      title: 'Descrição',
+      dataIndex: 'descricao',
+      render: (data) => <span>{data ? data : '-'}</span>
+    },
+    {
+      title: 'Tipo',
+      dataIndex: 'tipo',
+      render: (data) => <span>{data ? data : '-'}</span>
+    },
+    {
+      title: 'Forma pagamento',
+      dataIndex: 'formaPagamento',
+      render: (data) => <span>{data ? data : '-'}</span>
+    },
+    {
+      title: 'Parcela',
+      dataIndex: 'parcelas',
+      render: (data) => <span>{data ? data : '-'}</span>
+    },
+    {
+      title: 'Valor',
+      dataIndex: 'valor',
+      render: (data) => <span>{convertMoney(data)}</span>
+    },
+    {
+      title: 'Saldo á pagar',
+      dataIndex: 'restante',
+      render: (data) => <span>{convertMoney(data)}</span>
+    },
+    {
+      title: 'Vencimento',
+      dataIndex: 'vencimento',
+      render: (data) => <span>{data ? data : '-'}</span>
+    },
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      render: (data) => <span>{data ? data : '-'}</span>
+    },
+    {
+      title: 'Ações',
+      render: (data) => (
+        <Space size="middle">          
+          <Tooltip placement="top" title="Pagamento">
+            <span onClick={() => {setModalReceber(data.procedimento_id)}}  style={{"cursor": "pointer"}} className="svg-icon menu-icon">
+              <DollarCircleOutlined />
             </span>
-            <div>
-              {ordem.pago === 0 && ordem.pagamento !== 'boleto' ? (
-                <Button
-                  onClick={() => {
-                    handlePayment(ordem);
-                  }}
-                  className="mr-2"
-                  variant="primary"
-                >
-                  Receber
-                </Button>
-              ) : (
-                ""
-              )}
-              <Button
-                onClick={() => {
-                  setModalInfo(!modalInfo);
-                }}
-                className="mr-2"
-                variant="danger"
-              >
-                Fechar
-              </Button>
-            </div>
-          </div>
-        </Modal.Body>
-      </Modal>
-    );
+          </Tooltip>
+          <Tooltip placement="top" title="Editar">
+            <span onClick={() => {} }  style={{"cursor": "pointer"}} className="svg-icon menu-icon">
+              <EditOutlined />
+            </span>
+          </Tooltip>
+        </Space>
+      )
+    },
+  ]
+
+  const columnsModalReceber = [
+    {
+      title: 'Procedimento',
+      dataIndex: 'procedimento',
+      render: (data) => <span>{ data.name }</span>
+    },
+    {
+      title: 'Valor un',
+      render: (data) => <span>{data.valor ? convertMoney(data.valor) : ''}</span>
+    },
+    {
+      title: 'Valor total',
+      render: (data) => <span>{data.valor ? convertMoney(data.valor) : ''}</span>
+    },
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      render: (data) => <span>{data}</span>
+    },
+  ]
+ 
+  const columnsModalTotal = [
+    {
+      title: 'Descrição',
+      dataIndex: 'descricao'
+    },
+    {
+      title: 'Valor',
+      dataIndex: 'valor',
+      render: (data) => <span>{data ? convertMoney(data) : ''}</span>
+    },
+  ]
+
+  const columnsModalTotalData = [
+    {
+      descricao: 'Pagamento total do orçamento',
+      valor: modalInfo ? modalInfo.valor : '' 
+    },
+    {
+      descricao: 'Pagamento parcial do orçamento',
+      valor: pagamentoValue
+    },
+
+  ]
+
+  const rowSelection = {
+    onChange: ( rowKey, selectedRows) => {
+      console.log(selectedRows)
+      setSelecionado(selectedRows)
+    },
+    getCheckboxProps: (record) => ({
+      disabled: record.status === 'pago' || modalInfo.pagamento.condicao === 'total',
+    }),
   };
+
+  const InnerTable = (record) => {
+    return ( 
+    <TableNew
+      dataSource={record.pagamentos} 
+      columns={columns2}
+      pagination={false}
+    />
+  )
+  };
+
+  useEffect(() => {
+    console.log(especialidades)
+  }, [especialidades])
+  
+  const handleChangeValueEspecialidade = (e, index, item) => {
+    let valor = Number(e.target.value)
+    let totalEspecialidade =  Number(saldoDistribuir.reduce((a, b) => Number(a) + Number(b.valorAplicado), 0))
+    
+    const returnValor = () => {
+      if (totalEspecialidade + valor > pagamentoValue) {
+        return  pagamentoValue - totalEspecialidade
+      }
+
+      if (valor > pagamentoValue) {
+        return pagamentoValue
+      } else if (valor > item.restante) {
+        return item.restante
+      } 
+
+      if (totalEspecialidade > pagamentoValue) {
+        return  totalEspecialidade - pagamentoValue
+      }
+
+      return valor
+
+    }
+    
+    setEspecialidades(especialidades.map((current, i) => {
+      if (i === index) {
+        return {
+          ...current, 
+          valorAplicado: returnValor(),
+          // restante: Number(current.restante) - Number(current.valorAplicado),
+        }
+      } else {
+        return {...current}
+      }
+    }))
+  }
+
+  const mudarValorDistribuido = (item) => {
+    let saldos = [...saldoDistribuir, item]
+    let saldosFinal = []
+
+    saldos.forEach((item) => {
+      if (!saldosFinal.some((el, i) => el.id === item.id)) {
+        saldosFinal.push(item)
+      } else {
+        var index = saldosFinal.findIndex(current => item.id === current.id)
+    
+        saldosFinal[index].valorAplicado = item.valorAplicado
+      }
+    })
+
+    setSaldoDistribuir(saldosFinal)
+  }
+
+  const zerarValor = (item) => {
+    let saldos = saldoDistribuir
+    // let saldosFinal = []
+
+    // saldos.forEach((item) => {
+    //   if (!saldosFinal.some((el, i) => el.id === item.id)) {
+    //     saldosFinal.push(item)
+    //   } else {
+    //     var index = saldosFinal.findIndex(current => item.id === current.id)
+    
+    //     saldosFinal[index].valorAplicado = 0
+    //   }
+    // })
+
+    let index = saldos.findIndex(current => current.id === item.id)
+    console.log('index', index)
+    saldos[index] = {...item, valorAplicado: 0}
+
+    setSaldoDistribuir(saldos)
+  }
 
   return (
     <Card>
-      {modal ? <ModalPayment /> : ""}
-      <ShowModal />
+      <Modal
+        centered
+        visible={modal ? true : false}
+        onOk={() => setModal(undefined)}
+        onCancel={() => setModal(undefined)}
+        closable={false}
+        width={'80%'}
+        footer={null}
+      >
+        {
+          modalInfo ? (
+            <div className="pagamento-container">
+
+            <div className="container-pagamento">
+              <div className="infos-pagamento">
+                <div className="info-title">
+                  <h2>Opção pagamento</h2>
+                  <Select
+                    style={{width: '50%'}}
+                    defaultValue={modalInfo.pagamento ? modalInfo.pagamento.condicao : undefined}
+                    options={[
+                      {
+                        label: 'Total',
+                        value: 'total',
+                      },
+                      {
+                        label: 'Procedimento',
+                        value: 'procedimento',
+                      },
+                      {
+                        label: 'Boleto',
+                        value: 'boleto',
+                      },
+                    ]}
+                  />
+                </div> 
+              </div>
+              <div className="config-pagamento">
+  
+                <div className="pagamento-receber">
+                  <div className="header-pagamento">
+                    <span>A receber</span>
+                  </div>
+                  <div className="painel-pagamento">
+                    <TableNew 
+                      columns={columnsModalReceber}
+                      dataSource={modalInfo.procedimentos.map(item => ({...item, key: item.id}))}
+                      pagination={false}
+                      rowSelection={{
+                        type: selectionType,
+                        ...rowSelection,
+                      }}
+                      key="id"
+                    />
+                  </div>
+                  {/* <Button disabled={modalInfo.pagamento.condicao === 'procedimento' || modalInfo.pagamento.condicao === 'total'} type="primary" block>Adicionar</Button> */}
+                </div>
+  
+               { modalInfo.pagamento.condicao === 'total' ?
+                  <div className="pagamento-pago">
+                  <div className="header-pagamento">
+                      <span>Valor a pagar</span>
+                  </div>
+                  <div className="painel-pagamento">
+                    <Input
+                      disabled={pagamentoValue > 0}
+                      defaultValue={modalInfo.valor}
+                      onChange={e => setPagamentoValue2(e.target.value)}
+                    />
+                    {/* <TableNew columns={columnsModalReceber} dataSource={modalInfo.procedimentos.filter(item => item.status === 'pago')} pagination={false} /> */}
+                  </div>
+                  <Button onClick={() => {
+                    setPagamentoValue(pagamentoValue2)
+                    }} type="primary" block>Adicionar</Button>
+                  <Button onClick={() => setPagamentoValue(0)} type="secundary" block>Editar</Button>
+                </div>
+                : ''
+               }
+  
+                <div className="infos-pagamento">
+                  <div className="info">
+                    <h2>Total</h2>
+                    <span>{convertMoney(modalInfo.valor)}</span>
+                  </div>
+                  { modalInfo.pagamento.condicao === 'total' ? 
+                    <div className="info">
+                      <h2>Saldo á pagar</h2>
+                      <span>{convertMoney(modalInfo.restante)}</span>
+                    </div>
+                  : ''}
+                  {/* <div className="info">
+                    <h2>Recebido</h2>
+                    <span>R$ 100,00</span>
+                  </div>
+                  <div className="info">
+                    <h2>A Receber</h2>
+                    <span>R$ 440,00</span>
+                  </div> */}
+                </div>
+              </div>
+            </div>
+
+            <div className="container-pagamento2">
+              <div className="pagamento-receber">
+                <div className="header-panel">
+                  <span>Procedimentos á pagar</span>
+                </div>
+                <div className="painel-pagamento">
+                  {modalInfo.pagamento.condicao === 'procedimento' ? <TableNew columns={columnsModalReceber} dataSource={selecionado} pagination={false} /> : ''}
+                  {modalInfo.pagamento.condicao === 'total' ? 
+                    <TableNew 
+                      columns={columnsModalTotal}
+                      dataSource={pagamentoValue === 0 ? [] : pagamentoValue === modalInfo.valor ? [columnsModalTotalData[0]] : [columnsModalTotalData[1]]} pagination={false} /> 
+                  : ''}
+                </div>
+                <div className="infos-pagamento" style={{marginTop: 20}}>
+                  {modalInfo.pagamento.condicao === 'procedimento' ? 
+                  <div className="info">
+                    <h2>Total á pagar</h2>
+                    <span>{convertMoney(selecionado.reduce((a, b) => a + b.valor, 0),)}</span>
+                  </div>
+                  : ''}
+                  {modalInfo.pagamento.condicao === 'total' ? 
+                  <>
+                    <div className="info">
+                      <h2>Total á pagar</h2>
+                      <span>{convertMoney(pagamentoValue)}</span>
+                    </div>
+                    {/* <div className="info">
+                      <h2>Saldo a distribuir</h2>
+                      <span>{convertMoney(saldoDistribuir)}</span>
+                    </div> */}
+                  </>
+                  : ''}
+                </div>
+              </div>
+  
+              {
+                modalInfo.pagamento.condicao === 'total' && pagamentoValue <= modalInfo.valor ? 
+                <div className="pagamento-receber" style={{border: 0}}>
+                  <div className="infos-pagamento" style={{marginTop: 10}}>
+
+                  {
+                    especialidades ? especialidades.map((item, index) => (
+                      <div key={index} style={{borderBottom: 0, display: 'flex', flexDirection: 'column', borderBottom: '1px dashed'}}>
+                        <div className="info" style={{borderBottom: 0}}>
+                          <h2>{item.name}</h2>
+                          {/* <span>{convertMoney(item.valor)}</span> */}
+                          <span> Saldo á pagar:  {convertMoney(Number(item.restante))}</span>
+                        </div>
+                       <div style={{borderBottom: 0, display: 'flex', justifyContent: 'space-between'}}>
+                        <Input
+                          onClick={(e) => {
+                            console.log('clicou')
+                            zerarValor(item)
+                          }}
+                          onBlur={(e) => mudarValorDistribuido(item)}
+                          disabled={pagamentoValue === 0}
+                          style={{width: '50%'}}
+                          value={item.valorAplicado > item.restante ? item.restante : item.valorAplicado}
+                          onChange={(e) => handleChangeValueEspecialidade(e, index, item)}
+                        />
+                          <Tooltip placement="top" title="Confirmar">
+                            <span onClick={() => {} }  style={{"cursor": "pointer"}} className="svg-icon menu-icon">
+                              <CheckCircleOutlined style={{
+                                color: (Number(item.valor) - Number(item.valorAplicado)) > 0 ? 'blue' : (Number(item.valor) - Number(item.valorAplicado)) === 0 ? 'green' : 'red'
+                              }} />
+                            </span>
+                          </Tooltip>
+                       </div>
+                      </div>
+                    )) : ''
+                  }
+
+
+                  <div className="info">
+                    <h2>Total Especalidades</h2>
+                    <span>{convertMoney(especialidades.reduce((a, b) => Number(a) + Number(b.valorAplicado), 0))}</span>
+                  </div>
+                  {/* <div className="info" style={{marginTop: 20}}>
+                    <h2>Total especialidades</h2>
+                    <span>{convertMoney(pagamentoValue)}</span>
+                  </div> */}
+
+                    {/* <div className="info" style={{display: 'grid', gridTemplateColumns: '1fr 1fr', borderBottom: 0}}>
+                      <h2>Clinico Geral</h2>
+                      <Input />
+                    </div>
+                    <div className="info" style={{display: 'grid', gridTemplateColumns: '1fr 1fr', borderBottom: 0}}>
+                      <h2>RaioX</h2>
+                      <Input />
+                    </div> */}
+                  </div>
+                </div> : ''
+              }
+  
+              <div className="pagamento-pago-hidden">
+                <div className="header-pagamento">
+                  <span>Selecione a forma de pagamento</span>
+                </div>
+                <Select
+                  disabled={selecionado.length <= 0 || pagamentoValue === 0}
+                  style={{width: '100%', marginBottom: 10}}
+                  options={[
+                    {
+                      label: 'Dinheiro',
+                      value: 'dinheiro'
+                    },
+                    {
+                      label: 'Débito',
+                      value: 'debito'
+                    },
+                    {
+                      label: 'Crédito',
+                      value: 'credito'
+                    },
+                  ]}
+                  onChange={(e) => {
+                    console.log(e)
+                    setFormaPagamento(e)
+                  }}
+                />
+               {
+                 modalInfo.pagamento.condicao === 'procedimento' ?
+                  <Button 
+                    onClick={() => {handlePagamento(modalInfo.pagamento.condicao)}}
+                    type="primary" 
+                    block
+                    disabled={!formaPagamento || selecionado.length <= 0}
+                  >Receber</Button>
+                : ''
+               }
+               {
+                 modalInfo.pagamento.condicao === 'total' ?
+                  <Button 
+                    onClick={() => {handlePagamento(modalInfo.pagamento.condicao)}}
+                    type="primary" 
+                    block
+                    disabled={pagamentoValue === 0 || especialidades.reduce((a, b) => Number(a) + Number(b.valorAplicado), 0) !== Number(pagamentoValue)}
+                  >Receber</Button>
+                : ''
+               }
+              </div>
+            </div>
+  
+          </div>
+          ) : ''
+        }
+      </Modal>
+      <Modal
+        centered
+        visible={modalReceber? true : false}
+        onOk={() => setModalReceber(undefined)}
+        onCancel={() => setModalReceber(undefined)}
+        closable={false}
+        width={'80%'}
+        footer={null}
+      >
+        {
+          modalReceberInfo ? (
+            <div className="pagamento-container">
+
+            <div className="container-pagamento2">
+              <div className="pagamento-receber">
+                <div className="header-panel">
+                  <span>Opções de pagamento</span>
+                </div>
+                <div className="painel-pagamento">
+                  <TableNew columns={columnsModalReceber} dataSource={[modalReceberInfo]} pagination={false} />
+                </div>
+                <div className="infos-pagamento" style={{marginTop: 20}}>
+                  <div className="info">
+                    <h2>Total á pagar</h2>
+                    <span>{convertMoney(modalReceberInfo.valor)}</span>
+                  </div>
+                </div>
+              </div>
+  
+              <div className="pagamento-receber" style={{border: 0}}>
+                <div className="infos-pagamento" style={{marginTop: 10}}>
+                  <div className="info" style={{display: 'grid', gridTemplateColumns: '1fr 1fr', borderBottom: 0}}>
+                    <h2>Clinico Geral</h2>
+                    <Input />
+                  </div>
+                  <div className="info" style={{display: 'grid', gridTemplateColumns: '1fr 1fr', borderBottom: 0}}>
+                    <h2>RaioX</h2>
+                    <Input />
+                  </div>
+                </div>
+              </div>
+
+              <div className="pagamento-pago-hidden">
+                <div className="header-pagamento">
+                  <span>Selecione a forma de pagamento</span>
+                </div>
+                <Select
+                  style={{width: '100%', marginBottom: 10}}
+                  defaultValue={modalReceberInfo.formaPagamento}
+                  options={[
+                    {
+                      label: 'Dinheiro',
+                      value: 'dinheiro'
+                    },
+                    {
+                      label: 'Débito',
+                      value: 'debito'
+                    },
+                    {
+                      label: 'Crédito',
+                      value: 'credito'
+                    },
+                  ]}
+                  onChange={(e) => {
+                    console.log(e)
+                    setModalReceberInfo({...modalReceberInfo, formaPagamento: e})
+                  }}
+                />
+                <Button 
+                  onClick={() => {handlePagamentoProcedimento(modalReceberInfo.id)}}
+                  type="primary" 
+                  block
+                  disabled={!formaPagamento && !modalReceberInfo.formaPagamento}
+                >Receber</Button>
+              </div>
+            </div>
+  
+          </div>
+          ) : ''
+        }
+      </Modal>
       <CardHeader title="Financeiro cliente">
         {/* <CardHeaderToolbar>
           <Statistic title="Saldo disponivel"  valueStyle={{ fontSize: 16, color: 'green', }} value={returnValue(pacienteInfo ? pacienteInfo.saldo_disponivel : 0)} />
@@ -363,60 +993,16 @@ export function Financeiro(props) {
         </CardHeaderToolbar> */}
       </CardHeader>
       <CardBody>
-        <Table striped bordered hover>
-          <thead>
-            <tr>
-              <th>Data</th>
-              <th>Paciente</th>
-              <th>Dentista</th>
-              <th>Valor</th>
-              <th>Pagamento</th>
-              <th>Informações</th>
-              <th style={{ width: 100 }}></th>
-            </tr>
-          </thead>
-          <tbody>
-            {pagamentos.map(item => (
-              <tr key={item.id}>
-                <td>{item.criado_em}</td>
-                <td>{item.pacientes.name}</td>
-                <td>{item.dentistas.name}</td>
-                <td>
-                  {item.valor.toLocaleString("pt-br", {
-                    style: "currency",
-                    currency: "BRL"
-                  })}
-                </td>
-                <td>{returnPago(item.pago)}</td>
-                <td>
-                  {item.is_parcela === 1
-                    ? "Parcela N°" + item.num_parcela
-                    : item.is_entrada === 1
-                    ? "Entrada"
-                    : item.condicao === "vista"
-                    ? "Pagamento À Vista"
-                    : ""}
-                </td>
-                <td style={{ display: "flex", justifyContent: "space-around" }}>
-                  <span
-                    onClick={() => viewDetails(item)}
-                    style={{ cursor: "pointer" }}
-                    className="svg-icon menu-icon"
-                  >
-                    <SVG
-                      style={{
-                        fill: "#3699FF",
-                        color: "#3699FF",
-                        marginLeft: 8
-                      }}
-                      src={toAbsoluteUrl("/media/svg/icons/Design/view.svg")}
-                    />
-                  </span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
+        <TableNew 
+          columns={columns} 
+          dataSource={orcamentos}
+          expandable
+          pagination={false}
+          expandable={{
+            expandedRowRender: (record, index, indent, expanded) => InnerTable(record, index, indent, expanded),
+            // expandedRowClassName: () => ' expanded-row-newtable'
+          }}  
+        />
       </CardBody>
     </Card>
   );

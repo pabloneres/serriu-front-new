@@ -2,9 +2,10 @@ import React, { useState } from "react";
 
 import { Form, Col, Button } from "react-bootstrap";
 
-function ProcedimentoGeral({ onFinish, procedimento }) {
+function ProcedimentoGeral({ onFinish, procedimento, dentista }) {
   procedimento.dentes = [];
   procedimento.valorTotal = procedimento.valor;
+  procedimento.dentista_id = dentista.value
 
   return (
     <>

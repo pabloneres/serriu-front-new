@@ -32,7 +32,6 @@ import {
   getProcedimentos,
 } from "~/app/controllers/orcamentoController";
 import { index as indexNew } from '~/app/controllers/controller'
-import { index as indexAll } from "~/app/controllers/controller";
 import { conversorMonetario, formatDate } from "~/app/modules/Util";
 
 //COMPONENTES
@@ -42,18 +41,14 @@ import ProcedimentoSelecaoDente from "./components/formularios/procedimentoSelec
 import Select from "react-select";
 
 const options = {
-  cobranca: [
-    {value: 'total', label: 'Total'},
-    {value: 'procedimento', label: 'Procedimento executado'},
-    {value: 'parcial', label: 'Parcial'}
-  ],
-  pagamento: [
-    {value: 'dinheiro', label: 'Dinheiro'},
-    {value: 'boleto', label: 'Boleto'}
-  ],
+  // cobranca: [
+  //   {value: 'total', label: 'Total'},
+  //   {value: 'procedimento', label: 'Procedimento executado'},
+  // ],
   condicao: [
-    {value: 'vista', label: 'À vista'},
-    {value: 'parcelado', label: 'Parcelado'}
+    {value: 'total', label: 'Total'},
+    {value: 'boleto', label: 'Boleto'},
+    {value: 'procedimento', label: 'Procedimento executado'},
   ]
 }
 
@@ -61,7 +56,7 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
   const {user: { authToken }} = useSelector((state) => state.auth);
   const history = useHistory();
   const { params, url } = useRouteMatch();
-  const [tabela, setTabela] = useState();
+  const [tabela, setTabela] = useState(undefined);
   const [procedimento, setProcedimento] = useState(undefined);
 
   const date_now = new Date();
@@ -82,46 +77,15 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
   const [cobranca, setCobranca] = useState({})
   const [pagamento, setPagamento] = useState({})
   const [condicao, setCondicao] = useState({})
-  const [entrada, setEntrada] = useState(0)
+  const [entrada, setEntrada] = useState(undefined)
   const [parcelas, setParcelas] = useState(undefined)
   const [showAlert, setShowAlert] = useState(false)
 
   const [opcoesPagamento, setOpcoesPagamento] = useState(undefined)
 
   useEffect(() => {
-    if (orcamento !== undefined) {
-      console.log(orcamento);
-      let procedimentos = JSON.parse(orcamento.procedimento);
-      console.log(procedimentos);
-
-      procedimentos.map((row) => {
-        row.label = row.procedimento;
-        row.habilitado = true;
-      });
-      setProcedimentosFinalizados(procedimentos);
-      setDentista(orcamento.dentista);
-    }
-  }, [orcamento]);
-
-
-  const handleSubmitFormaPagamento = (e) => {
-    e.preventDefault()
-
-    let opcoesPagamento = {
-      cobranca,
-      pagamento: returnFormaPagamento(),
-      condicao: returnCondicao('value'),
-      entrada,
-      parcelas: !parcelas ? 1 : parcelas,
-    }
-    setOpcoesPagamento(opcoesPagamento)
-    setModalFormaPagamento(false);
-  };
-
-  useEffect(() => {
     index(authToken)
       .then(({ data }) => {
-        console.log(data);
         setDadosAPI(data);
         setTabelas(data.precos);
         setDentistas(data.dentistas);
@@ -132,72 +96,42 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
       });
   }, []);
 
-  // useEffect(() => {
-  //   if (tabela !== undefined) {
-  //     getProcedimentos(authToken, tabela)
-  //       .then(({ data }) => {
-  //         console.log(data)
-  //         setProcedimentos(data);
-  //       })
-  //       .catch((err) => {
-  //         console.log(err);
-  //       });
-  //   }
-  // }, [tabela]);
+  const handleSubmitFormaPagamento = (e) => {
+    e.preventDefault()
+
+    let opcoesPagamento = {
+      condicao: returnCondicao('value'),
+      entrada,
+      parcelas: !parcelas ? undefined : parcelas,
+    }
+    setOpcoesPagamento(opcoesPagamento)
+    setModalFormaPagamento(false);
+  };
 
   const handlerMudancaTabela = (e) => {
-    setProcedimento(undefined)
-
-    indexNew(authToken, `dentista/procedimentos/${dentista.value}?tabela_id=${e.target.value}`).then(({data}) => {
-      console.log(data)
-      
-      let procedimentos = []
-
-      data.forEach(itemData => {
-        itemData.procedimento.forEach(item => {
-          procedimentos.push({
-            ...item,
-            label: item.name,
-            id: item.id,
-            valor: item.value,
-            value: item.id,
-            comissao: {
-              comissao_boleto: itemData.comissao_boleto,
-              comissao_vista: itemData.comissao_vista,
-              dentista_id: itemData.dentista_id,
-              especialidade_id: itemData.especialidade_id,
-            },
-          })
-        })
-      })
-
-
-      console.log(procedimentos)
-
-      setProcedimentos(procedimentos)
-    })
-
-    // getProcedimentos(authToken, tabela)
-    // .then(({ data }) => {
-    //   console.log(data)
-    // })
-    // .catch((err) => {
-    //   console.log(err);
-    // });
-
-  
     setTabela(e.target.value);
+    setProcedimento(undefined)
+    indexNew(authToken, `dentista/procedimentos/${dentista.value}?tabela_id=${e.target.value}`).then(({data}) => {
+      setProcedimentos(data.map(item => ({
+        label: item.name,
+        value: item.id,
+        ...item
+      })))
+    })  
   };
 
   const handlerMudancaDentista = async (data) => {
+    if (!data) {
+      return
+    }
     setDentista(data)
-
-    indexAll(authToken, `/configuracao/comissao/${data.value}`).then(({ data }) => {    
-      if (data.comissao_geral === 0.00) {
-        setShowAlert(true)
-      }
+    indexNew(authToken, `dentista/procedimentos/${data.value}?tabela_id=${tabela}`).then(({data}) => {
+      setProcedimentos(data.map(item => ({
+        label: item.name,
+        value: item.id,
+        ...item
+      })))
     })
-
   };
 
   const handlerMudancaProcedimentos = (procedimento, action) => {
@@ -250,6 +184,7 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
           <ProcedimentoGeral
             onFinish={addProcedimentoFinalizado}
             procedimento={procedimento}
+            dentista={dentista}
           />
         );
       } else {
@@ -287,26 +222,14 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
 
   function handleSubmit(type) {
 
-    let comissao_total_vista = procedimentosFinalizados.map(item => {
-      return (item.valorTotal * item.comissao.comissao_vista / 100)
-    }).reduce((a, b) => a + b, 0)
-
-    let comissao_total_boleto = procedimentosFinalizados.map(item => {
-      return (item.valorTotal * item.comissao.comissao_boleto / 100)
-    }).reduce((a, b) => a + b, 0)
-
-
     if (alterar) {
       console.log(orcamento.id);
 
       if (type === "aprovar") {
         update(authToken, orcamento.id, {
           procedimentos: procedimentosFinalizados,
-          dentista: dentista.value,
           paciente_id: params.id,
-          formaPagamento: opcoesPagamento,
-          comissao_total_vista,
-          comissao_total_boleto,
+          pagamento: opcoesPagamento,
           status: 'aprovado',
         })
           .then(() => {
@@ -321,11 +244,8 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
 
       update(authToken, orcamento.id, {
         procedimentos: procedimentosFinalizados,
-        dentista: dentista.value,
         paciente_id: params.id,
-        comissao_total_vista,
-        comissao_total_boleto,
-        formaPagamento: opcoesPagamento,
+        pagamento: opcoesPagamento,
       })
         .then(() => {
           return history.push(`${url}`);
@@ -342,13 +262,10 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
     if (type === "aprovar") {
       store(authToken, {
         procedimentos: procedimentosFinalizados,
-        dentista: dentista.value,
         paciente_id: params.id,
-        formaPagamento: opcoesPagamento,
+        pagamento: opcoesPagamento,
         status: 'aprovado',
-        comissao_total_vista,
-        comissao_total_boleto,
-        valorTotal: getTotalProcedimentos(),
+        data_aprovacao: new Date(),
       })
         .then(() => history.push(`${url}`))
         .catch((err) => {
@@ -361,13 +278,10 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
     if (type === "salvar") {
       store(authToken, {
         procedimentos: procedimentosFinalizados,
-        dentista: dentista.value,
         paciente_id: params.id,
-        formaPagamento: opcoesPagamento,
-        valorTotal: getTotalProcedimentos(),
-        comissao_total_vista,
-        comissao_total_boleto,
-        status: 'salvo'
+        pagamento: opcoesPagamento,
+        status: 'salvo',
+        data_aprovacao: null
       })
         .then(() => history.push(`${url}`))
         .catch((err) => {
@@ -405,7 +319,6 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
     }
   }
 
-
   return (
     <Card>
       <Modal show={showAlert} onHide={() => setShowAlert(false)} centered>
@@ -433,7 +346,7 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
         <Modal.Body>
           <Form onSubmit={handleSubmitFormaPagamento}>
 
-            <Form.Row className="justify-content-md-center">
+            {/* <Form.Row className="justify-content-md-center">
               <Form.Group as={Col} controlId="formGridAddress1">
               <Form.Label>Forma de Cobrança</Form.Label>
                 <Select
@@ -446,24 +359,7 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
                   }}
                 />
               </Form.Group>
-            </Form.Row>
-
-            <Form.Row className="justify-content-md-center">
-              <Form.Group as={Col} controlId="formGridAddress1">
-              <Form.Label>Forma de Pagamento</Form.Label>
-                <Select
-                  required
-                  value={returnFormaPagamento()}
-                  isDisabled={cobranca.value === 'procedimento' || cobranca.value === 'parcial'}
-                  placeholder="Selecione a forma de pagamento..."
-                  options={options['pagamento']}
-                  onChange={(value) => {
-                    setPagamento(value)
-                  }}
-                />
-              </Form.Group>
-            </Form.Row>
-            
+            </Form.Row> */}
             
             <Form.Row className="justify-content-md-center">
               <Form.Group as={Col} controlId="formGridAddress1">
@@ -481,112 +377,37 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
               </Form.Group>
             </Form.Row>
 
-            {(() => {
-              if (condicao.value === 'parcelado') {
-                return (
-                  <Form.Row className="justify-content-md-center">
-                     <Form.Group as={Col}>
-                      <Form.Label>Valor Entrada</Form.Label>
-                      <Form.Control
-                        type="number"
-                        name="valorEntrada"
-                        value={entrada}
-                        required
-                        onChange={(e) => {
-                          setEntrada(e.target.value)
-                        }}
-                      />
-                      <Form.Control.Feedback type="invalid">
-                        Esse campo é necessario!
-                      </Form.Control.Feedback>
-                    </Form.Group>
+            {/* <Form.Row className="justify-content-md-center">
+              <Form.Group as={Col}>
+              <Form.Label>Valor Entrada</Form.Label>
+              <Form.Control
+                type="number"
+                name="valorEntrada"
+                value={entrada}
+                required
+                onChange={(e) => {
+                  setEntrada(e.target.value)
+                }}
+              />
+              <Form.Control.Feedback type="invalid">
+                Esse campo é necessario!
+              </Form.Control.Feedback>
+            </Form.Group>
 
-                    <Form.Group as={Col}>
-                      <Form.Label>Total</Form.Label>
-                      <Form.Control
-                        type="text"
-                        name="valorEntrada"
-                        disabled
-                        value={conversorMonetario(
-                          getTotalProcedimentos()
-                        )}
-                      />
-                      <Form.Control.Feedback type="invalid">
-                        Esse campo é necessario!
-                      </Form.Control.Feedback>
-                    </Form.Group>
+            <Form.Group as={Col}>
+              <Form.Label>Restante</Form.Label>
+              <Form.Control
+                type="text"
+                name="valorEntrada"
+                disabled
+                value={conversorMonetario( getTotalProcedimentos() - entrada )}
+              />
+              <Form.Control.Feedback type="invalid">
+                Esse campo é necessario!
+              </Form.Control.Feedback>
+            </Form.Group>
 
-                    <Form.Group as={Col}>
-                      {/*sm={3}*/}
-                      <Form.Label>Parcelas</Form.Label>
-                      <Form.Control
-                        as="select"
-                        name="parcelas"
-                        required
-                        onChange={(e) => {
-                          setParcelas(e.target.value)
-                        }}
-                      >
-                        {(() =>
-                          [...Array(10).keys()].map((row) => {
-                            return (
-                              <option
-                                key={row + 1}
-                                value={row + 1}
-                              >
-                                {" "}
-                                {row + 1} X{" "}
-                                {conversorMonetario( (getTotalProcedimentos() - entrada) / (row + 1) )}
-                              </option>
-                            );
-                          }))()}
-                      </Form.Control>
-                      <Form.Control.Feedback type="invalid">
-                        Esse campo é necessario!
-                      </Form.Control.Feedback>
-                    </Form.Group>
-                  </Form.Row>
-                );
-              }
-            })()}
-
-            {(() => {
-              if (cobranca.value === 'parcial') {
-                return (
-                  <Form.Row className="justify-content-md-center">
-                     <Form.Group as={Col}>
-                      <Form.Label>Valor Entrada</Form.Label>
-                      <Form.Control
-                        type="number"
-                        name="valorEntrada"
-                        value={entrada}
-                        required
-                        onChange={(e) => {
-                          setEntrada(e.target.value)
-                        }}
-                      />
-                      <Form.Control.Feedback type="invalid">
-                        Esse campo é necessario!
-                      </Form.Control.Feedback>
-                    </Form.Group>
-
-                    <Form.Group as={Col}>
-                      <Form.Label>Restante</Form.Label>
-                      <Form.Control
-                        type="text"
-                        name="valorEntrada"
-                        disabled
-                        value={conversorMonetario( getTotalProcedimentos() - entrada )}
-                      />
-                      <Form.Control.Feedback type="invalid">
-                        Esse campo é necessario!
-                      </Form.Control.Feedback>
-                    </Form.Group>
-
-                  </Form.Row>
-                );
-              }
-            })()}
+          </Form.Row> */}
 
             <Modal.Footer>
               <Button

@@ -11,6 +11,10 @@ function ProcedimentoSelecaoDente({ onFinish, procedimento, dentista }) {
   const [denticao, setDenticao] = useState("0");
   const [dentes, setDentes] = useState();
 
+  useEffect(() => {
+    console.log(dentes)
+  }, [dentes])
+
   const listaDenticoes = [
     { value: "0", label: "Permanentes" },
     { value: "1", label: "Deciduos" },
@@ -35,7 +39,7 @@ function ProcedimentoSelecaoDente({ onFinish, procedimento, dentista }) {
 
   const handlerFinalizaProcedimento = (e) => {
     procedimento.dentes = dentes;
-
+    procedimento.dentista_id = dentista.value
     procedimento.valorTotal = dentes.length * procedimento.valor;
 
     onFinish(e, procedimento);
@@ -43,9 +47,6 @@ function ProcedimentoSelecaoDente({ onFinish, procedimento, dentista }) {
 
   useEffect(() => {
     if (procedimento.dentes === undefined) procedimento.dentes = [];
-
-    console.log(procedimento);
-
     if (procedimento.denticao !== undefined) {
       setDenticao(...procedimento.denticao);
 
@@ -55,7 +56,6 @@ function ProcedimentoSelecaoDente({ onFinish, procedimento, dentista }) {
 
   return (
     <>
-      {console.log(dentista)}
       <Form.Row>
         <Form.Group as={Col} controlId="formGridAddress1">
           <Form.Label>Nome</Form.Label>

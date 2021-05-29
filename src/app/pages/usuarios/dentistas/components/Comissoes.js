@@ -336,7 +336,7 @@ export function Comissoes(props) {
       setSelecionado(selectedRows)
     },
     getCheckboxProps: (record) => ({
-      disabled: record. status_comissao !== 'pagar' ,
+      disabled: record.status_comissao !== 'pagar' ,
       // Column configuration not to be checked
       name: record.name,
     }),

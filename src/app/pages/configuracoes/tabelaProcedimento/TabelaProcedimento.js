@@ -444,7 +444,7 @@ export function TabelaProcedimento() {
               <td>{procedimento.name}</td>
               <td>{procedimento.table_name}</td>
               <td>{procedimento.especialidade_name}</td>
-              <td>{procedimento.value.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})}
+              <td>{procedimento.valor.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})}
               </td>
               {/* <td>{procedimento.email}</td>
               <td>{'CNPJ'}</td>
