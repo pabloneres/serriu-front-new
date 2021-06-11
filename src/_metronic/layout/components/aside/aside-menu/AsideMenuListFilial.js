@@ -23,231 +23,161 @@ export function AsideMenuListFilial({ layoutProps }) {
       : "";
   };
 
+
+  const menus = [
+    { 
+      title: 'Dashboard',
+      icon: <MenuOutlined/>,
+      role: 'dashboard',
+      to: '/dashboard'
+    },
+    {
+      title: 'Administrador',
+      icon: <RobotOutlined/>,
+      role: 'administrador',
+      to: '/administrador',
+      children: [
+        {
+          title: 'Clinicas',
+          role: 'clinics',
+          to: '/clinicas'
+        }
+      ]
+    },
+    { 
+      title: 'Agenda',
+      icon: <CalendarOutlined/>,
+      role: 'schedule',
+      to: '/agenda'
+    },
+    { 
+      title: 'Pacientes',
+      icon: <SmileOutlined/>,
+      role: 'patients',
+      to: '/pacientes'
+    },
+    { 
+      title: 'Financeiro',
+      icon: <DollarOutlined/>,
+      role: 'financial',
+      to: '/financeiro'
+    },
+    {
+      title: 'Usúarios',
+      icon: <UserOutlined/>,
+      role: 'users',
+      to: '/usuarios',
+      children: [
+        {
+          title: 'Adicionar usuário',
+          role: 'addUser',
+          to: '/usuario/adicionar'
+        },
+        {
+          title: 'Dentistas',
+          role: 'dentists',
+          to: '/dentista'
+        },
+        {
+          title: 'Recepcionistas',
+          role: 'recepcionist',
+          to: '/recepcionista'
+        }
+      ]
+    },
+    { 
+      title: 'Informações',
+      icon: <InfoCircleOutlined/>,
+      role: 'infos',
+      to: '/financeiro'
+    },
+    { 
+      title: 'Configurações',
+      icon: <ToolOutlined/>,
+      role: 'settings',
+      to: '/configuracoes',
+      children: [
+        {
+          title: 'Geral',
+          to: '/configuracao_geral',
+          role: ''
+        },
+        {
+          title: 'Tabela de Preços',
+          to: '/tabela-precos',
+          role: ''
+        },
+        {
+          title: 'Tabela de Especialidades',
+          to: '/tabela-especialidades',
+          role: ''
+        },
+        {
+          title: 'Equipamentos',
+          to: '/equipamentos',
+          role: ''
+        },
+        {
+          title: 'Relatorios',
+          to: '/relatorios',
+          role: ''
+        },
+        {
+          title: 'Agenda',
+          to: '/configurar-agenda',
+          role: ''
+        },
+      ]
+    },
+  ]
+
   return (
     <>
       {/* begin::Menu Nav */}
       <ul className={`menu-nav ${layoutProps.ulClasses}`}>
         {/*begin::1 Level*/}
-        <li
-          className={`menu-item ${getMenuItemActive("/administrador", false)}`}
-          aria-haspopup="true"
-        >
-          <NavLink className="menu-link" to="/administrador">
-            <span className="svg-icon menu-icon">
-              <RobotOutlined />
-              {/* <SVG style={{ "fill": "#3699FF", "color": "#3699FF" }} src={toAbsoluteUrl("/media/svg/icons/Design/Layers.svg")} /> */}
-            </span>
-            <span className="menu-text">Administrador</span>
-          </NavLink>
-        </li>
-        <li
-          className={`menu-item ${getMenuItemActive("/dashboard", false)}`}
-          aria-haspopup="true"
-        >
-          <NavLink className="menu-link" to="/dashboard">
-            <span className="svg-icon menu-icon">
-              <MenuOutlined />
-              {/* <SVG style={{ "fill": "#3699FF", "color": "#3699FF" }} src={toAbsoluteUrl("/media/svg/icons/Design/Layers.svg")} /> */}
-            </span>
-            <span className="menu-text">Dashboard</span>
-          </NavLink>
-        </li>
-        <li
-          className={`menu-item ${getMenuItemActive("/agenda", false)}`}
-          aria-haspopup="true"
-        >
-          <NavLink className="menu-link" to="/agenda">
-            <span className="svg-icon menu-icon">
-            <CalendarOutlined />
-              {/* <SVG style={{ "fill": "#3699FF" }} src={toAbsoluteUrl("/media/svg/icons/Design/calendar.svg")} /> */}
-            </span>
-            <span className="menu-text">Agenda</span>
-          </NavLink>
-        </li>
-        <li
-          className={`menu-item ${getMenuItemActive("/pacientes", false)}`}
-          aria-haspopup="true"
-        >
-          <NavLink className="menu-link" to="/pacientes">
-            <span className="svg-icon menu-icon">
-              <SmileOutlined />
-              {/* <SVG style={{ "fill": "#3699FF" }} src={toAbsoluteUrl("/media/svg/icons/Design/pacients.svg")} /> */}
-            </span>
-            <span className="menu-text">Pacientes</span>
-          </NavLink>
-        </li>
-        <li
-          className={`menu-item ${getMenuItemActive("/financeiro", false)}`}
-          aria-haspopup="true"
-        >
-          <NavLink className="menu-link" to="/financeiro">
-            <span className="svg-icon menu-icon">
-              <DollarOutlined />
-              {/* <SVG style={{ "fill": "#3699FF" }} src={toAbsoluteUrl("/media/svg/icons/Design/money.svg")} /> */}
-            </span>
-            <span className="menu-text">Financeiros</span>
-          </NavLink>
-        </li>
-        <li
-          className={`menu-item menu-item-submenu ${getMenuItemActive("/usuarios", false)}`}
-          aria-haspopup="true"
-          data-menu-toggle="hover"
-        >
-          <NavLink className="menu-link menu-toggle" to="/usuarios">
-            <span className="svg-icon menu-icon">
-              <UserOutlined />
-              {/* <SVG style={{ "fill": "#3699FF" }} src={toAbsoluteUrl("/media/svg/icons/Design/users.svg")} /> */}
-            </span>
-            <span className="menu-text">Usúarios</span>
-            <i className="menu-arrow" ></i>
-          </NavLink>
-          <div className="menu-submenu ">
-            <i className="menu-arrow"></i>
-            <ul className="menu-subnav">
-              <li className="menu-item  menu-item-parent" aria-haspopup="true">
-                <span className="menu-link">
-                  <span className="menu-text">Usúarios</span>
+        {
+          menus.map(item => (
+            <li
+              key={item.role}
+              className={`menu-item menu-item-submenu ${getMenuItemActive(item.to, false)}`}
+              aria-haspopup="true"
+              data-menu-toggle="hover"
+            >
+              <NavLink className="menu-link menu-toggle" to={item.to}>
+                <span className="svg-icon menu-icon">
+                  {item.icon}
+                  {/* <SVG style={{ "fill": "#3699FF" }} src={toAbsoluteUrl("/media/svg/icons/Design/users.svg")} /> */}
                 </span>
-              </li>
-              <li className="menu-item menu-item-submenu " aria-haspopup="true" data-menu-toggle="hover">
-                <NavLink className="menu-link menu-toggle" to="/dentista">
-                  <span className="menu-text">Dentistas</span>
-                </NavLink>
-              </li>
-              <li className="menu-item menu-item-submenu " aria-haspopup="true" data-menu-toggle="hover">
-                <NavLink className="menu-link menu-toggle" to="/recepcionista">
-                  <span className="menu-text">Recepcionistas</span>
-                </NavLink>
-              </li>
-            </ul>
-          </div>
-        </li>
-        <li
-          className={`menu-item menu-item-submenu ${getMenuItemActive("/configuracoes", false)}`}
-          aria-haspopup="true"
-          data-menu-toggle="hover"
-        >
-          <NavLink className="menu-link menu-toggle" to="/configuracoes">
-            <span className="svg-icon menu-icon">
-              <InfoCircleOutlined />
-              {/* <SVG style={{ "fill": "#3699FF" }} src={toAbsoluteUrl("/media/svg/icons/Design/Information.svg")} /> */}
-            </span>
-            <span className="menu-text">Informações</span>
-            <i className="menu-arrow" ></i>
-          </NavLink>
-          <div className="menu-submenu ">
-            <i className="menu-arrow"></i>
-            <ul className="menu-subnav">
-              <li className="menu-item  menu-item-parent" aria-haspopup="true">
-                <span className="menu-link">
-                  <span className="menu-text">Informações</span>
-                </span>
-              </li>
-              <li className="menu-item menu-item-submenu " aria-haspopup="true" data-menu-toggle="hover">
-                <NavLink className="menu-link menu-toggle" to="/procedimentos-abertos">
-                  <span className="menu-text">Procedimentos Abertos</span>
-                </NavLink>
-              </li>
-              <li className="menu-item menu-item-submenu " aria-haspopup="true" data-menu-toggle="hover">
-                <NavLink className="menu-link menu-toggle" to="/dashboard">
-                  <span className="menu-text">Monitoramento</span>
-                </NavLink>
-              </li>
-            </ul>
-          </div>
-        </li>
-        <li
-          className={`menu-item menu-item-submenu ${getMenuItemActive("/configuracoes", false)}`}
-          aria-haspopup="true"
-          data-menu-toggle="hover"
-        >
-          <NavLink className="menu-link menu-toggle" to="/configuracoes">
-            <span className="svg-icon menu-icon">
-              <ToolOutlined />
-              {/* <SVG style={{ "fill": "#3699FF" }} src={toAbsoluteUrl("/media/svg/icons/Design/settings.svg")} /> */}
-            </span>
-            <span className="menu-text">Configurações</span>
-            <i className="menu-arrow" ></i>
-          </NavLink>
-          <div className="menu-submenu ">
-            <i className="menu-arrow"></i>
-            <ul className="menu-subnav">
-              <li className="menu-item  menu-item-parent" aria-haspopup="true">
-                <span className="menu-link">
-                  <span className="menu-text">Configurações</span>
-                </span>
-              </li>
-              {/* <li className="menu-item menu-item-submenu " aria-haspopup="true" data-menu-toggle="hover">
-              <NavLink className="menu-link menu-toggle" to="/tabela-precos">
-                <span className="menu-text">Tabela de Preço</span>
+                <span className="menu-text">{item.title}</span>
+                {item.children ? <i className="menu-arrow" ></i> : ""}
               </NavLink>
+              {
+                item.children ? (
+                  <div className="menu-submenu ">
+                    <i className="menu-arrow"></i>
+                    <ul className="menu-subnav">
+                      <li className="menu-item  menu-item-parent" aria-haspopup="true">
+                        <span className="menu-link">
+                          <span className="menu-text">{item.title}</span>
+                        </span>
+                      </li>
+                      {
+                        item.children.map((children, index) => (
+                          <li key={index} className="menu-item menu-item-submenu " aria-haspopup="true" data-menu-toggle="hover">
+                            <NavLink className="menu-link menu-toggle" to={children.to}>
+                              <span className="menu-text">{children.title}</span>
+                            </NavLink>
+                          </li>
+                        ))
+                      }
+                    </ul>
+                  </div>
+                ) : ''
+              }
             </li>
-            <li className="menu-item menu-item-submenu " aria-haspopup="true" data-menu-toggle="hover">
-              <NavLink className="menu-link menu-toggle" to="/tabela-especialidades">
-                <span className="menu-text">Tabela de Especialidade</span>
-              </NavLink>
-            </li>
-            <li className="menu-item menu-item-submenu " aria-haspopup="true" data-menu-toggle="hover">
-              <NavLink className="menu-link menu-toggle" to="/tabela-procedimentos">
-                <span className="menu-text">Tabela de Procedimentos</span>
-              </NavLink>
-            </li> */}
-              <li
-                className={`menu-item menu-item-submenu ${getMenuItemActive("/configuracoes", false)}`}
-                aria-haspopup="true"
-                data-menu-toggle="hover"
-              >
-                <NavLink className="menu-link menu-toggle" to="/configuracoes">
-                  {/* <span className="svg-icon menu-icon">
-              <SVG style={{"fill": "#3699FF"}} src={toAbsoluteUrl("/media/svg/icons/Design/settings.svg")} />
-            </span> */}
-                  <span className="menu-text">Tabelas</span>
-                  <i className="menu-arrow" ></i>
-                </NavLink>
-                <div className="menu-submenu ">
-                  <i className="menu-arrow"></i>
-                  <ul className="menu-subnav">
-                    <li className="menu-item  menu-item-parent" aria-haspopup="true">
-                      <span className="menu-link">
-                        <span className="menu-text">Configurações</span>
-                      </span>
-                    </li>
-                    <li className="menu-item menu-item-submenu " aria-haspopup="true" data-menu-toggle="hover">
-                      <NavLink className="menu-link menu-toggle" to="/tabela-precos">
-                        <span className="menu-text">Tabela de Preço</span>
-                      </NavLink>
-                    </li>
-                    <li className="menu-item menu-item-submenu " aria-haspopup="true" data-menu-toggle="hover">
-                      <NavLink className="menu-link menu-toggle" to="/tabela-especialidades">
-                        <span className="menu-text">Tabela de Especialidade</span>
-                      </NavLink>
-                    </li>
-                    {/* <li className="menu-item menu-item-submenu " aria-haspopup="true" data-menu-toggle="hover">
-                      <NavLink className="menu-link menu-toggle" to="/tabela-procedimentos">
-                        <span className="menu-text">Tabela de Procedimentos</span>
-                      </NavLink>
-                    </li> */}
-                  </ul>
-                </div>
-              </li>
-              <li className="menu-item menu-item-submenu " aria-haspopup="true" data-menu-toggle="hover">
-                <NavLink className="menu-link menu-toggle" to="/equipamentos">
-                  <span className="menu-text">Equipamentos</span>
-                </NavLink>
-              </li>
-              <li className="menu-item menu-item-submenu " aria-haspopup="true" data-menu-toggle="hover">
-                <NavLink className="menu-link menu-toggle" to="/relatorios">
-                  <span className="menu-text">Relatórios</span>
-                </NavLink>
-              </li>
-              <li className="menu-item menu-item-submenu " aria-haspopup="true" data-menu-toggle="hover">
-                <NavLink className="menu-link menu-toggle" to="/configurar-agenda">
-                  <span className="menu-text">Agenda</span>
-                </NavLink>
-              </li>
-            </ul>
-          </div>
-        </li>
+          ))
+        }
       </ul>
     </>
   );

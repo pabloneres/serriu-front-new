@@ -16,18 +16,6 @@ export function QuickUserToggler() {
     };
   }, [uiService]);
 
-  const returnName = () => {
-    if (user.clinics.length > 0) {
-      return user.clinics[0].name
-    }
-    if (user.dentists.length > 0) {
-      return user.dentists[0].name
-    }
-    if (user.recepcionist.length > 0) {
-      return user.recepcionist[0].name
-    }
-  }
-
   return (<>
         {layoutProps.offcanvas && (<OverlayTrigger
             placement="bottom"
@@ -40,7 +28,7 @@ export function QuickUserToggler() {
 
                 <span className="text-muted font-weight-bold font-size-base d-none d-md-inline mr-1">Olá,</span>
                 <span className="text-dark-50 font-weight-bolder font-size-base d-none d-md-inline mr-3">
-                  {returnName()}
+                  {user.firstName}
                 </span>
                 <span className="symbol symbol-35 symbol-light-success">                
                     <span className="symbol-label font-size-h5 font-weight-bold"></span>

@@ -1,6 +1,7 @@
 import React, { useLayoutEffect, forwardRef } from "react";
 import { findDOMNode } from "react-dom";
 import PropTypes from "prop-types";
+import { Input } from 'antd'
 
 import { useInputState, useInputElement, usePrevious } from "./hooks";
 import {
@@ -287,7 +288,7 @@ const InputMask = forwardRef(function InputMask(props, forwardedRef) {
     return <ChildrenWrapper {...inputProps}>{children}</ChildrenWrapper>;
   }
 
-  return <input {...inputProps} />;
+  return <Input {...inputProps} />;
 });
 
 InputMask.displayName = "InputMask";

@@ -20,21 +20,23 @@ export function AsideMenu({disableScroll}) {
   }, [uiService]);
 
   function ReturnAside(props) {
-    if (user.access_level === 1) {
-      return <AsideMenuListMaster layoutProps={props} />
-    }
+    // if (user.access_level === 1) {
+    //   return <AsideMenuListMaster layoutProps={props} />
+    // }
 
-    if (user.access_level === 2) {
-      return <AsideMenuListMatriz layoutProps={props} />
-    }
+    // if (user.access_level === 2) {
+    //   return <AsideMenuListMatriz layoutProps={props} />
+    // }
 
-    if (user.access_level === 3) {
-      return <AsideMenuListFilial layoutProps={props} />
-    }
+    // if (user.access_level === 3) {
+    //   return <AsideMenuListFilial layoutProps={props} />
+    // }
 
-    if (user.access_level === 4) {
-      return <AsideMenuListDentista layoutProps={props} />
-    }
+    // if (user.access_level === 4) {
+    //   return <AsideMenuListDentista layoutProps={props} />
+    // }
+
+    return <AsideMenuListFilial layoutProps={props} />
   }
 
   return (
