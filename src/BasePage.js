@@ -2,6 +2,10 @@ import React, { Suspense, lazy } from "react";
 import { Redirect, Switch, Route } from "react-router-dom";
 import { LayoutSplashScreen, ContentRoute } from "~/_metronic/layout";
 
+
+import CargosPage from "~/components/created/administrador/cargos";
+
+
 import { MyPage } from "~/components/created/MyPage";
 import DashboardPage from "~/components/created/dashboard";
 
@@ -19,6 +23,10 @@ import { AdicionarOrcamentoPage } from "~/components/created/orcamento/Adicionar
 import { EditarOrcamentoPage } from "~/components/created/orcamento/EditarOrcamentoPage";
 
 
+import Informacoes from "~/components/created/informacoes";
+
+
+
 
 import { FinanceiroPage } from "~/components/created/financeiro/FinanceiroPage";
 import { UsuariosPage } from "~/components/created/usuarios/UsuariosPage";
@@ -28,9 +36,9 @@ import { DentistaPage } from '~/components/created/usuarios/dentistas/DentistaPa
 import { AdicionarDentistaPage } from '~/components/created/usuarios/dentistas/AdicionarDentistaPage'
 import { EditarDentistaPage } from '~/components/created/usuarios/dentistas/EditarDentistaPage'
 
-import { PacientePage } from '~/components/created/usuarios/pacientes/PacientePage'
-import { AdicionarPacientePage } from '~/components/created/usuarios/pacientes/AdicionarPacientePage'
-import { EditarPacientePage } from '~/components/created/usuarios/pacientes/EditarPacientePage'
+import { PacientePage } from '~/components/created/pacientes/PacientePage'
+import { AdicionarPacientePage } from '~/components/created/pacientes/AdicionarPacientePage'
+import { EditarPacientePage } from '~/components/created/pacientes/EditarPacientePage'
 
 import { RecepcionistaPage } from '~/components/created/usuarios/recepcionistas/RecepcionistaPage'
 import { AdicionarRecepcionistaPage } from '~/components/created/usuarios/recepcionistas/AdicionarRecepcionistaPage'
@@ -42,7 +50,7 @@ import { TabelaProcedimento } from '~/components/created/configuracoes/tabelaPro
 
 import { RelatorioPage } from '~/components/created/configuracoes/relatorios/RelatorioPage'
 
-import { Equipamentos } from '~/components/created/configuracoes/equipamentos/Equipamentos'
+import Equipamentos from '~/components/created/administrador/equipamentos'
 
 
 import { ProcedimentoPage } from '~/components/created/procedimentos/ProcedimentoPage'
@@ -61,6 +69,11 @@ import PacientesDentista from '~/components/created/dentista/pacientes'
 import PacienteMenu from '~/components/created/dentista/pacientes/components'
 //////////////////////////////////////////////////////
 
+
+////////////////////////
+import Laboratorios from "~/components/created/configuracoes/laboratorios";
+import LaboratorioServices from "./components/created/configuracoes/laboratorioservices";
+/////////////////////////
 
 
 
@@ -82,6 +95,11 @@ export default function BasePage() {
           /* Redirect from root URL to /dashboard. */
           <Redirect exact from="/" to="/dashboard" />
         }
+
+
+        <ContentRoute path="/cargos" component={CargosPage} />
+
+
         <ContentRoute path="/dashboard" component={DashboardPage} />
         <ContentRoute exact path="/clinicas" component={ClinicasPage} />
         <ContentRoute exact path="/clinicas/:id" component={AdicionarClinicaPage} />
@@ -89,7 +107,7 @@ export default function BasePage() {
 
 
         {/* Rotas de clinicas */}
-        <ContentRoute exact path="/agenda" component={AgendaPage}/>
+        <ContentRoute exact path="/agenda" component={AgendaPage} />
         <ContentRoute exact path="/orcamento" component={OrcamentoPage} />
         <ContentRoute exact path="/orcamento/:id/adicionar" component={AdicionarOrcamentoPage} />
         <ContentRoute exact path="/orcamento/editar/:id" component={EditarOrcamentoPage} />
@@ -98,34 +116,34 @@ export default function BasePage() {
         <ContentRoute exact path="/usuarios" component={UsuariosPage} />
         <ContentRoute exact path="/configuracoes" component={ConfiguracoesPage} />
 
-      
-        
+
+
         {/* SUBMENU Rotas de Usuarios */}
 
 
         <ContentRoute exact path="/usuario/adicionar" component={AdicionarUsuario} />
-        
+
         <ContentRoute exact path="/dentista" component={DentistaPage} />
         <ContentRoute exact path="/dentista/adicionar" component={AdicionarDentistaPage} />
         <ContentRoute exact path="/dentista/editar/:id" component={EditarDentistaPage} />
-      
-      
+
+
         <ContentRoute exact path="/paciente" component={PacientePage} />
         <ContentRoute exact path="/paciente/adicionar" component={AdicionarPacientePage} />
         <ContentRoute exact path="/paciente/editar/:id" component={EditarPacientePage} />
-        
+
         <ContentRoute exact path="/recepcionista" component={RecepcionistaPage} />
         <ContentRoute exact path="/recepcionista/adicionar" component={AdicionarRecepcionistaPage} />
         <ContentRoute exact path="/recepcionista/editar/:id" component={EditarRecepcionistaPage} />
-        
-        
+
+
         <ContentRoute exact path="/tabela-precos" component={TabelaPreco} />
         <ContentRoute exact path="/tabela-especialidades" component={TabelaEspecialidade} />
         <ContentRoute exact path="/tabela-precos/:id/procedimentos" component={TabelaProcedimento} />
 
 
 
-        <ContentRoute exact path="/equipamentos" component={Equipamentos} />
+        <ContentRoute exact path="/esps" component={Equipamentos} />
 
         <ContentRoute exact path="/relatorios" component={RelatorioPage} />
 
@@ -144,15 +162,26 @@ export default function BasePage() {
         <ContentRoute exact path="/configuracao_geral" component={ConfiguracaoGeral} />
 
 
+        <ContentRoute exact path="/informacoes" component={Informacoes} />
+
+
+
+
 
         {/* dentistas menu */}
-        
+
         <ContentRoute exact path="/dentista/financeiro" component={FinanceiroDentista} />
         <ContentRoute exact path="/dentista/pacientes" component={PacientesDentista} />
         <ContentRoute exact path="/dentista/paciente/editar/:id" component={PacienteMenu} />
 
 
         {/* dentistas menu */}
+
+
+        {/* laboratorio */}
+
+        <ContentRoute exact path="/laboratorios" component={Laboratorios} />
+        <ContentRoute exact path="/laboratorios/:id" component={LaboratorioServices} />
 
 
 

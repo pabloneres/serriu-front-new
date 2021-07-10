@@ -204,59 +204,59 @@ const App = () => {
   const [enableEdit, setEnableEdit] = useState(false);
 
   useEffect(() => {
-    index(authToken, "/dentists").then(({ data }) => {
-      data = data.map((item) => ({
-        label: item.name,
-        value: item.id,
-      }));
+    // index(authToken, "/dentists").then(({ data }) => {
+    //   data = data.map((item) => ({
+    //     label: item.name,
+    //     value: item.id,
+    //   }));
 
-      setDentistas([
-        {
-          label: "Todos",
-          value: 0,
-        },
-        ...data,
-      ]);
-      setDentistasModal(data);
-    });
+    //   setDentistas([
+    //     {
+    //       label: "Todos",
+    //       value: 0,
+    //     },
+    //     ...data,
+    //   ]);
+    //   setDentistasModal(data);
+    // });
 
-    index(authToken, "/patients").then(({ data }) => {
-      data = data.map((item) => ({
-        label: item.name,
-        value: item.id,
-      }));
-      setPacientes(data);
-    });
+    // index(authToken, "/patients").then(({ data }) => {
+    //   data = data.map((item) => ({
+    //     label: item.name,
+    //     value: item.id,
+    //   }));
+    //   setPacientes(data);
+    // });
 
-    index(authToken, "/agenda").then(({ data }) => {
-      if (data.length === 0) {
-        setAgendaConfig({
-          start: 8,
-          end: 18,
-          options: selectionEnd(),
-          scale: 30,
-        });
-        setDays(daysJson);
-        return;
-      }
-      setAgendaConfig({
-        ...data[0],
-        start: Number(data[0].start.split(":")[0]),
-        end: Number(data[0].end.split(":")[0]),
-        startTime: data[0].start,
-        endTime: data[0].end,
-        options: selectionEnd(data[0].start, data[0].end, data[0].scale),
-      });
-      setDays(JSON.parse(data[0].days));
-    });
+    // index(authToken, "/agenda").then(({ data }) => {
+    //   if (data.length === 0) {
+    //     setAgendaConfig({
+    //       start: 8,
+    //       end: 18,
+    //       options: selectionEnd(),
+    //       scale: 30,
+    //     });
+    //     setDays(daysJson);
+    //     return;
+    //   }
+    //   setAgendaConfig({
+    //     ...data[0],
+    //     start: Number(data[0].start.split(":")[0]),
+    //     end: Number(data[0].end.split(":")[0]),
+    //     startTime: data[0].start,
+    //     endTime: data[0].end,
+    //     options: selectionEnd(data[0].start, data[0].end, data[0].scale),
+    //   });
+    //   setDays(JSON.parse(data[0].days));
+    // });
   }, [reload]);
 
   useEffect(() => {
-    index(authToken, `/agendamentos?dentista_id=${agendaView}`).then(
-      ({ data }) => {
-        setAgendamentos(data);
-      }
-    );
+    // index(authToken, `/agendamentos?dentista_id=${agendaView}`).then(
+    //   ({ data }) => {
+    //     setAgendamentos(data);
+    //   }
+    // );
   }, [reload, reloadAgendamentos, agendaView]);
 
   function selectionEnd(start = "08:00", end = "18:00", interval = 30) {
@@ -516,7 +516,7 @@ const App = () => {
 
       return;
     }
- 
+
     if (e.oldData.status === 3) {
       e.cancel = true;
       notify("Agendamento já finalizado", "warning", 1000);
@@ -562,7 +562,7 @@ const App = () => {
       .then(() => {
         setReloadAgendamentos(!reloadAgendamentos);
       })
-      .catch(() => {});
+      .catch(() => { });
   };
 
   const ReturnType = (props) => {
@@ -579,7 +579,7 @@ const App = () => {
         return 'Dentista'
     }
   }
-  
+
   const ReturnDados = (type, props) => {
 
     console.log(type, props)
@@ -592,9 +592,9 @@ const App = () => {
         return ''
       case 'status':
         return ReturnStatus(Number(props))
-        case 'dentista_id':
-          let dentista = dentistas.find(el => el.value === Number(props))
-        return  dentista.label
+      case 'dentista_id':
+        let dentista = dentistas.find(el => el.value === Number(props))
+        return dentista.label
     }
   }
 
@@ -648,19 +648,19 @@ const App = () => {
                     src={toAbsoluteUrl("/assets/icons/email.svg")}
                   />
                 </span>
-                  {
-                    appointmentData.status !== 3 ? 
+                {
+                  appointmentData.status !== 3 ?
                     <span
-                    onClick={() => setEnableEdit(true)}
-                    style={{ cursor: "pointer" }}
-                    className="svg-icon menu-icon"
-                  >
-                    <SVG
-                      style={{ fill: "#545454", color: "#3699FF", marginLeft: 8 }}
-                      src={toAbsoluteUrl("/media/svg/icons/Design/create.svg")}
-                    />
-                  </span> : <></>
-                  }
+                      onClick={() => setEnableEdit(true)}
+                      style={{ cursor: "pointer" }}
+                      className="svg-icon menu-icon"
+                    >
+                      <SVG
+                        style={{ fill: "#545454", color: "#3699FF", marginLeft: 8 }}
+                        src={toAbsoluteUrl("/media/svg/icons/Design/create.svg")}
+                      />
+                    </span> : <></>
+                }
                 {/* <span
                   onClick={() => handleDelete(appointmentData.id)}
                   style={{ cursor: "pointer" }}
@@ -752,26 +752,26 @@ const App = () => {
                   <option
                     className="teste-option"
                     value={0}
-                    // style={{ color: ReturnStatusColor(0) }}
+                  // style={{ color: ReturnStatusColor(0) }}
                   >
                     Agendado
                   </option>
-                  <option value={1} 
+                  <option value={1}
                   // style={{ color: ReturnStatusColor(1) }}
                   >
                     Confirmado
                   </option>
-                  <option value={2} 
+                  <option value={2}
                   // style={{ color: ReturnStatusColor(2) }}
                   >
                     Cancelado
                   </option>
-                  <option value={3} 
+                  <option value={3}
                   // style={{ color: ReturnStatusColor(3) }}
                   >
                     Atendido
                   </option>
-                  <option value={4} 
+                  <option value={4}
                   // style={{ color: ReturnStatusColor(4) }}
                   >
                     Não compareceu
@@ -781,44 +781,44 @@ const App = () => {
             </div>
 
             <div className="row-popover-details">
-            <Accordion>
-              <Card>
-                <Accordion.Toggle as={Card.Header} eventKey="0">
-                  Detalhes
-                </Accordion.Toggle>
-                <Accordion.Collapse eventKey="0" className="listaProcedimentos">
-                  <Card.Body>
-                  <Table striped bordered hover>
-                    <thead>
-                      <tr>
-                        <th>Em</th>
-                        <th>Por</th>
-                        <th>Status</th>
-                        <th>Dado</th>
-                        <th>Antes</th>
-                        <th>Depois</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                    {appointmentData.agendamento_logs.map( log => (
-                      <tr key={log.id} >
-                        <td>{moment(log.created_at).calendar()}</td>
-                        <td>
-                          {/* {log.usuario_id} */}
-                          Clinica  
-                        </td>
-                        <td>{log.metodo === 'STORE' ? 'Criado' : 'Editado'}</td>
-                        <td>{ReturnType(log.type)}</td>
-                        <td>{ReturnDados(log.type, log.origem)}</td>
-                        <td>{ReturnDados(log.type, log.final)}</td>
-                      </tr>
-                    ))}
-                    </tbody>
-                  </Table>
-                  </Card.Body>
-                </Accordion.Collapse>
-              </Card>
-            </Accordion>
+              <Accordion>
+                <Card>
+                  <Accordion.Toggle as={Card.Header} eventKey="0">
+                    Detalhes
+                  </Accordion.Toggle>
+                  <Accordion.Collapse eventKey="0" className="listaProcedimentos">
+                    <Card.Body>
+                      <Table striped bordered hover>
+                        <thead>
+                          <tr>
+                            <th>Em</th>
+                            <th>Por</th>
+                            <th>Status</th>
+                            <th>Dado</th>
+                            <th>Antes</th>
+                            <th>Depois</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {appointmentData.agendamento_logs.map(log => (
+                            <tr key={log.id} >
+                              <td>{moment(log.created_at).calendar()}</td>
+                              <td>
+                                {/* {log.usuario_id} */}
+                                Clinica
+                              </td>
+                              <td>{log.metodo === 'STORE' ? 'Criado' : 'Editado'}</td>
+                              <td>{ReturnType(log.type)}</td>
+                              <td>{ReturnDados(log.type, log.origem)}</td>
+                              <td>{ReturnDados(log.type, log.final)}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </Table>
+                    </Card.Body>
+                  </Accordion.Collapse>
+                </Card>
+              </Accordion>
             </div>
           </div>
         ) : appointmentData && enableEdit && appointmentData.status !== 3 ? (
@@ -881,35 +881,35 @@ const App = () => {
               <span>{appointmentData.paciente.name}</span>
             </div>
             {
-              appointmentData.dentista ? 
-              <div className="row-popover">
-              <SVG
-                style={{
-                  fill: "#000",
-                  color: "#000",
-                  marginLeft: 8,
-                  width: 20,
-                }}
-                src={toAbsoluteUrl("/assets/icons/dent.svg")}
-              />
-                <Select
-                  className="select_update"
-                  placeholder="Selecione o dentista..."
-                  options={dentistasModal}
-                  defaultValue={{
-                    label: appointmentData.dentista.name,
-                    value: appointmentData.dentista_id,
-                  }}
-                  onChange={(e) => {
-                    updateAgendamento({
-                      id: appointmentData.id,
-                      dentista_id: e.value,
-                      type: 'dentista_id'
-                    });
-                  }}
-                />
-              {/* <span>{appointmentData.dentista.name}</span> */}
-            </div> : <></>
+              appointmentData.dentista ?
+                <div className="row-popover">
+                  <SVG
+                    style={{
+                      fill: "#000",
+                      color: "#000",
+                      marginLeft: 8,
+                      width: 20,
+                    }}
+                    src={toAbsoluteUrl("/assets/icons/dent.svg")}
+                  />
+                  <Select
+                    className="select_update"
+                    placeholder="Selecione o dentista..."
+                    options={dentistasModal}
+                    defaultValue={{
+                      label: appointmentData.dentista.name,
+                      value: appointmentData.dentista_id,
+                    }}
+                    onChange={(e) => {
+                      updateAgendamento({
+                        id: appointmentData.id,
+                        dentista_id: e.value,
+                        type: 'dentista_id'
+                      });
+                    }}
+                  />
+                  {/* <span>{appointmentData.dentista.name}</span> */}
+                </div> : <></>
             }
             <div className="row-popover">
               <SVG
@@ -1057,7 +1057,7 @@ const App = () => {
                 </Form.Control>
               </span>
             </div>
-            
+
             <div className="row-popover">
               <span>Adiar</span>
               <span style={{ width: "50%" }}>
@@ -1215,7 +1215,7 @@ const App = () => {
               <Form.Row>
                 <Form.Group as={Col} controlId="formGridAddress1">
                   <Form.Label>Primeira consulta ?</Form.Label>
-                  <Form.Check type="checkbox" defaultChecked={primeiraConsulta === 0 ? false : true} onChange={(e) => {SetPrimeiraConsulta(e.target.checked === true ? 1 : 0)}} />
+                  <Form.Check type="checkbox" defaultChecked={primeiraConsulta === 0 ? false : true} onChange={(e) => { SetPrimeiraConsulta(e.target.checked === true ? 1 : 0) }} />
                 </Form.Group>
               </Form.Row>
               <Form.Row>

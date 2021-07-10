@@ -2,9 +2,10 @@
 import React from "react";
 import { useLocation } from "react-router";
 import { NavLink } from "react-router-dom";
+import { useSelector } from 'react-redux'
 import SVG from "react-inlinesvg";
 import { toAbsoluteUrl, checkIsActive } from "../../../../_helpers";
-import { 
+import {
   ToolOutlined,
   MenuOutlined,
   CalendarOutlined,
@@ -16,6 +17,7 @@ import {
 } from '@ant-design/icons'
 
 export function AsideMenuListFilial({ layoutProps }) {
+  const { selectedClinic } = useSelector(state => state.clinic)
   const location = useLocation();
   const getMenuItemActive = (url, hasSubmenu = false) => {
     return checkIsActive(location, url)
@@ -25,15 +27,15 @@ export function AsideMenuListFilial({ layoutProps }) {
 
 
   const menus = [
-    { 
+    {
       title: 'Dashboard',
-      icon: <MenuOutlined/>,
+      icon: <MenuOutlined />,
       role: 'dashboard',
       to: '/dashboard'
     },
     {
       title: 'Administrador',
-      icon: <RobotOutlined/>,
+      icon: <RobotOutlined />,
       role: 'administrador',
       to: '/administrador',
       children: [
@@ -41,30 +43,43 @@ export function AsideMenuListFilial({ layoutProps }) {
           title: 'Clinicas',
           role: 'clinics',
           to: '/clinicas'
+        },
+        {
+          title: 'Cargos',
+          role: 'cargos',
+          to: '/cargos'
+        },
+        {
+          title: 'Equipamentos',
+          role: 'esps',
+          to: '/esps'
         }
       ]
     },
-    { 
+    {
       title: 'Agenda',
-      icon: <CalendarOutlined/>,
+      icon: <CalendarOutlined />,
+      if: ['selectedClinic'],
       role: 'schedule',
       to: '/agenda'
     },
-    { 
+    {
       title: 'Pacientes',
-      icon: <SmileOutlined/>,
+      icon: <SmileOutlined />,
+      if: ['selectedClinic'],
       role: 'patients',
       to: '/pacientes'
     },
-    { 
+    {
       title: 'Financeiro',
-      icon: <DollarOutlined/>,
+      icon: <DollarOutlined />,
+      if: ['selectedClinic'],
       role: 'financial',
       to: '/financeiro'
     },
     {
       title: 'Usúarios',
-      icon: <UserOutlined/>,
+      icon: <UserOutlined />,
       role: 'users',
       to: '/usuarios',
       children: [
@@ -85,16 +100,18 @@ export function AsideMenuListFilial({ layoutProps }) {
         }
       ]
     },
-    { 
+    {
       title: 'Informações',
-      icon: <InfoCircleOutlined/>,
+      icon: <InfoCircleOutlined />,
+      if: ['selectedClinic'],
       role: 'infos',
-      to: '/financeiro'
+      to: '/informacoes'
     },
-    { 
+    {
       title: 'Configurações',
-      icon: <ToolOutlined/>,
+      icon: <ToolOutlined />,
       role: 'settings',
+      if: ['selectedClinic'],
       to: '/configuracoes',
       children: [
         {
@@ -110,6 +127,11 @@ export function AsideMenuListFilial({ layoutProps }) {
         {
           title: 'Tabela de Especialidades',
           to: '/tabela-especialidades',
+          role: ''
+        },
+        {
+          title: 'Laboratórios',
+          to: '/laboratorios',
           role: ''
         },
         {
@@ -131,53 +153,78 @@ export function AsideMenuListFilial({ layoutProps }) {
     },
   ]
 
+
+  const ifs = {
+    selectedClinic: Object.keys(selectedClinic).length === 0 ? true : false
+  }
+
+  const Menu = ({menu}) => {
+    return (
+      <li
+        className={`menu-item menu-item-submenu ${getMenuItemActive(menu.to, false)}`}
+        aria-haspopup="true"
+        data-menu-toggle="hover"
+      >
+        <NavLink className="menu-link menu-toggle" to={menu.to}>
+          <span className="svg-icon menu-icon">
+            {menu.icon}
+            {/* <SVG style={{ "fill": "#3699FF" }} src={toAbsoluteUrl("/media/svg/icons/Design/users.svg")} /> */}
+          </span>
+          <span className="menu-text">{menu.title}</span>
+          {menu.children ? <i className="menu-arrow" ></i> : ""}
+        </NavLink>
+        {
+          menu.children ? (
+            <div className="menu-submenu ">
+              <i className="menu-arrow"></i>
+              <ul className="menu-subnav">
+                <li className="menu-item  menu-item-parent" aria-haspopup="true">
+                  <span className="menu-link">
+                    <span className="menu-text">{menu.title}</span>
+                  </span>
+                </li>
+                {
+                  menu.children.map((children, index) => (
+                    <li key={index} className="menu-item menu-item-submenu " aria-haspopup="true" data-menu-toggle="hover">
+                      <NavLink className="menu-link menu-toggle" to={children.to}>
+                        <span className="menu-text">{children.title}</span>
+                      </NavLink>
+                    </li>
+                  ))
+                }
+              </ul>
+            </div>
+          ) : ''
+        }
+      </li>
+    )
+  }
+
+  const permitied = (role) => {
+    return role.map(cond => ifs[cond])
+  }
+
+  const ReturnMenu = ({menu}) => {
+    if (menu.if) {
+      return permitied(menu.if)[0] === true ? <></> : <Menu menu={menu} />
+    } 
+    return (
+      <Menu menu={menu} />
+    )
+  }
+
+  const ReturnMenusList = () => (
+    menus.map(menu => (
+      <ReturnMenu menu={menu} />
+    ))
+  )
+
   return (
     <>
       {/* begin::Menu Nav */}
       <ul className={`menu-nav ${layoutProps.ulClasses}`}>
         {/*begin::1 Level*/}
-        {
-          menus.map(item => (
-            <li
-              key={item.role}
-              className={`menu-item menu-item-submenu ${getMenuItemActive(item.to, false)}`}
-              aria-haspopup="true"
-              data-menu-toggle="hover"
-            >
-              <NavLink className="menu-link menu-toggle" to={item.to}>
-                <span className="svg-icon menu-icon">
-                  {item.icon}
-                  {/* <SVG style={{ "fill": "#3699FF" }} src={toAbsoluteUrl("/media/svg/icons/Design/users.svg")} /> */}
-                </span>
-                <span className="menu-text">{item.title}</span>
-                {item.children ? <i className="menu-arrow" ></i> : ""}
-              </NavLink>
-              {
-                item.children ? (
-                  <div className="menu-submenu ">
-                    <i className="menu-arrow"></i>
-                    <ul className="menu-subnav">
-                      <li className="menu-item  menu-item-parent" aria-haspopup="true">
-                        <span className="menu-link">
-                          <span className="menu-text">{item.title}</span>
-                        </span>
-                      </li>
-                      {
-                        item.children.map((children, index) => (
-                          <li key={index} className="menu-item menu-item-submenu " aria-haspopup="true" data-menu-toggle="hover">
-                            <NavLink className="menu-link menu-toggle" to={children.to}>
-                              <span className="menu-text">{children.title}</span>
-                            </NavLink>
-                          </li>
-                        ))
-                      }
-                    </ul>
-                  </div>
-                ) : ''
-              }
-            </li>
-          ))
-        }
+        <ReturnMenusList/>
       </ul>
     </>
   );

@@ -10,7 +10,8 @@ export const Title = styled.h2`
 `;
 
 export const ContainerBody = styled.div`
-    display: grid;
+    display: flex;
+    flex-direction: column;
     grid-template-columns: repeat(3, 1fr);
     column-gap: 20px;
 `;

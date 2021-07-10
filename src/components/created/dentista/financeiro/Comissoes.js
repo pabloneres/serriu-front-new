@@ -125,7 +125,7 @@ function Comissoes(props) {
     return 
   }
 
-  const returnDate = (date) => {
+  const convertDate = (date) => {
     return moment(date).format('LLLL')
   }
 
@@ -174,7 +174,7 @@ function Comissoes(props) {
       text: "Data de execução",
       sort: true,
       sortCaret: sortCaret,
-      formatter: returnDate
+      formatter: convertDate
     },
     {
       dataField: "status_comissao",
@@ -290,7 +290,7 @@ function Comissoes(props) {
                   Executado em
                 </td>
                 <td>
-                  {returnDate(comissaoDetails.executado_em)}
+                  {convertDate(comissaoDetails.executado_em)}
                 </td>
               </tr>
               <tr>

@@ -1,6 +1,6 @@
 import React, {useState,useEffect} from 'react';
 
-import { conversorMonetario } from '~/modules/Util';
+import { convertMoney } from '~/modules/Util';
 
 
 import { Form, Table, Col, Button,CardGroup } from "react-bootstrap";
@@ -303,7 +303,7 @@ function SelecaoDentes({numeroListaDentes,procedimento,callback}) {
                                         )
                                     })}
                               </div>
-                              <span>{conversorMonetario(procedimento.valor)}</span>
+                              <span>{convertMoney(procedimento.valor)}</span>
                              
                         </li>
                       )

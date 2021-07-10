@@ -17,6 +17,8 @@ import SVG from "react-inlinesvg";
 import moment from "moment";
 import { format } from "date-fns-tz";
 
+import notify from "devextreme/ui/notify";
+
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import { FormattedMessage, injectIntl } from "react-intl";
@@ -31,7 +33,7 @@ import {
   update,
 } from "~/controllers/controller";
 import { index as indexNew } from '~/controllers/controller'
-import { conversorMonetario, formatDate } from "~/modules/Util";
+import { convertMoney, convertDate } from "~/modules/Util";
 
 //COMPONENTES
 import ProcedimentoGeral from "./components/formularios/procedimentoGeral";
@@ -39,37 +41,40 @@ import ProcedimentoSelecaoDente from "./components/formularios/procedimentoSelec
 
 import Select from "react-select";
 
-const options = {
-  // cobranca: [
-  //   {value: 'total', label: 'Total'},
-  //   {value: 'procedimento', label: 'Procedimento executado'},
-  // ],
-  condicao: [
-    {value: 'total', label: 'Total'},
-    {value: 'boleto', label: 'Boleto'},
-    {value: 'procedimento', label: 'Procedimento executado'},
-  ]
-}
 
-export function AdicionarOrcamentoPage({ orcamento, alterar }) {
-  const {token} = useSelector((state) => state.auth);
-  const {dentists} = useSelector((state) => state.dentist);
-  const {selectedClinic, clinics} = useSelector((state) => state.clinic);
+export function AdicionarOrcamentoPage({ orcamento, alterar, onFinish }) {
+  const { token } = useSelector((state) => state.auth);
+  const { selectedClinic, clinics } = useSelector((state) => state.clinic);
   const history = useHistory();
   const { params, url } = useRouteMatch();
   const [procedimento, setProcedimento] = useState(undefined);
-  
+
+  const options = () => {
+    if (selectedClinic.config.workBoletos) {
+      return [
+        { value: 'total', label: 'Total' },
+        { value: 'boleto', label: 'Boleto' },
+        { value: 'procedimento', label: 'Procedimento executado' },
+      ]
+    }
+
+    return [
+      { value: 'total', label: 'Total' },
+      { value: 'procedimento', label: 'Procedimento executado' },
+    ]
+  }
+
   const date_now = new Date();
   const data = format(date_now, `dd/MM/yyyy HH:mm:ss`, {
     timeZone: "America/Sao_Paulo",
   });
-  
+
   const [tabelas, setTabelas] = useState([]);
   const [tabela, setTabela] = useState(undefined);
 
   const [procedimentos, setProcedimentos] = useState([]);
 
-  const [dentistas, setDentistas] = useState([]);
+  const [dentists, setDentists] = useState([]);
   const [dentista, setDentista] = useState([]);
   const [clinicas, setClinicas] = useState([]);
   const [procedimentosFinalizados, setProcedimentosFinalizados] = useState([]);
@@ -92,11 +97,15 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
   // setClinicas([data.clinicas]);
 
   useEffect(() => {
-    index(token, `/preco?id=${selectedClinic.id}`).then(({data}) => {setTabelas(data)})
+    index(token, `/preco?id=${selectedClinic.id}`).then(({ data }) => { setTabelas(data) })
+
+    index(token, `/users?cargo=dentista&clinica=${selectedClinic.id}`).then(({ data }) => { setDentists(data) })
   }, []);
-  
+
   useEffect(() => {
-    index(token, `/procedimento?id=${tabela}`).then(({data}) => {setProcedimentos(data)})
+    if (tabela) {
+      index(token, `/procedimento?id=${tabela}`).then(({ data }) => { setProcedimentos(data) })
+    }
   }, [tabela]);
 
   const handleSubmitFormaPagamento = (e) => {
@@ -114,13 +123,13 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
   const handlerMudancaTabela = (e) => {
     setTabela(e.target.value);
     setProcedimento(undefined)
-    indexNew(token, `dentista/procedimentos/${dentista.value}?tabela_id=${e.target.value}`).then(({data}) => {
-      setProcedimentos(data.map(item => ({
-        label: item.name,
-        value: item.id,
-        ...item
-      })))
-    })  
+    // indexNew(token, `dentista/procedimentos/${dentista.value}?tabela_id=${e.target.value}`).then(({data}) => {
+    //   setProcedimentos(data.map(item => ({
+    //     label: item.name,
+    //     value: item.id,
+    //     ...item
+    //   })))
+    // })  
   };
 
   const handlerMudancaDentista = async (data) => {
@@ -128,13 +137,13 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
       return
     }
     setDentista(data)
-    indexNew(token, `dentista/procedimentos/${data.value}?tabela_id=${tabela}`).then(({data}) => {
-      setProcedimentos(data.map(item => ({
-        label: item.name,
-        value: item.id,
-        ...item
-      })))
-    })
+    // indexNew(token, `dentista/procedimentos/${data.value}?tabela_id=${tabela}`).then(({ data }) => {
+    //   setProcedimentos(data.map(item => ({
+    //     label: item.name,
+    //     value: item.id,
+    //     ...item
+    //   })))
+    // })
   };
 
   const handlerMudancaProcedimentos = (procedimento, action) => {
@@ -234,10 +243,12 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
           paciente_id: params.id,
           pagamento: opcoesPagamento,
           avaliador: dentista.value,
+          clinic_id: selectedClinic.id,
           status: 'aprovado',
         })
           .then(() => {
-            return history.push(`${url}`);
+            notify("Orçamento criado", "success", 1000);
+            onFinish()
           })
           .catch((err) => {
             return;
@@ -250,10 +261,12 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
         procedimentos: procedimentosFinalizados,
         paciente_id: params.id,
         pagamento: opcoesPagamento,
+        clinic_id: selectedClinic.id,
         avaliador: dentista.value,
       })
         .then(() => {
-          return history.push(`${url}`);
+          notify("Orçamento criado", "success", 1000);
+          onFinish()
         })
         .catch((err) => {
           return;
@@ -265,15 +278,19 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
     }
 
     if (type === "aprovar") {
-      store(token, '/orcamentos',{
+      store(token, '/orcamentos', {
         procedimentos: procedimentosFinalizados,
         paciente_id: params.id,
         pagamento: opcoesPagamento,
         avaliador: dentista.value,
+        clinic_id: selectedClinic.id,
         status: 'aprovado',
         data_aprovacao: new Date(),
       })
-        .then(() => history.push(`${url}`))
+        .then(() => {
+          notify("Orçamento criado", "success", 1000);
+          onFinish()
+        })
         .catch((err) => {
           return;
           // retirar a linha debaixo e retornar o erro
@@ -282,15 +299,19 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
     }
 
     if (type === "salvar") {
-      store(token, '/orcamentos',{
+      store(token, '/orcamentos', {
         procedimentos: procedimentosFinalizados,
         paciente_id: params.id,
         pagamento: opcoesPagamento,
         avaliador: dentista.value,
+        clinic_id: selectedClinic.id,
         status: 'salvo',
         data_aprovacao: null
       })
-        .then(() => history.push(`${url}`))
+        .then(() => {
+          notify("Orçamento criado", "success", 1000);
+          onFinish()
+        })
         .catch((err) => {
           return;
           // retirar a linha debaixo e retornar o erro
@@ -300,8 +321,8 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
   }
 
   const returnFormaPagamento = () => {
-    if (cobranca.value === 'procedimento' || cobranca.value === 'parcial' ) {
-      return options['pagamento'][0]
+    if (cobranca.value === 'procedimento' || cobranca.value === 'parcial') {
+      return options()['pagamento'][0]
     }
     return pagamento
   }
@@ -309,13 +330,13 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
   const returnCondicao = (props) => {
     if (props === 'value') {
       if (pagamento.value === 'dinheiro') {
-        return options['condicao'][0]
+        return options()['condicao'][0]
       }
-  
-      if (cobranca.value === 'procedimento' ||  cobranca.value === 'parcial') {
-        return options['condicao'][0]
+
+      if (cobranca.value === 'procedimento' || cobranca.value === 'parcial') {
+        return options()['condicao'][0]
       }
-  
+
       return condicao
     }
 
@@ -334,11 +355,11 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
           <Button variant="secondary" onClick={() => setShowAlert(false)}>
             Cancelar
           </Button>
-          <Link 
+          <Link
             to={{
-            pathname: "/dentista/editar/" + dentista,
-            state: { rota: 'configComissoes' }
-          }}
+              pathname: "/dentista/editar/" + dentista,
+              state: { rota: 'configComissoes' }
+            }}
           >
             <Button variant="primary">
               Criar
@@ -367,16 +388,16 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
                 />
               </Form.Group>
             </Form.Row> */}
-            
+
             <Form.Row className="justify-content-md-center">
               <Form.Group as={Col} controlId="formGridAddress1">
-              <Form.Label>Condição de Pagamento</Form.Label>
+                <Form.Label>Condição de Pagamento</Form.Label>
                 <Select
                   required
                   value={returnCondicao('value')}
                   isDisabled={returnCondicao('disabled')}
                   placeholder="Selecione a condição de pagamento..."
-                  options={options['condicao']}
+                  options={options()}
                   onChange={(value) => {
                     setCondicao(value)
                   }}
@@ -407,7 +428,7 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
                 type="text"
                 name="valorEntrada"
                 disabled
-                value={conversorMonetario( getTotalProcedimentos() - entrada )}
+                value={convertMoney( getTotalProcedimentos() - entrada )}
               />
               <Form.Control.Feedback type="invalid">
                 Esse campo é necessario!
@@ -451,19 +472,19 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
 
             <Form.Group as={Col} controlId="formGridAddress1">
               <Form.Label>Dentista *</Form.Label>
-                <Select
-                  isClearable={true}
-                  value={dentista}
-                  placeholder="Selecione o dentista..."
-                  options={dentists.map(item => ({
-                    value: item.id,
-                    label: `${item.firstName} ${item.lastName}`
-                  }))}
-                  onChange={(value) => {
-                    console.log(value)
-                    handlerMudancaDentista(value)
-                  }}
-                />
+              <Select
+                isClearable={true}
+                value={dentista}
+                placeholder="Selecione o dentista..."
+                options={dentists.map(item => ({
+                  value: item.id,
+                  label: `${item.firstName} ${item.lastName}`
+                }))}
+                onChange={(value) => {
+                  console.log(value)
+                  handlerMudancaDentista(value)
+                }}
+              />
             </Form.Group>
 
             {/* INSERE A DATA */}
@@ -544,7 +565,7 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
                         <div className="total">
                           <p className="texto">
                             {console.log(row)}
-                            {conversorMonetario(row.valorTotal)}
+                            {convertMoney(row.valorTotal)}
                           </p>
 
                           <div className="acoes">
@@ -587,7 +608,7 @@ export function AdicionarOrcamentoPage({ orcamento, alterar }) {
                 </div>
 
                 <div className="text-right">
-                  <h2>Total : {conversorMonetario(getTotalProcedimentos())}</h2>
+                  <h2>Total : {convertMoney(getTotalProcedimentos())}</h2>
                 </div>
                 <div className="text-right">
                   {(() => {

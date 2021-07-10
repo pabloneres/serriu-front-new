@@ -5,7 +5,7 @@ export const REGISTER_URL = "/register";
 export const REQUEST_PASSWORD_URL = "/password/forgot";
 export const RESET_PASSWORD_URL = "/password/reset";
 
-export const ME_URL = "/users/profile";
+export const ME_URL = "/profile";
 
 let token = undefined
 

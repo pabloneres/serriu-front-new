@@ -1,32 +1,33 @@
+import moment from "moment";
+import "moment/locale/pt-br";
+import local from "antd/es/date-picker/locale/pt_BR";
+moment.locale("pt-br");
 
+export function convertMoney(value) {
+  if (!value) {
+    return Number(0).toLocaleString("pt-br", {
+      style: "currency",
+      currency: "BRL",
+    });
+  }
+  return Number(value).toLocaleString("pt-br", {
+    style: "currency",
+    currency: "BRL",
+  });
+};
 
+export function convertDate(data) {
+  return moment(data).format("L") + " - " + moment(data).format("LT");
+};
 
-export function conversorMonetario(number){
+export function currencyToInt(value) {
+  value = value.replace(/[^0-9]+/g, "");
+  value = value.slice(0, -2) + "." + value.slice(-2);
 
-    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(number)
-
+  return value;
 }
 
-export function formatDate(date) {
-    if(date !== undefined)
-    {
-        var d = new Date(date);
-    }
-    else
-    {
-        var d = new Date();
-    }
-    
-    var month = '' + (d.getMonth() + 1),
-        day = '' + d.getDate(),
-        year = d.getFullYear();
-
-    
-
-    if (month.length < 2) 
-        month = '0' + month;
-    if (day.length < 2) 
-        day = '0' + day;
-
-    return [year, month, day].join('-');
+export function upperFirst(value) {
+  let newValue = value[0].toUpperCase() + value.substr(1)
+  return newValue;
 }

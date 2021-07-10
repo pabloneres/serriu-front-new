@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { store } from "~/controllers/controller";
+import { store, index } from "~/controllers/controller";
 import { useSelector } from "react-redux";
 import { Checkbox } from 'antd'
 import {
@@ -31,6 +31,7 @@ function AdicionarUsuario() {
   const [acessos, setAcessos] = useState([]);
   const [current, setCurrent] = useState(0);
   const [cargo, setCargo] = useState();
+  const [cargos, setCargos] = useState([]);
   const [ufs, setUfs] = useState([]);
 
   const { Step } = StepsContainer;
@@ -59,10 +60,22 @@ function AdicionarUsuario() {
       .catch(() => {
         return;
       });
-  }, []);
+
+    index(token, '/department').then(({ data }) => {
+      setCargos(data.map(item => ({
+        ...item,
+        label: item.name,
+        value: item.id
+      })
+      ))
+    }).catch(() => {
+      return;
+    });
+  }, [token]);
 
   const initialDados = {
     username: "",
+    code: "",
     password: "",
     cargo: "",
   };
@@ -91,6 +104,13 @@ function AdicionarUsuario() {
       label: "Usuário",
       placeholder: "Digite um Usuário",
     },
+    code: {
+      name: "code",
+      type: "text",
+      rules: [{ required: true, message: "Campo Obrigatorio!" }],
+      label: "Senha financeira",
+      placeholder: "Digite um código para desconto",
+    },
     password: {
       name: "password",
       type: "password",
@@ -102,24 +122,7 @@ function AdicionarUsuario() {
       name: "cargo",
       rules: [{ required: true, message: "Campo Obrigatorio!" }],
       label: "Cargo",
-      options: [
-        {
-          label: "Dentista",
-          value: "dentista",
-        },
-        {
-          label: "Recepcionista",
-          value: "recepcionista",
-        },
-        {
-          label: "Gerente",
-          value: "gerente",
-        },
-        {
-          label: "Administrador",
-          value: "administrador",
-        },
-      ],
+      options: cargos
     }
   };
 
@@ -326,7 +329,7 @@ function AdicionarUsuario() {
       ...formPerfil,
       acessos,
     })
-    .then((_) => {
+      .then((_) => {
         dadosForm.resetFields();
         perfilForm.resetFields();
         acessoForm.resetFields();
@@ -355,6 +358,7 @@ function AdicionarUsuario() {
             initialValues={initialDados}
             onFinish={(data) => {
               setCurrent(current + 1);
+              console.log(data)
               setFormDado(data)
             }}
           >
@@ -364,25 +368,30 @@ function AdicionarUsuario() {
                 Dados do Usuário
               </Title> */}
               </SectionTitle>
-                <RowForm columns={3}>
-                  <Item {...propsFormDados.cargo}>
-                    <SelectForm
-                      onChange={(e) => {
-                        setCargo(e);
-                      }}
-                      {...propsFormDados.cargo}
-                    />
-                  </Item>
-                  <Item {...propsFormDados.username}>
-                    <InputForm {...propsFormDados.username} />
-                  </Item>
-                  <Item {...propsFormDados.password}>
-                    <InputForm {...propsFormDados.password} />
-                  </Item>
-                </RowForm>
+              <RowForm columns={3}>
+                <Item {...propsFormDados.cargo}>
+                  <SelectForm
+                    onChange={(e) => {
+                      setCargo(e);
+                    }}
+                    {...propsFormDados.cargo}
+                  />
+                </Item>
+                <Item {...propsFormDados.username}>
+                  <InputForm {...propsFormDados.username} />
+                </Item>
+                <Item {...propsFormDados.password}>
+                  <InputForm {...propsFormDados.password} />
+                </Item>
+              </RowForm>
+              <RowForm columns={3}>
+                <Item {...propsFormDados.code}>
+                  <InputForm {...propsFormDados.code} />
+                </Item>
+              </RowForm>
               <ButtonContainer>
                 <FormButton
-                  type="primary"            
+                  type="primary"
                   htmlType="submit"
                 >
                   Próximo
@@ -491,7 +500,7 @@ function AdicionarUsuario() {
                 Voltar
               </FormButton>
               <FormButton
-                type="primary"               
+                type="primary"
                 htmlType="submit"
               >
                 Próximo
@@ -502,25 +511,25 @@ function AdicionarUsuario() {
           ""
         )}
 
-        { current === 2 ? 
+        {current === 2 ?
           <Formulario
             layout="vertical"
             form={acessoForm}
           >
             <SectionForm>
               <SectionTitle>
-                  {/* <Title>
+                {/* <Title>
                 Perfil
               </Title> */}
               </SectionTitle>
               <RowForm>
                 {
                   formDado.cargo === "administrador" ?
-                  <Title>o cargo ADMINISTRADOR tem acesso a todas as clinicas!</Title>
-                  : 
-                  <Item {...propsFormAcesso.acesso}>
-                    <Checkbox.Group {...propsFormAcesso.acesso} value={acessos} onChange={(e) => setAcessos(e)} />
-                  </Item>
+                    <Title>o cargo ADMINISTRADOR tem acesso a todas as clinicas!</Title>
+                    :
+                    <Item {...propsFormAcesso.acesso}>
+                      <Checkbox.Group {...propsFormAcesso.acesso} value={acessos} onChange={(e) => setAcessos(e)} />
+                    </Item>
                 }
               </RowForm>
             </SectionForm>
@@ -535,14 +544,14 @@ function AdicionarUsuario() {
               </FormButton>
               <FormButton
                 type="primary"
-                onClick={() => {handleFinish()}}
+                onClick={() => { handleFinish() }}
                 htmlType="submit"
               >
                 Enviar
               </FormButton>
             </ButtonContainer>
           </Formulario>
-        : ''}
+          : ''}
       </CardContainer>
     </Container>
   );

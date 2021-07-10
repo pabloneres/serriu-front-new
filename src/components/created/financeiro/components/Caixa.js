@@ -36,13 +36,13 @@ export function Caixa(props) {
 
   const [showModal, setShowModal] = useState(false);
 
-  useEffect(() => {
-    index(authToken, `/caixa/clinica`).then(
-      ({ data }) => {
-        setPagamentos(data);
-      }
-    );
-  }, [reload]);
+  // useEffect(() => {
+  //   index(authToken, `/caixa/clinica`).then(
+  //     ({ data }) => {
+  //       setPagamentos(data);
+  //     }
+  //   );
+  // }, [reload]);
 
   if (!pagamentos) {
     return <></>;

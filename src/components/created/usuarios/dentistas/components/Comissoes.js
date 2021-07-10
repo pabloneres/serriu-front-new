@@ -150,7 +150,7 @@ export function Comissoes(props) {
     }
   }
 
-  const returnDate = (date) => {
+  const convertDate = (date) => {
     return moment(date).format('DD/MM/YYYY') + ' ás ' + moment(date).format('HH:mm')
   }
 
@@ -203,7 +203,7 @@ export function Comissoes(props) {
     {
       title: "Data de Aprovação",
       dataIndex: "updated_at",
-      render: data => <span>{returnDate(data)}</span>
+      render: data => <span>{convertDate(data)}</span>
     },
     {
       title: "Valor Total",
@@ -238,7 +238,7 @@ export function Comissoes(props) {
     {
       title: "Data de Execução",
       dataIndex: "updated_at",
-      render: data => <span>{returnDate(data)}</span>
+      render: data => <span>{convertDate(data)}</span>
     },
     {
       title: "Valor Procedimento",
@@ -267,7 +267,7 @@ export function Comissoes(props) {
     {
       dataIndex: "executado_em",
       title: "Data de execução",
-      render: data => <span>{returnDate(data)}</span>
+      render: data => <span>{convertDate(data)}</span>
     },
     {
       dataIndex: "status_comissao",
@@ -379,7 +379,7 @@ export function Comissoes(props) {
                   Executado em
                 </td>
                 <td>
-                  {returnDate(comissaoDetails.executado_em)}
+                  {convertDate(comissaoDetails.executado_em)}
                 </td>
               </tr>
               <tr>

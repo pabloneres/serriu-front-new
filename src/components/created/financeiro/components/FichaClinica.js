@@ -7,7 +7,7 @@ import { useHistory, Redirect, useRouteMatch } from "react-router-dom";
 import { indexAprovados, updateAprovado, indexExecutados } from '~/controllers/orcamentoController';
 import { useSelector } from "react-redux";
 
-import { conversorMonetario, formatDate } from '~/modules/Util';
+import { convertMoney, convertDate } from '~/modules/Util';
 
 
 export function FichaClinica() {
@@ -18,7 +18,7 @@ export function FichaClinica() {
   const [reload, setReload] = useState(false)
   const [modalExecutar, setModalExecutar] = useState(false);
   const [modalData, setModalData] = useState();
-  const [data, setData] = useState(formatDate())
+  const [data, setData] = useState(convertDate())
 
   let erro = []
 
@@ -257,7 +257,7 @@ export function FichaClinica() {
                         <Row>
                         <Col xs={2}>{orcamento.criado_em}</Col>
                         <Col>Profissional: {orcamento.dentistas.name}</Col>
-                        <Col>Valor: {conversorMonetario(orcamento.total)}</Col>
+                        <Col>Valor: {convertMoney(orcamento.total)}</Col>
                         <Col >Status: {orcamento.aprovado === 1 ? <span style={{color: 'green'}}>Aprovado</span> : orcamento.aprovado === 2 ? 'Em andamento' : orcamento.aprovado === 3 ? 'Executado' : 'Em aberto'}</Col>
                       </Row>
                     </Container>
@@ -280,7 +280,7 @@ export function FichaClinica() {
                             )): 'Geral'}
                         </Col>
                         <Col>Profissional: {orcamento.dentistas.name} </Col>
-                        <Col>Valor: {conversorMonetario(dente.valor)} </Col>
+                        <Col>Valor: {convertMoney(dente.valor)} </Col>
                         <Col><Button onClick={(e) => executarProcedimento(e, orcamento, dente)}>Executar</Button> </Col>
                         </Row>
                     ))}

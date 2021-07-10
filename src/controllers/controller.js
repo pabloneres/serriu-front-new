@@ -64,7 +64,7 @@ export function auth(data) {
 
 export async function profile(token) {
   // Authorization head should be fulfilled in interceptor.
-  return api.get('/users/profile', {
+  return api.get('/profile', {
     headers: {
       Authorization: 'Bearer ' + token
     }

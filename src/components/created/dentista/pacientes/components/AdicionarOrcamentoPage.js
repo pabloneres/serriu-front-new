@@ -32,7 +32,7 @@ import {
   getProcedimentos,
 } from "~/controllers/orcamentoController";
 import { index as indexAll } from "~/controllers/controller";
-import { conversorMonetario, formatDate } from "~/modules/Util";
+import { convertMoney, convertDate } from "~/modules/Util";
 
 //COMPONENTES
 import ProcedimentoGeral from "./components/formularios/procedimentoGeral";
@@ -427,7 +427,7 @@ function AdicionarOrcamentoPage({ orcamento, alterar }) {
                         type="text"
                         name="valorEntrada"
                         disabled
-                        value={conversorMonetario(
+                        value={convertMoney(
                           getTotalProcedimentos()
                         )}
                       />
@@ -456,7 +456,7 @@ function AdicionarOrcamentoPage({ orcamento, alterar }) {
                               >
                                 {" "}
                                 {row + 1} X{" "}
-                                {conversorMonetario( (getTotalProcedimentos() - entrada) / (row + 1) )}
+                                {convertMoney( (getTotalProcedimentos() - entrada) / (row + 1) )}
                               </option>
                             );
                           }))()}
@@ -576,7 +576,7 @@ function AdicionarOrcamentoPage({ orcamento, alterar }) {
                         </div>
                         <div className="total">
                           <p className="texto">
-                            {conversorMonetario(row.valorTotal)}
+                            {convertMoney(row.valorTotal)}
                           </p>
 
                           <div className="acoes">
@@ -619,7 +619,7 @@ function AdicionarOrcamentoPage({ orcamento, alterar }) {
                 </div>
 
                 <div className="text-right">
-                  <h2>Total : {conversorMonetario(getTotalProcedimentos())}</h2>
+                  <h2>Total : {convertMoney(getTotalProcedimentos())}</h2>
                 </div>
                 <div className="text-right">
                   {(() => {

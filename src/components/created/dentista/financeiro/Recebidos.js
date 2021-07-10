@@ -115,7 +115,7 @@ function Recebidos(props) {
     }
   }
 
-  const returnDate = (date) => {
+  const convertDate = (date) => {
     return moment(date).format('LLLL')
   }
 
@@ -125,7 +125,7 @@ function Recebidos(props) {
       text: "Data",
       sort: true,
       sortCaret: sortCaret,
-      formatter: returnDate,
+      formatter: convertDate,
     },
     {
       dataField: "tipo",
@@ -155,7 +155,7 @@ function Recebidos(props) {
       text: "Data de execução",
       sort: true,
       sortCaret: sortCaret,
-      formatter: returnDate
+      formatter: convertDate
     },
     {
       dataField: "status_comissao",

@@ -21,8 +21,8 @@ import { store, auth, profile } from '~/controllers/controller'
 */
 
 const initialValues = {
-  username: "pablo",
-  password: "pablo@#$",
+  username: "",
+  password: ""
 };
 
 function Login(props) {
@@ -139,6 +139,7 @@ function Login(props) {
 
         <div className="form-group fv-plugins-icon-container">
           <input
+            autoComplete={false}
             placeholder="Usúario"
             type="text"
             className={`form-control form-control-solid h-auto py-5 px-6 ${getInputClasses(
@@ -155,6 +156,7 @@ function Login(props) {
         </div>
         <div className="form-group fv-plugins-icon-container">
           <input
+            autoComplete={false}
             placeholder="Password"
             type="password"
             className={`form-control form-control-solid h-auto py-5 px-6 ${getInputClasses(
